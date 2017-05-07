@@ -56,7 +56,7 @@ public class LoginController {
 
 	@RequestMapping(value = { "/", "/welcome" }, method = RequestMethod.GET)
 	public String welcome(Model model) {
-		return "index";
+		return "blank";
 	}
 
 	@RequestMapping(value = "/registration", method = RequestMethod.POST)
