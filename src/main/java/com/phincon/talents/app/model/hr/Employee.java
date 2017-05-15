@@ -15,6 +15,8 @@ import com.phincon.talents.app.model.AbstractEntity;
 @Table(name="hr_employee")
 public class Employee extends AbstractEntity {
 	
+	public final static String STATUS_PENDING = "pending"; 
+	
 	@Column(name="age", length=5)
 	private String age;
 	
@@ -454,6 +456,16 @@ public class Employee extends AbstractEntity {
 	@Column(name="work_interest")
 	private String workInterest;
 	
+	@Column(name="change_marital_status", length=50)
+	private String changeMaritalStatus;
+
+	
+	@Column(name="marital_status_dataapproval_id")
+	private Long maritalStatusDataApproval;
+	
+	
+	@Column(name="need_sync")
+	private Boolean needSync;
 	
 	// transient
 	@Transient
@@ -1304,6 +1316,35 @@ public class Employee extends AbstractEntity {
 
 	public void setAssignment(VwEmpAssignment assignment) {
 		this.assignment = assignment;
+	}
+	
+	
+
+	public String getChangeMaritalStatus() {
+		return changeMaritalStatus;
+	}
+
+	public void setChangeMaritalStatus(String changeMaritalStatus) {
+		this.changeMaritalStatus = changeMaritalStatus;
+	}
+
+
+	
+
+	public Boolean getNeedSync() {
+		return needSync;
+	}
+
+	public void setNeedSync(Boolean needSync) {
+		this.needSync = needSync;
+	}
+
+	public Long getMaritalStatusDataApproval() {
+		return maritalStatusDataApproval;
+	}
+
+	public void setMaritalStatusDataApproval(Long maritalStatusDataApproval) {
+		this.maritalStatusDataApproval = maritalStatusDataApproval;
 	}
 
 	@Override

@@ -11,8 +11,8 @@ import javax.persistence.TemporalType;
 import com.phincon.talents.app.model.AbstractEntity;
 
 @Entity
-@Table(name = "hr_family")
-public class Family extends AbstractEntity {
+@Table(name = "hr_family_temp")
+public class FamilyTemp extends AbstractEntity {
 
 	public final static String PENDING = "pending";
 	public final static String APPROVED = "approved";
@@ -30,9 +30,6 @@ public class Family extends AbstractEntity {
 	
 	@Column(name = "company_id")
 	private Long company;
-	
-	@Column(name = "family_temp_id")
-	private Long familyTemp;
 
 	
 	@Column(name = "address", length = 1000)
@@ -262,16 +259,6 @@ public class Family extends AbstractEntity {
 	public void setEmployeeExtId(String employeeExtId) {
 		this.employeeExtId = employeeExtId;
 	}
-
-	public Long getFamilyTemp() {
-		return familyTemp;
-	}
-
-	public void setFamilyTemp(Long familyTemp) {
-		this.familyTemp = familyTemp;
-	}
-	
-	
 	
 	
 	

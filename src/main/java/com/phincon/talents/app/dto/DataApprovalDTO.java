@@ -1,9 +1,17 @@
 package com.phincon.talents.app.dto;
 
+import java.util.List;
+import java.util.Map;
+
 public class DataApprovalDTO {
 	private String task;
 	private String data;
+	private String objectName;
+	private String description;
 	private Long idRef;
+	private List<Map<String, Object>> attachments;
+	
+	
 
 	public String getTask() {
 		return task;
@@ -28,5 +36,33 @@ public class DataApprovalDTO {
 	public void setIdRef(Long idRef) {
 		this.idRef = idRef;
 	}
+
+	public List<Map<String, Object>> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<Map<String, Object>> attachments) {
+		this.attachments = attachments;
+	}
+
+	public String getObjectName() {
+		return objectName;
+	}
+
+	public void setObjectName(String objectName) {
+		this.objectName = objectName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+	
+	
 
 }

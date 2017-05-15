@@ -20,6 +20,12 @@ public class VwEmpAssignment  {
 	
 	@Column(name = "middle_name", length = 255)
 	private String middleName;
+	
+	@Column(name = "position_name", length = 255)
+	private String positionName;
+	
+	@Column(name = "organization_name", length = 255)
+	private String organizationName;
 
 	@Column(name = "last_name", length = 100)
 	private String lastName;
@@ -219,6 +225,24 @@ public class VwEmpAssignment  {
 	public void setDirectLastName(String directLastName) {
 		this.directLastName = directLastName;
 	}
+
+	public String getPositionName() {
+		return positionName;
+	}
+
+	public void setPositionName(String positionName) {
+		this.positionName = positionName;
+	}
+
+	public String getOrganizationName() {
+		return organizationName;
+	}
+
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
+	}
+	
+	
 	
 	
 	

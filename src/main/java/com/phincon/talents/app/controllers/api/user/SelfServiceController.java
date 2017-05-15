@@ -2,7 +2,6 @@ package com.phincon.talents.app.controllers.api.user;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.dao.UserRepository;
-import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
 import com.phincon.talents.app.dto.AttendanceDTO;
-import com.phincon.talents.app.dto.DataApprovalDTO;
-import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
-import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Attendance;
 import com.phincon.talents.app.services.AttendanceService;
 import com.phincon.talents.app.services.DataApprovalService;
@@ -52,6 +47,8 @@ public class SelfServiceController {
 
 	@Autowired
 	DataApprovalService dataApprovalService;
+	
+	
 
 	@RequestMapping(value = "/user/self/attendance", method = RequestMethod.POST)
 	@ResponseBody
@@ -121,63 +118,6 @@ public class SelfServiceController {
 		}
 
 		return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
-
-	}
-
-	@RequestMapping(value = "/user/workflow/dataapproval", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<CustomMessage> submitDataApproval(
-			@RequestBody DataApprovalDTO request,
-			OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-		
-		// get workflow record with task name
-		String taskName = request.getTask();
-		Workflow workflow = workflowService.findByCodeAndCompany(taskName,
-				user.getCompany());
-		if (workflow == null) {
-			throw new RuntimeException("Error : Your workflow activity is Not Registered.");
-		}
-		
-		dataApprovalService.save(request, user, workflow);
-
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Submit Activity successfully. Please waiting approval", false), HttpStatus.OK);
-
-	}
-	
-	@RequestMapping(value = "/user/workflow/needapproval", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<List<DataApproval>> listDataApproval(
-			OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-		
-		// get workflow record with task name
-		String strEmployee = "#" + user.getEmployee() + "#";
-		List<DataApproval> listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany());
-		return new ResponseEntity<List<DataApproval>>(listDataApproval, HttpStatus.OK);
-
-	}
-	
-	
-	@RequestMapping(value = "/user/workflow/actionapproval", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<CustomMessage> actionApproval(
-			@RequestBody ApprovalWorkflowDTO request,
-			OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-		
-		
-		dataApprovalService.approval(request, user);
-		
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Your Approval is successfully", false), HttpStatus.OK);
 
 	}
 

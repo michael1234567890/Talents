@@ -11,6 +11,10 @@ public interface WorkflowRepository extends PagingAndSortingRepository<Workflow,
 	
 	 @Query
 	 Workflow findByCodeAndCompany(String code, Long company);
+
+	 @Query
+	Workflow findByCodeAndCompanyAndActive(String code, Long company,
+			Boolean active);
 	 
 	
 	

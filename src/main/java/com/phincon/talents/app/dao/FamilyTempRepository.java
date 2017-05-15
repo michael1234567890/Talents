@@ -9,22 +9,19 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.phincon.talents.app.model.hr.Family;
+import com.phincon.talents.app.model.hr.FamilyTemp;
 
 @Repository
-public interface FamilyRepository extends PagingAndSortingRepository<Family,Long>{
-	@Query("select p from Family p where UPPER(p.name) like UPPER(?1) or " +
+public interface FamilyTempRepository extends PagingAndSortingRepository<FamilyTemp,Long>{
+	@Query("select p from FamilyTemp p where UPPER(p.name) like UPPER(?1) or " +
             "UPPER(p.name) like UPPER(?1)")
     List search(String term);
 	
 	@Query
-	Iterable<Family> findByEmployee(Long employeeId);
+	Iterable<FamilyTemp> findByEmployee(Long employeeId);
 	
 	 @Modifying
-	 @Query("UPDATE Family set status='"+Family.APPROVED+"', needSync=true where id=:familyId")
+	 @Query("UPDATE FamilyTemp set status='"+Family.APPROVED+"', needSync=true where id=:familyId")
 	 void approvedSubmitFamily(@Param("familyId") Long familyId);
-	 
-	 @Modifying
-	 @Query("UPDATE Family set status='"+Family.APPROVED+"', needSync=true, familyTemp=null where id=:familyId")
-	 void approvedChangeFamily(@Param("familyId") Long familyId);
 	 
 }

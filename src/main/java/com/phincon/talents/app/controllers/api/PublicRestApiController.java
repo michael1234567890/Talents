@@ -69,6 +69,8 @@ public class PublicRestApiController {
     	userInfo.setFirstName(employee.getFirstName());
     	userInfo.setLastName(employee.getLastName());
     	userInfo.setCompany(company.getId());
+    	userInfo.setEmployeeExtId(employee.getExtId());
+    	
     	userService.createUser(userInfo);
     	
     	return new ResponseEntity<CustomMessage>(new CustomMessage("Registration Successfully. Please Check your email", false), HttpStatus.OK);

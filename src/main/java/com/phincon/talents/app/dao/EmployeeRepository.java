@@ -24,9 +24,18 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 List<Employee> findByIdIn(List<Long> ids);
 	 
 	 @Modifying
-	 @Query("UPDATE Employee set maritalStatus=:maritalStatus where id=:employeeId")
-	 void updateMaritalStatus(@Param("employeeId") Long employeeId, @Param("maritalStatus") String maritalStatus);
+	 @Query("UPDATE Employee set maritalStatus=:maritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval,changeMaritalStatus=:changeMaritalStatus, needSync=:needSync where id=:employeeId")
+	 void updateMaritalStatus(@Param("employeeId") Long employeeId, @Param("maritalStatus") String maritalStatus,@Param("maritalStatusDataApproval") Long maritalStatusDataApproval,@Param("changeMaritalStatus") String changeMaritalStatus,@Param("needSync") Boolean needSync);
 	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee  set maritalStatusDataApproval=null,changeMaritalStatus=null, needSync=false where id=:employeeId")
+	 void rejectedMaritalStatus(@Param("employeeId") Long employeeId);
+	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set  changeMaritalStatus=:changeMaritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval where id=:employeeId")
+	 void requestMaritalStatus(@Param("changeMaritalStatus") String changeMaritalStatus, @Param("maritalStatusDataApproval") Long maritalStatusDataApproval, @Param("employeeId") Long employeeId);
 	 
 	
 }

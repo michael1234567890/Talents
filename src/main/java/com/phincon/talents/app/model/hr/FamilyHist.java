@@ -11,8 +11,8 @@ import javax.persistence.TemporalType;
 import com.phincon.talents.app.model.AbstractEntity;
 
 @Entity
-@Table(name = "hr_family")
-public class Family extends AbstractEntity {
+@Table(name = "hr_family_hist")
+public class FamilyHist extends AbstractEntity {
 
 	public final static String PENDING = "pending";
 	public final static String APPROVED = "approved";
@@ -24,17 +24,10 @@ public class Family extends AbstractEntity {
 	 * Child Order Child_Order__c Text(20) Employee Family Company Group
 	 * Employee_Family_Company_Group__c Lookup(Company)
 	 */
+	
+	@Column(name = "family_id_ref")
+	private Long familyIdRef;
 
-	@Column(name = "employee_ext_id", length=100)
-	private String employeeExtId;
-	
-	@Column(name = "company_id")
-	private Long company;
-	
-	@Column(name = "family_temp_id")
-	private Long familyTemp;
-
-	
 	@Column(name = "address", length = 1000)
 	private String address;
 
@@ -247,31 +240,13 @@ public class Family extends AbstractEntity {
 		this.needSync = needSync;
 	}
 
-	public Long getCompany() {
-		return company;
+	public Long getFamilyIdRef() {
+		return familyIdRef;
 	}
 
-	public void setCompany(Long company) {
-		this.company = company;
+	public void setFamilyIdRef(Long familyIdRef) {
+		this.familyIdRef = familyIdRef;
 	}
-
-	public String getEmployeeExtId() {
-		return employeeExtId;
-	}
-
-	public void setEmployeeExtId(String employeeExtId) {
-		this.employeeExtId = employeeExtId;
-	}
-
-	public Long getFamilyTemp() {
-		return familyTemp;
-	}
-
-	public void setFamilyTemp(Long familyTemp) {
-		this.familyTemp = familyTemp;
-	}
-	
-	
 	
 	
 	

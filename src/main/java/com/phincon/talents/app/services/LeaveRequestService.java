@@ -56,4 +56,9 @@ public class LeaveRequestService {
 
 	}
 
+	public void rejected(DataApproval dataApproval, String rejected) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

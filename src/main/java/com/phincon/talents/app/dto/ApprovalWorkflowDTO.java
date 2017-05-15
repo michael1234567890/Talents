@@ -4,6 +4,7 @@ public class ApprovalWorkflowDTO {
 	
 	private Long id;
 	private String status;
+	private String reasonReject;
 
 	public Long getId() {
 		return id;
@@ -20,5 +21,15 @@ public class ApprovalWorkflowDTO {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public String getReasonReject() {
+		return reasonReject;
+	}
+
+	public void setReasonReject(String reasonReject) {
+		this.reasonReject = reasonReject;
+	}
+	
+	
 
 }

@@ -18,6 +18,11 @@ public class Workflow extends AbstractEntity {
 	public final static String CHANGE_MARITAL_STATUS = "CHANGEMARITALSTATUS";
 	
 	public final static String SUBMIT_LEAVE = "SUBMITLEAVE";
+	public final static String SUBMIT_FAMILY = "SUBMITFAMILY";
+	public final static String SUBMIT_ADDRESS = "SUBMITADDRESS";
+
+	public final static String CHANGE_FAMILY = "CHANGEFAMILY";
+	public final static String CHANGE_ADDRESS = "CHANGEADDRESS";
 	
 //	@ManyToOne(fetch = FetchType.LAZY)
 //	@JoinColumn(name = "company_id")
@@ -53,6 +58,8 @@ public class Workflow extends AbstractEntity {
 	@Column(name = "approval_code_level_three", length = 255)
 	private String approvalCodeLevelThree;
 	
+	@Column(name = "active")
+	private Boolean active = true;
 	
 	
 
@@ -134,6 +141,14 @@ public class Workflow extends AbstractEntity {
 
 	public void setOperation(String operation) {
 		this.operation = operation;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 	

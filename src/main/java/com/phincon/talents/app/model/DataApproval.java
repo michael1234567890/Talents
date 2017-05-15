@@ -1,6 +1,7 @@
 package com.phincon.talents.app.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,7 +19,13 @@ public class DataApproval extends AbstractEntity {
 	public final static String DIRECT = "direct";
 	public final static String APPROVED = "approved";
 	public final static String REJECTED = "rejected";
+	public final static String CANCELLED = "cancelled";
 	
+	public final static String PROC_STATUS_REQUEST = "Request";
+	public final static String PROC_STATUS_WAITING = "Waiting";
+	public final static String PROC_STATUS_REJECT = "Reject";
+	public final static String PROC_STATUS_APPROVE = "Approve";
+	public final static String PROC_STATUS_CANCEL = "Cancel";
 	// task
 	
 	
@@ -39,7 +46,7 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "object_ref_id")
 	private Long objectRef;
 
-	@Column(name = "object_name", length = 30)
+	@Column(name = "object_name", length = 100)
 	private String objectName;
 
 	@Column(name = "data", length = 500)
@@ -48,6 +55,9 @@ public class DataApproval extends AbstractEntity {
 	
 	@Column(name = "status", length = 30)
 	private String status;
+	
+	@Column(name = "processing_status", length = 30)
+	private String processingStatus;
 
 	@Column(name = "description", length = 255)
 	private String description;
@@ -76,6 +86,12 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "current_assign_approval", length = 255)
 	private String currentAssignApproval;
 	
+	@Column(name = "rejected_by", length = 100)
+	private String rejectedBy;
+	
+	@Column(name = "reason_reject", length = 100)
+	private String reasonReject;
+	
 
 	@Column(name = "current_approval_level")
 	private Integer currentApprovalLevel;
@@ -85,6 +101,13 @@ public class DataApproval extends AbstractEntity {
 	
 	@Transient
 	private Employee employeeRequest;
+	
+
+	@Transient
+	private List<AttachmentDataApproval> attachments;
+	
+	
+	
 	
 	@Transient
 	private Object ref;
@@ -247,6 +270,43 @@ public class DataApproval extends AbstractEntity {
 
 	public void setRef(Object ref) {
 		this.ref = ref;
+	}
+	
+	
+
+
+	public String getProcessingStatus() {
+		return processingStatus;
+	}
+
+	public void setProcessingStatus(String processingStatus) {
+		this.processingStatus = processingStatus;
+	}
+
+	public List<AttachmentDataApproval> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<AttachmentDataApproval> attachments) {
+		this.attachments = attachments;
+	}
+
+	
+	
+	public String getRejectedBy() {
+		return rejectedBy;
+	}
+
+	public void setRejectedBy(String rejectedBy) {
+		this.rejectedBy = rejectedBy;
+	}
+
+	public String getReasonReject() {
+		return reasonReject;
+	}
+
+	public void setReasonReject(String reasonReject) {
+		this.reasonReject = reasonReject;
 	}
 
 	@Override

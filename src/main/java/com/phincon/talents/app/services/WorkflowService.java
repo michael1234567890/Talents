@@ -41,8 +41,8 @@ public class WorkflowService {
 	}
 
 	@Transactional
-	public Workflow findByCodeAndCompany(String code, Long company) {
-		return dataApprovalRepository.findByCodeAndCompany(code, company);
+	public Workflow findByCodeAndCompanyAndActive(String code, Long company,Boolean active) {
+		return dataApprovalRepository.findByCodeAndCompanyAndActive(code, company,active);
 	}
 
 	@Transactional

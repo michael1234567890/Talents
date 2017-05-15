@@ -1,8 +1,11 @@
 package com.phincon.talents.app.dto;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class FamilyDTO {
+	private Long id;
 	private String name;
 	private String relationship;
 	private String birthPlace;
@@ -14,7 +17,17 @@ public class FamilyDTO {
 	private String address;
 	private String occupation;
 	private String maritalStatus;
+	private List<Map<String,Object>> attachments;
 	
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -102,6 +115,16 @@ public class FamilyDTO {
 	public void setMaritalStatus(String maritalStatus) {
 		this.maritalStatus = maritalStatus;
 	}
+
+	public List<Map<String, Object>> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<Map<String, Object>> attachments) {
+		this.attachments = attachments;
+	}
+	
+	
 	
 	
 

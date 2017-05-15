@@ -13,11 +13,14 @@ import com.phincon.talents.app.model.DataApproval;
 public interface DataApprovalRepository extends PagingAndSortingRepository<DataApproval,Long>{
 	
 	 @Query
-	 List<DataApproval> findByEmpRequestAndTaskAndActive(Long employee,String task, boolean active);
+	 List<DataApproval> findByEmpRequestAndTaskAndActiveAndStatus(Long employee,String task, boolean active, String status);
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company")
 	 List<DataApproval> findNeedApproval(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company);
-	    
+	 
+	 @Query
+	 List<DataApproval> findByEmpRequest(Long employee);
+	 
 
 	
 	

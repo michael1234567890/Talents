@@ -9,11 +9,23 @@ public class UserInfoDTO {
 	private String email;
 	private String firstName;
 	private String lastName;
+	private String employeeExtId;
 	private Long employeeId;
 
 	public UserInfoDTO() {
 
 	}
+
+	
+	public String getEmployeeExtId() {
+		return employeeExtId;
+	}
+
+
+	public void setEmployeeExtId(String employeeExtId) {
+		this.employeeExtId = employeeExtId;
+	}
+
 
 	public String getUsername() {
 		return username;

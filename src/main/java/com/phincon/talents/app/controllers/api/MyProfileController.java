@@ -3,7 +3,9 @@ package com.phincon.talents.app.controllers.api;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,12 @@ import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.AddressDTO;
 import com.phincon.talents.app.dto.CertificationDTO;
+import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
+import com.phincon.talents.app.model.AttachmentDataApproval;
 import com.phincon.talents.app.model.User;
+import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.Certification;
 import com.phincon.talents.app.model.hr.Employee;
@@ -28,11 +33,14 @@ import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.services.AddressService;
 import com.phincon.talents.app.services.CertificationService;
+import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.EmployeeService;
 import com.phincon.talents.app.services.FamilyService;
 import com.phincon.talents.app.services.UserService;
 import com.phincon.talents.app.services.VwEmpAssignmentService;
+import com.phincon.talents.app.services.WorkflowService;
 import com.phincon.talents.app.utils.CustomMessage;
+import com.phincon.talents.app.utils.Utils;
 
 @RestController
 @RequestMapping("api")
@@ -43,6 +51,9 @@ public class MyProfileController {
 
 	@Autowired
 	FamilyService familyService;
+	
+	@Autowired
+	WorkflowService workflowService;
 
 	@Autowired
 	EmployeeService employeeService;
@@ -58,6 +69,10 @@ public class MyProfileController {
 
 	@Autowired
 	EmployeeRepository employeeRepository;
+	
+
+	@Autowired
+	DataApprovalService dataApprovalService;
 
 	@Autowired
 	VwEmpAssignmentService assignmentService;
@@ -182,6 +197,7 @@ public class MyProfileController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
 		Family family = new Family();
 		family.setAddress(request.getAddress());
 		family.setBirthPlace(request.getBirthPlace());
@@ -200,8 +216,30 @@ public class MyProfileController {
 		family.setModifiedDate(new Date());
 		family.setCreatedBy(authentication.getUserAuthentication().getName());
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
+		family.setCompany(user.getCompany());
+		family.setEmployeeExtId(user.getEmployeeExtId());
+		
+		// check this company have regulation approval to SUBMITFAMILY
+		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(Workflow.SUBMIT_FAMILY, user.getCompany(), true);
+		if(workflow != null) {
+			family.setStatus(Family.PENDING);
+			family.setNeedSync(false);
+		}else {
+			family.setNeedSync(true);
+		}
+		
 		familyService.save(family);
-
+		if(workflow != null){
+			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
+			dataApprovalDTO.setIdRef(family.getId());
+			dataApprovalDTO.setTask(Workflow.SUBMIT_FAMILY);
+			if(request.getAttachments() != null && request.getAttachments().size() > 0){
+				System.out.println("Attachment is not empty");
+				dataApprovalDTO.setAttachments(request.getAttachments());	
+			}
+			
+			dataApprovalService.save(dataApprovalDTO, user, workflow);
+		}
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Family has been Added successfully", false), HttpStatus.OK);
 	}
@@ -222,7 +260,7 @@ public class MyProfileController {
 		}
 
 		Employee employee = employeeRepository.findOne(user.getEmployee());
-		Iterable<Address> listAddress = addressService.findByEmployee(employee);
+		Iterable<Address> listAddress = addressService.findByEmployee(employee.getId());
 		return new ResponseEntity<Iterable<Address>>(listAddress, HttpStatus.OK);
 	}
 
@@ -245,7 +283,7 @@ public class MyProfileController {
 		address.setCountry(request.getCountry());
 		address.setRt(request.getRt());
 		address.setRw(request.getRw());
-		address.setEmployee(employee);
+		address.setEmployee(employee.getId());
 		address.setPhone(request.getPhone());
 		address.setResidence(request.getResidence());
 		address.setZipCode(request.getZipCode());
@@ -302,6 +340,7 @@ public class MyProfileController {
 		certification.setDate(request.getDate());
 		certification.setDescription(request.getDescription());
 		certification.setEmployee(employee);
+		certification.setEmployeeExtId(user.getEmployeeExtId());
 		certification.setExpired(request.getExpired());
 		certification.setFull(request.getFull());
 		certification.setName(request.getName());
@@ -315,6 +354,7 @@ public class MyProfileController {
 				.getName());
 		certification.setModifiedBy(authentication.getUserAuthentication()
 				.getName());
+		certification.setNeedSync(true);
 		certificationService.save(certification);
 
 		return new ResponseEntity<CustomMessage>(new CustomMessage(

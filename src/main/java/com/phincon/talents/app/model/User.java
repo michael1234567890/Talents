@@ -60,6 +60,9 @@ public class User extends AbstractEntity {
 	@Column(name = "employee_id")
 	private Long employee;
 	
+	@Column(name = "employee_ext_id")
+	private String employeeExtId;
+	
 	@Column(name = "company_id")
 	private Long company;
 	
@@ -194,6 +197,16 @@ public class User extends AbstractEntity {
 	public void setCompany(Long company) {
 		this.company = company;
 	}
+
+	public String getEmployeeExtId() {
+		return employeeExtId;
+	}
+
+	public void setEmployeeExtId(String employeeExtId) {
+		this.employeeExtId = employeeExtId;
+	}
+	
+	
 
 	
 }

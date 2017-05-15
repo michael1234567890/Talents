@@ -195,8 +195,8 @@ public class LeaveController {
 		
 		 // add to workflow
 		 String taskName = Workflow.SUBMIT_LEAVE;
-		 Workflow workflow = workflowService.findByCodeAndCompany(taskName,
-					user.getCompany());
+		 Workflow workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
+					user.getCompany(),true);
 		 if(workflow != null){
 			 DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
 			 dataApprovalDTO.setIdRef(leaveRequest.getId());

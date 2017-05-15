@@ -11,7 +11,7 @@ import com.phincon.talents.app.model.AbstractEntity;
 
 @Entity
 @Table(name="hr_address")
-public class Address extends AbstractEntity {
+public class AddressTemp extends AbstractEntity {
 	public final static String STATUS_PENDING = "pending";
 	public final static String STATUS_APPROVED = "approved";
 	
@@ -42,9 +42,6 @@ public class Address extends AbstractEntity {
 	
 	@Column(name="employee_id")
 	private Long employee;
-	
-	@Column(name="address_temp_id")
-	private Long addressTemp;
 	
 	@Column(name="phone", length=20)
 	private String phone;
@@ -226,16 +223,6 @@ public class Address extends AbstractEntity {
 	public void setNeedSync(Boolean needSync) {
 		this.needSync = needSync;
 	}
-
-	public Long getAddressTemp() {
-		return addressTemp;
-	}
-
-	public void setAddressTemp(Long addressTemp) {
-		this.addressTemp = addressTemp;
-	}
-	
-	
 	
 	
 	

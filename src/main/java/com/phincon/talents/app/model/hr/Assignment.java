@@ -4,9 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -20,9 +17,18 @@ public class Assignment extends AbstractEntity {
 	public static String MODEINDIRECT = "indirect";
 	public static String MODEOTHER = "other";
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "job_title")
-	private JobTitle jobTitle;
+	@Column(name="position_id")
+	private Long position;
+	
+	@Column(name="position_ext_id")
+	private String positionExtId;
+	
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "job_title")
+//	private JobTitle jobTitle;
+	
+	@Column(name = "job_title")
+	private Long jobTitle;
 
 	@Column(name = "employee_id")
 	private Long employee;
@@ -194,11 +200,11 @@ public class Assignment extends AbstractEntity {
 		this.company = company;
 	}
 
-	public JobTitle getJobTitle() {
+	public Long getJobTitle() {
 		return jobTitle;
 	}
 
-	public void setJobTitle(JobTitle jobTitle) {
+	public void setJobTitle(Long jobTitle) {
 		this.jobTitle = jobTitle;
 	}
 
@@ -232,6 +238,22 @@ public class Assignment extends AbstractEntity {
 
 	public void setEmployeeExtId(String employeeExtId) {
 		this.employeeExtId = employeeExtId;
+	}
+
+	public Long getPosition() {
+		return position;
+	}
+
+	public void setPosition(Long position) {
+		this.position = position;
+	}
+
+	public String getPositionExtId() {
+		return positionExtId;
+	}
+
+	public void setPositionExtId(String positionExtId) {
+		this.positionExtId = positionExtId;
 	}
 	
 	
