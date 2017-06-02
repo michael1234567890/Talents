@@ -1,6 +1,8 @@
 package com.phincon.talents.app.dto;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 public class CertificationDTO {
@@ -14,6 +16,7 @@ public class CertificationDTO {
 	private String principle;
 	private String year;
 	private String full;
+	private List<Map<String, Object>> attachments;
 	public String getName() {
 		return name;
 	}
@@ -67,6 +70,12 @@ public class CertificationDTO {
 	}
 	public void setFull(String full) {
 		this.full = full;
+	}
+	public List<Map<String, Object>> getAttachments() {
+		return attachments;
+	}
+	public void setAttachments(List<Map<String, Object>> attachments) {
+		this.attachments = attachments;
 	} 
 	
 	

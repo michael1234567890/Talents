@@ -15,6 +15,9 @@ public class VwEmpAssignment  {
 	@Column(name = "employee_id")
 	private Long employee;
 
+	@Column(name = "employee_no", length = 100)
+	private String employeeNo;
+	
 	@Column(name = "first_name", length = 255)
 	private String firstName;
 	
@@ -240,6 +243,14 @@ public class VwEmpAssignment  {
 
 	public void setOrganizationName(String organizationName) {
 		this.organizationName = organizationName;
+	}
+
+	public String getEmployeeNo() {
+		return employeeNo;
+	}
+
+	public void setEmployeeNo(String employeeNo) {
+		this.employeeNo = employeeNo;
 	}
 	
 	

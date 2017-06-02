@@ -7,6 +7,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.controllers.api.FamilyRestApi;
+import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.FamilyHistRepository;
 import com.phincon.talents.app.dao.FamilyRepository;
 import com.phincon.talents.app.dao.FamilyTempRepository;
@@ -31,6 +33,9 @@ public class FamilyService {
 	
 	@Autowired
 	FamilyTempRepository familyTempRepository;
+	
+	@Autowired
+	DataApprovalRepository dataApprovalRepository;
 	
 	@Transactional
 	public Iterable<Family> findAll() {
@@ -68,36 +73,17 @@ public class FamilyService {
 		Family family = familyRepository.findOne(dataApproval.getObjectRef());
 		// add family hist
 		if(family != null) {
-			FamilyHist familyHist = new FamilyHist();
-			familyHist.setFamilyIdRef(family.getId());
-			familyHist.setAddress(family.getAddress());
-			familyHist.setAliveStatus(family.getAliveStatus());
-			familyHist.setBirthDate(family.getBirthDate());
-			familyHist.setBirthPlace(family.getBirthPlace());
-			familyHist.setBloodType(family.getBloodType());
-			familyHist.setCreatedBy(family.getCreatedBy());
-			familyHist.setCreatedDate(family.getCreatedDate());
-			familyHist.setDeceaseDate(family.getDeceaseDate());
-			familyHist.setDependent(family.getDependent());
-			familyHist.setDependent(family.getDependent());
-			familyHist.setEmployee(family.getEmployee());
-			familyHist.setExtId(family.getExtId());
-			familyHist.setGender(family.getGender());
-			familyHist.setLastEducation(family.getLastEducation());
-			familyHist.setLetterNo(family.getLetterNo());
-			familyHist.setMaritalStatus(family.getMaritalStatus());
-			familyHist.setMedicalStatus(family.getMedicalStatus());
-			familyHist.setModifiedBy(family.getModifiedBy());
-			familyHist.setModifiedDate(new Date());
-			familyHist.setName(family.getName());
-			familyHist.setOccupation(family.getOccupation());
-			familyHist.setPhone(family.getPhone());
-			familyHist.setRelationship(family.getRelationship());
-			familyHist.setStatus(family.getStatus());
 			
-			familyHistRepository.save(familyHist);
+			FamilyTemp familyTemp = new FamilyTemp();
+			familyTemp = copyFamilyToTemp(family,familyTemp);
+			familyTempRepository.save(familyTemp);
+			
 			 // delete family object
 			familyRepository.delete(family);
+			
+			// change Data Approval
+			dataApproval.setObjectName(FamilyTemp.class.getSimpleName());
+			dataApproval.setObjectRef(familyTemp.getId());
 		}
 		
 	}
@@ -133,5 +119,22 @@ public class FamilyService {
 		family.setOccupation(familyTemp.getOccupation());
 		family.setMaritalStatus(familyTemp.getMaritalStatus());
 		return family;
+	}
+	
+	private FamilyTemp copyFamilyToTemp(Family family , FamilyTemp familyTemp) {
+		
+		familyTemp.setAddress(family.getAddress());
+		familyTemp.setBirthPlace(family.getBirthPlace());
+		familyTemp.setBirthDate(family.getBirthDate());
+		familyTemp.setBloodType(family.getBloodType());
+		// familyTemp.setfamily.getEmail()
+		familyTemp.setName(family.getName());
+		familyTemp.setPhone(family.getPhone());
+		familyTemp.setRelationship(family.getRelationship());
+		familyTemp.setEmployee(family.getEmployee());
+		familyTemp.setGender(family.getGender());
+		familyTemp.setOccupation(family.getOccupation());
+		familyTemp.setMaritalStatus(family.getMaritalStatus());
+		return familyTemp;
 	}
 }

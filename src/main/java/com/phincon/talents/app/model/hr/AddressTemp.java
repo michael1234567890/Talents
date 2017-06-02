@@ -2,15 +2,12 @@ package com.phincon.talents.app.model.hr;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.phincon.talents.app.model.AbstractEntity;
 
 @Entity
-@Table(name="hr_address")
+@Table(name="hr_address_temp")
 public class AddressTemp extends AbstractEntity {
 	public final static String STATUS_PENDING = "pending";
 	public final static String STATUS_APPROVED = "approved";

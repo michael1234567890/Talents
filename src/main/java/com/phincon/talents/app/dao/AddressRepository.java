@@ -1,5 +1,7 @@
 package com.phincon.talents.app.dao;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -7,14 +9,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.phincon.talents.app.model.hr.Address;
-import com.phincon.talents.app.model.hr.Employee;
-import com.phincon.talents.app.model.hr.Family;
 
 @Repository
 public interface AddressRepository extends PagingAndSortingRepository<Address,Long>{
 	
 	 @Query
 	 Iterable<Address> findByEmployee(Long employee);
+	 
+	 @Query
+	 List<Address> findByAddressStatusAndEmployee(String addressStatus, Long employee);
+	 
 	 
 	 @Modifying
 	 @Query("UPDATE Address set status='"+Address.STATUS_APPROVED+"', needSync=true where id=:addressId")

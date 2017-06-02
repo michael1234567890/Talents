@@ -53,6 +53,9 @@ public class User extends AbstractEntity {
 
 	@Column(name = "email", length = 100)
 	private String email;
+	
+	@Column(name = "full_name", length = 200)
+	private String fullName;
 
 	@Column(name = "apikey", length = 200)
 	private String apikey;
@@ -70,6 +73,10 @@ public class User extends AbstractEntity {
 	@ManyToMany
 	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles;
+	
+	
+	@Column(name = "photo_profile", length = 255)
+	private String photoProfile;
 
 	@Transient
 	private Employee employeeTransient;
@@ -204,6 +211,22 @@ public class User extends AbstractEntity {
 
 	public void setEmployeeExtId(String employeeExtId) {
 		this.employeeExtId = employeeExtId;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public String getPhotoProfile() {
+		return photoProfile;
+	}
+
+	public void setPhotoProfile(String photoProfile) {
+		this.photoProfile = photoProfile;
 	}
 	
 	

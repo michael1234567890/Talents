@@ -17,7 +17,10 @@ public class Employee extends AbstractEntity {
 	
 	public final static String STATUS_PENDING = "pending"; 
 	
-	@Column(name="age", length=5)
+	@Column(name="name", length=255)
+	private String name;
+	
+	@Column(name="age", length=50)
 	private String age;
 	
 	@Temporal(TemporalType.DATE)
@@ -102,10 +105,10 @@ public class Employee extends AbstractEntity {
 	@Column(name="eligible_for_rehire")
 	private Boolean eligibleForRehire;
 	
-	/*@OneToMany
-	@JoinColumn(name="address_id")
+	
+	@Transient
 	private Address address;
-	*/
+	
 	
 	@Column(name="emergency_contact_city")
 	private String emergencyContactCity;
@@ -1331,6 +1334,14 @@ public class Employee extends AbstractEntity {
 
 	
 
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
 	public Boolean getNeedSync() {
 		return needSync;
 	}
@@ -1345,6 +1356,16 @@ public class Employee extends AbstractEntity {
 
 	public void setMaritalStatusDataApproval(Long maritalStatusDataApproval) {
 		this.maritalStatusDataApproval = maritalStatusDataApproval;
+	}
+	
+	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override

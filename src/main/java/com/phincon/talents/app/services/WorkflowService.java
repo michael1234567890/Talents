@@ -55,6 +55,8 @@ public class WorkflowService {
 			Long company) {
 		String assignApproval = null;
 		if (codeApproval.equals(Workflow.DEFAULT)) {
+
+			System.out.println(" findAssignApproval Employee ID " + employee);
 			// get direct report
 			Employee objEmployee = vwEmpAssignmentService
 					.findReportTo(employee);

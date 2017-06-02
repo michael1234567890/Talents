@@ -18,10 +18,7 @@ public interface DataApprovalRepository extends PagingAndSortingRepository<DataA
 	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company")
 	 List<DataApproval> findNeedApproval(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company);
 	 
-	 @Query
-	 List<DataApproval> findByEmpRequest(Long employee);
-	 
-
-	
-	
+	 @Query("SELECT u FROM DataApproval u WHERE u.empRequest=:employee ORDER BY modifiedDate DESC")
+	 List<DataApproval> findByEmpRequest(@Param("employee") Long employee);
+	 	
 }

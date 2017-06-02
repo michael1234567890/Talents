@@ -58,6 +58,7 @@ public class UserService   {
 		user.setLastName(userDto.getLastName());
 		user.setCompany(userDto.getCompany());
 		user.setEmployeeExtId(userDto.getEmployeeExtId());
+		user.setFullName(userDto.getFullName());
 		userRepository.save(user);
 	}
 	

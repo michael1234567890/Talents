@@ -128,7 +128,7 @@ public class FamilyController {
 		family.setModifiedDate(new Date());
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
 		Workflow  workflow = null;
-		if(!family.getStatus().equals(Family.PENDING)) {
+		//if(!family.getStatus().equals(Family.PENDING)) {
 			String taskName = Workflow.CHANGE_FAMILY;
 			workflow = workflowService.findByCodeAndCompanyAndActive(
 					taskName, user.getCompany(), true);
@@ -140,7 +140,7 @@ public class FamilyController {
 			}else {
 				family.setNeedSync(true);
 			}
-		}
+		//}
 		
 		
 		// cek activity need approval

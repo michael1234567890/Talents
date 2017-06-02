@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.dao.AttachmentCertificationRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.AddressDTO;
@@ -23,7 +25,7 @@ import com.phincon.talents.app.dto.CertificationDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
-import com.phincon.talents.app.model.AttachmentDataApproval;
+import com.phincon.talents.app.model.AttachmentCertification;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
@@ -51,7 +53,7 @@ public class MyProfileController {
 
 	@Autowired
 	FamilyService familyService;
-	
+
 	@Autowired
 	WorkflowService workflowService;
 
@@ -69,7 +71,9 @@ public class MyProfileController {
 
 	@Autowired
 	EmployeeRepository employeeRepository;
-	
+
+	@Autowired
+	AttachmentCertificationRepository attachmentCertificationRepository;
 
 	@Autowired
 	DataApprovalService dataApprovalService;
@@ -131,6 +135,10 @@ public class MyProfileController {
 		} else {
 			employee.setAssignment(null);
 		}
+		
+		
+		Address address = addressService.findByAddressStatusAndEmployee("Yes", user.getEmployee());
+		employee.setAddress(address);
 		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	}
 
@@ -197,7 +205,7 @@ public class MyProfileController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		Family family = new Family();
 		family.setAddress(request.getAddress());
 		family.setBirthPlace(request.getBirthPlace());
@@ -218,26 +226,28 @@ public class MyProfileController {
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
 		family.setCompany(user.getCompany());
 		family.setEmployeeExtId(user.getEmployeeExtId());
-		
+
 		// check this company have regulation approval to SUBMITFAMILY
-		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(Workflow.SUBMIT_FAMILY, user.getCompany(), true);
-		if(workflow != null) {
+		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
+				Workflow.SUBMIT_FAMILY, user.getCompany(), true);
+		if (workflow != null) {
 			family.setStatus(Family.PENDING);
 			family.setNeedSync(false);
-		}else {
+		} else {
 			family.setNeedSync(true);
 		}
-		
+
 		familyService.save(family);
-		if(workflow != null){
+		if (workflow != null) {
 			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
 			dataApprovalDTO.setIdRef(family.getId());
 			dataApprovalDTO.setTask(Workflow.SUBMIT_FAMILY);
-			if(request.getAttachments() != null && request.getAttachments().size() > 0){
+			if (request.getAttachments() != null
+					&& request.getAttachments().size() > 0) {
 				System.out.println("Attachment is not empty");
-				dataApprovalDTO.setAttachments(request.getAttachments());	
+				dataApprovalDTO.setAttachments(request.getAttachments());
 			}
-			
+
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
@@ -260,7 +270,8 @@ public class MyProfileController {
 		}
 
 		Employee employee = employeeRepository.findOne(user.getEmployee());
-		Iterable<Address> listAddress = addressService.findByEmployee(employee.getId());
+		Iterable<Address> listAddress = addressService.findByEmployee(employee
+				.getId());
 		return new ResponseEntity<Iterable<Address>>(listAddress, HttpStatus.OK);
 	}
 
@@ -325,6 +336,35 @@ public class MyProfileController {
 				HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/myprofile/certification/{id}/attachments", method = RequestMethod.GET)
+	public ResponseEntity<List<AttachmentCertification>> getAttachment(
+			@PathVariable("id") Long id, OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+
+		List<AttachmentCertification> listAttachment = attachmentCertificationRepository
+				.findByCertification(id);
+		int i = 0;
+		for (AttachmentCertification attachmentCertification : listAttachment) {
+			if (attachmentCertification.getPath() != null) {
+				String base64String = Utils
+						.convertImageToBase64(attachmentCertification.getPath());
+				listAttachment.get(i).setImage(base64String);
+
+			}
+
+			i++;
+		}
+
+		return new ResponseEntity<List<AttachmentCertification>>(
+				listAttachment, HttpStatus.OK);
+	}
+
 	@RequestMapping(value = "/myprofile/certification", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<CustomMessage> addCertification(
@@ -356,6 +396,28 @@ public class MyProfileController {
 				.getName());
 		certification.setNeedSync(true);
 		certificationService.save(certification);
+
+		if (request.getAttachments() != null
+				&& request.getAttachments().size() > 0) {
+
+			// save attachment`
+			for (Map<String, Object> map : request.getAttachments()) {
+				String imageBase64 = (String) map.get("image");
+				System.out.println("image : " + (String) map.get("image"));
+				if (imageBase64 != null) {
+					String pathname = "certification/"
+							+ RandomStringUtils.randomAlphanumeric(10) + "."
+							+ Utils.UPLOAD_IMAGE_TYPE;
+					Utils.createImage(imageBase64, pathname);
+					AttachmentCertification obj = new AttachmentCertification();
+					obj.setPath(pathname);
+					obj.setCertification(certification.getId());
+					attachmentCertificationRepository.save(obj);
+				}
+
+			}
+
+		}
 
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Certification has been Added successfully", false),

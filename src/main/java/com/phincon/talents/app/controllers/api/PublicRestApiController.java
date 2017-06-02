@@ -1,5 +1,6 @@
 package com.phincon.talents.app.controllers.api;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dto.UserInfoDTO;
 import com.phincon.talents.app.model.Company;
+import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.services.CompanyService;
 import com.phincon.talents.app.services.EmployeeService;
 import com.phincon.talents.app.services.UserService;
 import com.phincon.talents.app.utils.CustomMessage;
+import com.phincon.talents.app.utils.PasswordValidator;
 import com.phincon.talents.app.utils.Utils;
 
 @Controller
@@ -27,6 +31,9 @@ public class PublicRestApiController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private CompanySettingsRepository companySettingsRepository;
 	
 	@Autowired
 	private EmployeeService employeeService;
@@ -47,6 +54,23 @@ public class PublicRestApiController {
     	if(company == null) {
     		throw new RuntimeException("Error : company code is not registered");
     	}
+    	
+    	// Load company Settings
+    	List<CompanySettings> listCompanySettings = companySettingsRepository.findByCompany(company.getId());
+    	CompanySettings companySettings = null;
+    	if(listCompanySettings != null && listCompanySettings.size() > 0) {
+    		companySettings = listCompanySettings.get(0);
+    		// checking password policy (regex)
+    		if(companySettings.getIsRegexPasswordActive() && companySettings.getRegexPassword() != null && !companySettings.getRegexPassword().equals("")) {
+    			PasswordValidator passwordValidator = new PasswordValidator(companySettings.getRegexPassword());
+    			if(!passwordValidator.validate(userInfo.getPassword())){
+    				throw new RuntimeException("Error : Your password must contains " + companySettings.getMsgErrorRegexPassword());
+    			}
+    		}
+    	}
+    	
+    	
+    	
     	// check mail and company code in employee repo
     	Employee employee = employeeService.findByWorkEmail(userInfo.getEmail());
     	if(employee == null) {
@@ -56,6 +80,9 @@ public class PublicRestApiController {
     	if(employee.getCompany() != company.getId()) {
     		throw new RuntimeException("Error : Employee and Company code does not match");
     	}
+    	
+    	
+    	
     	
     	
     	// check email already register or not
@@ -70,6 +97,7 @@ public class PublicRestApiController {
     	userInfo.setLastName(employee.getLastName());
     	userInfo.setCompany(company.getId());
     	userInfo.setEmployeeExtId(employee.getExtId());
+    	userInfo.setFullName(employee.getName());
     	
     	userService.createUser(userInfo);
     	

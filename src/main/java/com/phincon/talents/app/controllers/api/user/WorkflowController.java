@@ -152,16 +152,19 @@ public class WorkflowController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+		String message = "Request has been approved";
 		if(request.getStatus().equals(DataApproval.CANCELLED)) {
 			dataApprovalService.cancelRequest(request,user);
+			message = "Request has been cancelled";
 		}else {
 			dataApprovalService.approval(request, user);
 		}
 		
+		if(request.getStatus().equals(DataApproval.REJECTED)) 
+			 message = "Request has been Rejected";
 		
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Your Approval is successfully", false), HttpStatus.OK);
+				message, false), HttpStatus.OK);
 
 	}
 

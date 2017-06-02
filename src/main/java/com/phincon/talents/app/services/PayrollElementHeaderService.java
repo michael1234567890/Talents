@@ -6,11 +6,15 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.phincon.talents.app.dao.PayrollElementDetailRepository;
+import com.phincon.talents.app.dao.PayrollElementDetailGroupRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
+import com.phincon.talents.app.dto.PayrollRequestDTO;
+import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.model.hr.PayrollElementDetail;
+import com.phincon.talents.app.model.hr.PayrollElementDetailGroup;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
 
 /**
@@ -20,12 +24,17 @@ import com.phincon.talents.app.model.hr.PayrollElementHeader;
  */
 @Service
 public class PayrollElementHeaderService {
+	
+	
 
 	@Autowired
 	PayrollElementHeaderRepository payrollElementHeaderRepository;
 
 	@Autowired
-	PayrollElementDetailRepository payrollElementDetailRepository;
+	PayrollElementDetailGroupRepository payrollElementDetailGroupRepository;
+	
+	@Autowired
+	EmployeeService emplyeeService;
 
 	@Transactional
 	public Iterable<PayrollElementHeader> findAll() {
@@ -37,22 +46,37 @@ public class PayrollElementHeaderService {
 		payrollElementHeaderRepository.save(obj);
 	}
 
+	/*
+	 * Show Employee payslip based on month OR Latest 
+	 * input : type,month, employment
+	 * output : List of PayrollHeader include PayrollDetail
+	 */
 	@Transactional
-	public List<PayrollElementHeader> findByMonthAndEmployee(String month,
-			Long user) {
-		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderRepository
-				.findByMonthPeriodAndEmployee("%" + month + "%", user);
+	public List<PayrollElementHeader> findByMonthAndEmployee(String type, String month,
+			Long employment, Long employee) {
+		List<PayrollElementHeader> listElementHeaders = null;
+		if(type.equals(PayrollRequestDTO.PY_TYPE_LATEST)){
+			listElementHeaders = payrollElementHeaderRepository
+					.findByLatestMonthAndEmployment(employment, new PageRequest(0, 1));
+		}else {
+			listElementHeaders = payrollElementHeaderRepository
+					.findByMonthPeriodAndEmployee("%" + month + "%", employment);
+		}
+		
 		List<PayrollElementHeader> listElementHeadersResult = new ArrayList<PayrollElementHeader>();
 		if (listElementHeaders != null && listElementHeaders.size() > 0) {
 			// get detail by in and out and header
 			for (PayrollElementHeader payrollElementHeader : listElementHeaders) {
 				PayrollElementHeader obj = payrollElementHeader;
 				Long headerId = obj.getId();
-				List<PayrollElementDetail> payrollElemenDetailListIn = payrollElementDetailRepository.findByPayrollElementHeaderAndElementType(headerId, "in");
+				List<PayrollElementDetailGroup> payrollElemenDetailListIn = payrollElementDetailGroupRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetail.ELEMENT_TYPE_ALLOWANCE);
 				obj.setDetailIn(payrollElemenDetailListIn);
-				List<PayrollElementDetail> payrollElemenDetailListOut = payrollElementDetailRepository.findByPayrollElementHeaderAndElementType(headerId, "out");
+				List<PayrollElementDetailGroup> payrollElemenDetailListOut = payrollElementDetailGroupRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetail.ELEMENT_TYPE_DEDUCTION);
 				obj.setDetailOut(payrollElemenDetailListOut);
 				listElementHeadersResult.add(obj);
+				System.out.println("Employee ID " + employee);
+				Employee employeeTransient = emplyeeService.findEmployeeWithAssignment(employee);
+				obj.setEmployeeTransient(employeeTransient);
 			}
 
 		}

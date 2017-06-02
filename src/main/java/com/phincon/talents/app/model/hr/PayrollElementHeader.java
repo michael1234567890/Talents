@@ -1,13 +1,10 @@
 package com.phincon.talents.app.model.hr;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.phincon.talents.app.model.AbstractEntity;
@@ -38,6 +35,9 @@ public class PayrollElementHeader extends AbstractEntity {
 	
 	@Column(name = "employee_id")
 	private Long employee;
+	
+	@Transient
+	private Employee employeeTransient;
 
 	@Column(name = "employee_ext_id", length = 100)
 	private String employeeExtId;
@@ -177,12 +177,16 @@ public class PayrollElementHeader extends AbstractEntity {
 	@Column(name = "account_name", length = 50)
 	private String accountName;
 	
+
+	@Column(name = "bank_branch", length = 100)
+	private String bankBranch;
+	
 	@Transient
-	private List<PayrollElementDetail> detailIn;
+	private List<PayrollElementDetailGroup> detailIn;
 	
 	
 	@Transient
-	private List<PayrollElementDetail> detailOut;
+	private List<PayrollElementDetailGroup> detailOut;
 	
 
 
@@ -524,19 +528,19 @@ public class PayrollElementHeader extends AbstractEntity {
 	
 	
 
-	public List<PayrollElementDetail> getDetailIn() {
+	public List<PayrollElementDetailGroup> getDetailIn() {
 		return detailIn;
 	}
 
-	public void setDetailIn(List<PayrollElementDetail> detailIn) {
+	public void setDetailIn(List<PayrollElementDetailGroup> detailIn) {
 		this.detailIn = detailIn;
 	}
 
-	public List<PayrollElementDetail> getDetailOut() {
+	public List<PayrollElementDetailGroup> getDetailOut() {
 		return detailOut;
 	}
 
-	public void setDetailOut(List<PayrollElementDetail> detailOut) {
+	public void setDetailOut(List<PayrollElementDetailGroup> detailOut) {
 		this.detailOut = detailOut;
 	}
 	
@@ -572,6 +576,26 @@ public class PayrollElementHeader extends AbstractEntity {
 
 	public void setPkp(Double pkp) {
 		this.pkp = pkp;
+	}
+	
+	
+
+	public Employee getEmployeeTransient() {
+		return employeeTransient;
+	}
+
+	public void setEmployeeTransient(Employee employeeTransient) {
+		this.employeeTransient = employeeTransient;
+	}
+	
+	
+
+	public String getBankBranch() {
+		return bankBranch;
+	}
+
+	public void setBankBranch(String bankBranch) {
+		this.bankBranch = bankBranch;
 	}
 
 	@Override

@@ -104,6 +104,7 @@ public class AddressController {
 		address.setZipCode(request.getZipCode());
 		address.setStayStatus(request.getStayStatus());
 		address.setCreatedDate(new Date());
+		address.setEmployeeExtId(user.getEmployeeExtId());
 		address.setModifiedDate(new Date());
 		address.setCreatedBy(authentication.getUserAuthentication().getName());
 		address.setModifiedBy(authentication.getUserAuthentication().getName());
@@ -123,6 +124,8 @@ public class AddressController {
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(address.getId());
 			dataApprovalDTO.setTask(Workflow.SUBMIT_ADDRESS);
+
+			System.out.println("Controller Employee ID " + user.getEmployee());
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
 		
@@ -156,22 +159,24 @@ public class AddressController {
 		address.setZipCode(request.getZipCode());
 		address.setStayStatus(request.getStayStatus());
 		address.setModifiedDate(new Date());
+		
 		address.setModifiedBy(authentication.getUserAuthentication().getName());
 		
 		Workflow  workflow = null;
-		if(!address.getStatus().equals(Family.PENDING)) {
+		
+		//if(address.getStatus() != null && !address.getStatus().equals(Address.STATUS_PENDING)) {
 			String taskName = Workflow.CHANGE_ADDRESS;
 			workflow = workflowService.findByCodeAndCompanyAndActive(
 					taskName, user.getCompany(), true);
 			if (workflow != null) {
 				addressTempRepository.save(addressTemp);
 				address.setAddressTemp(addressTemp.getId());
-				address.setStatus(Family.PENDING);
+				address.setStatus(Address.STATUS_PENDING);
 				address.setNeedSync(false);
 			}else {
 				address.setNeedSync(true);
 			}
-		}
+		//}
 		
 		
 		// cek activity need approval
@@ -198,7 +203,7 @@ public class AddressController {
 		addressTemp.setAddress(address.getAddress());
 		addressTemp.setAddressStatus(address.getAddressStatus());
 		addressTemp.setCity(address.getCity());
-		addressTemp.setDistance(address.getDistrict());
+		addressTemp.setDistance(address.getDistance());
 		addressTemp.setProvince(address.getProvince());
 		addressTemp.setCountry(address.getCountry());
 		addressTemp.setRt(address.getRt());

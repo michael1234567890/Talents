@@ -13,7 +13,8 @@ import com.phincon.talents.app.model.AbstractEntity;
 @Entity
 @Table(name = "hr_payroll_element_detail")
 public class PayrollElementDetail extends AbstractEntity {
-
+	public final static String ELEMENT_TYPE_DEDUCTION = "Deduction";
+	public final static String ELEMENT_TYPE_ALLOWANCE = "Allowance";
 	@Column(name="budget_item_code", length=50)
 	private String budgetItemCode;
 	

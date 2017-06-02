@@ -4,9 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -24,9 +21,12 @@ public class Employment extends AbstractEntity {
 	@Column(name = "company_id")
 	private Long company;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "employee_id")
-	private Employee employee;
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "employee_id")
+//	private Employee employee;
+	
+	@Column(name = "employee_id")
+	private Long employee;
 
 	@Column(name = "employee_ext_id", length = 50)
 	private String employeeExtId;
@@ -87,11 +87,11 @@ public class Employment extends AbstractEntity {
 		this.company = company;
 	}
 
-	public Employee getEmployee() {
+	public Long getEmployee() {
 		return employee;
 	}
 
-	public void setEmployee(Employee employee) {
+	public void setEmployee(Long employee) {
 		this.employee = employee;
 	}
 

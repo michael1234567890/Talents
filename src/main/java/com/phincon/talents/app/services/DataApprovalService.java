@@ -174,7 +174,7 @@ public class DataApprovalService {
 								+ Workflow.OPERATION_EDIT);
 			}
 		}
-
+		System.out.println("Employee ID " + user.getEmployee());
 		approvalLevelOne = workflowService.findAssignApproval(
 				workflow.getApprovalCodeLevelOne(), user.getEmployee(),
 				user.getCompany());

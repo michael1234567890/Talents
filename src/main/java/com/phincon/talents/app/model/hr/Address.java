@@ -18,7 +18,7 @@ public class Address extends AbstractEntity {
 	@Column(name="address", length=255)
 	private String address;
 	
-	@Column(name="distance", length=10)
+	@Column(name="distance", length=255)
 	private String distance;
 	
 	@Column(name="address_status", length=30)
@@ -35,6 +35,11 @@ public class Address extends AbstractEntity {
 	
 	@Column(name="district", length=100)
 	private String district;
+	
+
+	@Column(name = "employee_ext_id", length=100)
+	private String employeeExtId;
+
 	
 //	@ManyToOne(fetch = FetchType.LAZY)
 //	@JoinColumn(name="employee_id")
@@ -233,6 +238,14 @@ public class Address extends AbstractEntity {
 
 	public void setAddressTemp(Long addressTemp) {
 		this.addressTemp = addressTemp;
+	}
+
+	public String getEmployeeExtId() {
+		return employeeExtId;
+	}
+
+	public void setEmployeeExtId(String employeeExtId) {
+		this.employeeExtId = employeeExtId;
 	}
 	
 	

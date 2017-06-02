@@ -1,5 +1,7 @@
 package com.phincon.talents.app.services;
 
+import java.util.List;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +23,15 @@ public class AddressService {
 
 	@Autowired
 	AddressRepository addressRepository;
-	
+
 	@Autowired
 	AddressTempRepository addressTempRepository;
 
-	
-	
 	@Transactional
 	public Iterable<Address> findAll() {
 		return addressRepository.findAll();
 	}
-	
+
 	@Transactional
 	public void approvedChangeAddress(DataApproval dataApproval) {
 		Long addressId = dataApproval.getObjectRef();
@@ -42,17 +42,37 @@ public class AddressService {
 	public void save(Address address) {
 		addressRepository.save(address);
 	}
-	
-	public Iterable<Address> findByEmployee(Long employee){
+
+	public Iterable<Address> findByEmployee(Long employee) {
 		return addressRepository.findByEmployee(employee);
 	}
-	
-	public void rejected(DataApproval dataApproval) {
-		Address address = addressRepository.findOne(dataApproval.getObjectRef());
-		if(address != null)
-			addressRepository.delete(address);
+
+	public Address findByAddressStatusAndEmployee(String addressStatus,
+			Long employee) {
+		Address address = null;
+		List<Address> listAddress = addressRepository
+				.findByAddressStatusAndEmployee(addressStatus, employee);
+		if (listAddress != null && listAddress.size() > 0)
+			address = listAddress.get(0);
+		return address;
 	}
-	
+
+	public void rejected(DataApproval dataApproval) {
+		Address address = addressRepository
+				.findOne(dataApproval.getObjectRef());
+		if (address != null) {
+			// copy address to address temp
+			AddressTemp addressTemp = new AddressTemp();
+			addressTemp  = copyAddressToTemp(address,addressTemp);
+			addressTempRepository.save(addressTemp);
+			dataApproval.setObjectName(AddressTemp.class.getSimpleName());
+			dataApproval.setObjectRef(addressTemp.getId());
+			// delete address
+			addressRepository.delete(address);
+		}
+
+	}
+
 	@Transactional
 	public void approvedSubmitAddress(DataApproval dataApproval) {
 		Long addressId = dataApproval.getObjectRef();
@@ -64,22 +84,24 @@ public class AddressService {
 	}
 
 	public void rejectedChange(DataApproval dataApproval) {
-		Address address = addressRepository.findOne(dataApproval.getObjectRef());
-		if(address!= null){
-			AddressTemp addressTemp =addressTempRepository.findOne(address.getAddressTemp());
-			if(addressTemp != null) {
+		Address address = addressRepository
+				.findOne(dataApproval.getObjectRef());
+		if (address != null) {
+			AddressTemp addressTemp = addressTempRepository.findOne(address
+					.getAddressTemp());
+			if (addressTemp != null) {
 				address = copyFromAddressTemp(address, addressTemp);
 				address.setNeedSync(false);
 				address.setAddressTemp(null);
 				address.setStatus(null);
 				addressRepository.save(address);
 			}
-			
+
 		}
 	}
 
 	private Address copyFromAddressTemp(Address address, AddressTemp addressTemp) {
-		
+
 		address.setAddress(addressTemp.getAddress());
 		address.setAddressStatus(addressTemp.getAddressStatus());
 		address.setCity(addressTemp.getCity());
@@ -92,7 +114,25 @@ public class AddressService {
 		address.setResidence(addressTemp.getResidence());
 		address.setZipCode(addressTemp.getZipCode());
 		address.setStayStatus(addressTemp.getStayStatus());
-		
+
 		return address;
+	}
+
+	private AddressTemp copyAddressToTemp(Address address, AddressTemp addressTemp) {
+
+		addressTemp.setAddress(address.getAddress());
+		addressTemp.setAddressStatus(address.getAddressStatus());
+		addressTemp.setCity(address.getCity());
+		addressTemp.setDistance(address.getDistrict());
+		addressTemp.setProvince(address.getProvince());
+		addressTemp.setCountry(address.getCountry());
+		addressTemp.setRt(address.getRt());
+		addressTemp.setRw(address.getRw());
+		addressTemp.setPhone(address.getPhone());
+		addressTemp.setResidence(address.getResidence());
+		addressTemp.setZipCode(address.getZipCode());
+		addressTemp.setStayStatus(address.getStayStatus());
+
+		return addressTemp;
 	}
 }

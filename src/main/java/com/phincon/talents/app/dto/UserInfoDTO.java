@@ -9,6 +9,8 @@ public class UserInfoDTO {
 	private String email;
 	private String firstName;
 	private String lastName;
+	private String fullName;
+	
 	private String employeeExtId;
 	private Long employeeId;
 
@@ -102,6 +104,17 @@ public class UserInfoDTO {
 	public void setCompany(Long company) {
 		this.company = company;
 	}
+
+
+	public String getFullName() {
+		return fullName;
+	}
+
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+	
 	
 	
 	

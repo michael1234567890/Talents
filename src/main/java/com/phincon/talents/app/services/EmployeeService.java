@@ -34,19 +34,23 @@ public class EmployeeService {
 	public Employee findEmployee(Long id) {
 		return employeeRepository.findOne(id);
 	}
-
+	
 	@Transactional
 	public Employee findEmployeeWithAssignment(Long id) {
-		Employee emp = employeeRepository.findOne(id);
+		Employee obj = employeeRepository.findOne(id);
+		if(obj == null)
+			return null;
 		VwEmpAssignment assignment = assignmentService
-				.findAssignmentByEmployee(emp.getId());
+				.findAssignmentByEmployee(obj.getId());
 		if (assignment != null) {
-			emp.setAssignment(assignment);
+			obj.setAssignment(assignment);
 		} else {
-			emp.setAssignment(null);
+			obj.setAssignment(null);
 		}
-		return emp;
+		return obj;
 	}
+
+	
 
 	@Transactional
 	public Employee findByWorkEmail(String email) {
