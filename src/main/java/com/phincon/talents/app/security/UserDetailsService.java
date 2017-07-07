@@ -3,6 +3,8 @@ package com.phincon.talents.app.security;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +24,29 @@ import com.phincon.talents.app.model.User;
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(UserDetailsService.class);
-
+    
+    @Autowired
+    private HttpServletRequest request;
+    
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+    
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String login) {
 
         log.debug("Authenticating {}", login);
         String lowercaseLogin = login.toLowerCase();
-
+        
+        String ip = getClientIP();
+        System.out.println("IP Address " + ip);
+        if (loginAttemptService.isBlocked(ip)) {
+            throw new RuntimeException("blocked");
+        }
+        
         User userFromDatabase;
         if(lowercaseLogin.contains("@")) {
             userFromDatabase = userRepository.findByEmail(lowercaseLogin);
@@ -51,9 +65,18 @@ public class UserDetailsService implements org.springframework.security.core.use
             GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(authority.getName());
             grantedAuthorities.add(grantedAuthority);
         }
-
         return new org.springframework.security.core.userdetails.User(userFromDatabase.getUsername(), userFromDatabase.getPassword(), grantedAuthorities);
+        //return new org.springframework.security.core.userdetails.User(userFromDatabase.getUsername(), Utils.encrypt(userFromDatabase.getPassword()), grantedAuthorities);
 
     }
+    
+    private String getClientIP() {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null){
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
+    }
+    
 
 }
