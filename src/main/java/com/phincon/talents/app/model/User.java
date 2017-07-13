@@ -1,17 +1,18 @@
 package com.phincon.talents.app.model;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
@@ -77,6 +78,17 @@ public class User extends AbstractEntity {
 	
 	@Column(name = "photo_profile", length = 255)
 	private String photoProfile;
+	
+	@Column(name = "user_agent", length = 255)
+	private String userAgent;
+	
+	@Column(name = "last_login_address", length = 100)
+	private String lastLoginAddress;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "last_login_time")
+	private Date lastLoginTime;
+	
 
 	@Transient
 	private Employee employeeTransient;
@@ -160,10 +172,7 @@ public class User extends AbstractEntity {
 		this.activationKey = activationKey;
 	}
 
-	@Override
-	public String toString() {
-		return "User{" + "username='" + username + '\'' + "}";
-	}
+	
 
 	public Long getEmployee() {
 		return employee;
@@ -228,6 +237,47 @@ public class User extends AbstractEntity {
 	public void setPhotoProfile(String photoProfile) {
 		this.photoProfile = photoProfile;
 	}
+	
+	
+
+	public String getUserAgent() {
+		return userAgent;
+	}
+
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
+
+	public String getLastLoginAddress() {
+		return lastLoginAddress;
+	}
+
+	public void setLastLoginAddress(String lastLoginAddress) {
+		this.lastLoginAddress = lastLoginAddress;
+	}
+
+	public Date getLastLoginTime() {
+		return lastLoginTime;
+	}
+
+	public void setLastLoginTime(Date lastLoginTime) {
+		this.lastLoginTime = lastLoginTime;
+	}
+
+	@Override
+	public String toString() {
+		return "User [username=" + username + ", password=" + password
+				+ ", activated=" + activated + ", activationKey="
+				+ activationKey + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", resetPasswordKey=" + resetPasswordKey
+				+ ", confirmPassword=" + confirmPassword + ", email=" + email
+				+ ", fullName=" + fullName + ", apikey=" + apikey
+				+ ", employee=" + employee + ", employeeExtId=" + employeeExtId
+				+ ", company=" + company + ", roles=" + roles
+				+ ", photoProfile=" + photoProfile + ", employeeTransient="
+				+ employeeTransient + "]";
+	}
+	
 	
 	
 

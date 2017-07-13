@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class DataApprovalDTO {
 	private String task;
+	private String module;
 	private String data;
 	private String objectName;
 	private String description;
@@ -59,6 +60,14 @@ public class DataApprovalDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 
 

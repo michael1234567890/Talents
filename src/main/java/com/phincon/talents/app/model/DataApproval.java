@@ -40,6 +40,9 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "emp_request")
 	private Long empRequest;
 
+	@Column(name = "module", length = 50)
+	private String module;
+	
 	@Column(name = "task", length = 50)
 	private String task;
 
@@ -321,6 +324,14 @@ public class DataApproval extends AbstractEntity {
 				+ ", currentAssignApproval=" + currentAssignApproval
 				+ ", currentApprovalLevel=" + currentApprovalLevel
 				+ ", approvalLevel=" + approvalLevel + "]";
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 	
 	

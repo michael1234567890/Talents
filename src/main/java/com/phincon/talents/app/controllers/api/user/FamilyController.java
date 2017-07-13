@@ -90,6 +90,7 @@ public class FamilyController {
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(family.getId());
 			dataApprovalDTO.setTask(Workflow.SUBMIT_FAMILY);
+			dataApprovalDTO.setModule(workflow.getModule());
 			if(request.getAttachments() != null && request.getAttachments().size() > 0){
 				System.out.println("Attachment is not empty");
 				dataApprovalDTO.setAttachments(request.getAttachments());	
@@ -153,6 +154,7 @@ public class FamilyController {
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(family.getId());
 			dataApprovalDTO.setTask(Workflow.CHANGE_FAMILY);
+			dataApprovalDTO.setModule(workflow.getModule());
 			if(request.getAttachments() != null && request.getAttachments().size() > 0){
 				System.out.println("Attachment is not empty");
 				dataApprovalDTO.setAttachments(request.getAttachments());	

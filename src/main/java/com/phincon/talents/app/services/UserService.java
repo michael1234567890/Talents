@@ -6,13 +6,19 @@ import java.util.regex.Pattern;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
+import com.phincon.talents.app.dao.PasswordResetTokenRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.dto.UserInfoDTO;
+import com.phincon.talents.app.model.CompanySettings;
+import com.phincon.talents.app.model.PasswordResetToken;
 import com.phincon.talents.app.model.User;
+import com.phincon.talents.app.utils.PasswordValidator;
 
 /**
  *
@@ -28,6 +34,18 @@ public class UserService   {
 			.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 					+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 
+	
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+
+	@Autowired
+	private CompanySettingsRepository companySettingsRepository;
+	
+	@Autowired
+	private PasswordResetTokenRepository passwordTokenRepository;
+	
 	@Autowired
 	UserRepository userRepository;
 	
@@ -50,7 +68,8 @@ public class UserService   {
 		User user = new User();
 		user.setEmail(userDto.getEmail()); 
 		user.setUsername(userDto.getEmail());
-		user.setPassword(userDto.getPassword()); 
+		// user.setPassword(userDto.getPassword()); 
+		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 		user.setActivated(true);
 		// Employee employee = employeeRepository.findOne(userDto.getEmployeeId());
 		user.setEmployee(userDto.getEmployeeId());
@@ -68,18 +87,44 @@ public class UserService   {
 	
 
 	@Transactional
-	public void changePassword(UserChangePasswordDTO userChangePassword, User user) {
-		// check old password is match
-		if(!userChangePassword.getOldPassword().equals(user.getPassword())) {
-			throw new RuntimeException("Your Old Password is wrong.");
+	public void changePassword(UserChangePasswordDTO userChangePassword, User user, boolean checkValidOldPassword) {
+
+		if(checkValidOldPassword){
+			if (!passwordEncoder.matches(userChangePassword.getOldPassword(),
+	                user.getPassword())) {
+				throw new RuntimeException("Your Old Password is wrong.");
+			}
 		}
+		
+		
 		if(!userChangePassword.getNewPassword().equals(userChangePassword.getConfirmPassword())) {
 			throw new RuntimeException("Your new password & Confirm Password does not match.");
 		}
 		if(user.getPassword().equals(userChangePassword.getNewPassword())) {
 			throw new RuntimeException("Your new password must be different");
 		}
-		user.setPassword(userChangePassword.getNewPassword());
+		
+		// Load company Settings
+    	List<CompanySettings> listCompanySettings = companySettingsRepository.findByCompany(user.getCompany());
+    	CompanySettings companySettings = null;
+    	if(listCompanySettings != null && listCompanySettings.size() > 0) {
+    		companySettings = listCompanySettings.get(0);
+    		// checking password policy (regex)
+    		if(companySettings.getIsRegexPasswordActive() && companySettings.getRegexPassword() != null && !companySettings.getRegexPassword().equals("")) {
+    			PasswordValidator passwordValidator = new PasswordValidator(companySettings.getRegexPassword());
+    			if(!passwordValidator.validate(userChangePassword.getNewPassword())){
+    				throw new RuntimeException("Your new password must contains " + companySettings.getMsgErrorRegexPassword());
+    			}
+    		}
+    	}
+    	
+		// user.setPassword(userChangePassword.getNewPassword());
+		user.setPassword(passwordEncoder.encode(userChangePassword.getNewPassword()));
 		userRepository.save(user);
+	}
+	
+	public void createPasswordResetTokenForUser(User user, String token) {
+	    PasswordResetToken myToken = new PasswordResetToken(token, user);
+	    passwordTokenRepository.save(myToken);
 	}
 }

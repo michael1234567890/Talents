@@ -17,6 +17,9 @@ public class CompanyReference extends AbstractEntity {
 	
 	@Column(name = "category", length = 80)
 	private String category;
+	
+	@Column(name = "sub_category", length = 80)
+	private String subCategory;
 
 	@Column(name = "field", length = 80)
 	private String field;
@@ -55,6 +58,16 @@ public class CompanyReference extends AbstractEntity {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
+	}
+	
+	
 	
 	
 

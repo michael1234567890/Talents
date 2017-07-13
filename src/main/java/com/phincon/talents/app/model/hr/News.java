@@ -35,9 +35,9 @@ public class News extends AbstractEntity {
 	@Column(name="active")
 	private Boolean active;
 	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="company_id")
-	private Company company;*/
+//	@ManyToOne(fetch=FetchType.LAZY)
+//	@JoinColumn(name="company_id")
+//	private Company company;
 	
 	@Column(name = "company_id")
 	private Long company;
@@ -91,7 +91,8 @@ public class News extends AbstractEntity {
 	public void setCompany(Long company) {
 		this.company = company;
 	}
-	
+
+
 	
 
 	

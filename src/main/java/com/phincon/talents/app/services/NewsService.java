@@ -1,7 +1,6 @@
 package com.phincon.talents.app.services;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -28,7 +27,7 @@ public class NewsService {
 	}
 	
 	@Transactional
-	public Iterable<News> getCurrentNews(Long company, Date publishedDate, Date endDate){
-		return newsRepository.getCurrentNews(company, publishedDate, endDate);
+	public Iterable<News> getCurrentNews(Long company, Date today){
+		return newsRepository.getCurrentNews(company, today);
 	}
 }

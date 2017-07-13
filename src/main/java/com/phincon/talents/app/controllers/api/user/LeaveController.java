@@ -125,8 +125,6 @@ public class LeaveController {
 		int i=1;
 		Leave leave = new Leave();
 		if(start.equals(end)) {
-			System.out.println("1 Day " + start.getTime());
-			 
 			 leave.setComments(request.getComment());
 			 leave.setCompany(user.getCompany());
 			 leave.setEmployee(user.getEmployee());

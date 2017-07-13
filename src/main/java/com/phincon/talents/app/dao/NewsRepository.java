@@ -11,6 +11,6 @@ import com.phincon.talents.app.model.hr.News;
 
 public interface NewsRepository extends PagingAndSortingRepository<News, Long> {
 	
-	@Query("SELECT u FROM News u WHERE u.company = :company and u.publishedDate >= :publishedDate and u.endDate <= :endDate and u.active = true")
-	List<News> getCurrentNews(@Param("company") Long company, @Param("publishedDate") Date publishedDate, @Param("endDate") Date endDate);
+	@Query("SELECT u FROM News u WHERE u.company = :company and u.publishedDate <= :today and u.endDate >= :today and u.active = true")
+	List<News> getCurrentNews(@Param("company") Long company, @Param("today") Date today);
 }

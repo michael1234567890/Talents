@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,8 @@ public class AddressService {
 
 	@Autowired
 	AddressTempRepository addressTempRepository;
+	
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@Transactional
 	public Iterable<Address> findAll() {
@@ -86,15 +89,27 @@ public class AddressService {
 	public void rejectedChange(DataApproval dataApproval) {
 		Address address = addressRepository
 				.findOne(dataApproval.getObjectRef());
+		String dataAddress = null;
+		try {
+			dataAddress = this.objectMapper.writeValueAsString(address);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if (address != null) {
 			AddressTemp addressTemp = addressTempRepository.findOne(address
 					.getAddressTemp());
 			if (addressTemp != null) {
+				Address addressChanged = address;
 				address = copyFromAddressTemp(address, addressTemp);
 				address.setNeedSync(false);
 				address.setAddressTemp(null);
 				address.setStatus(null);
 				addressRepository.save(address);
+				addressTemp = copyAddressToTemp(addressChanged, addressTemp);
+				addressTempRepository.save(addressTemp);
+				dataApproval.setObjectName(AddressTemp.class.getSimpleName());
+				dataApproval.setObjectRef(addressTemp.getId());
+				dataApproval.setData(dataAddress);
 			}
 
 		}

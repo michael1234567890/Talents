@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.phincon.talents.app.model.AbstractEntity;
-
 @Entity
 @Table(name = "vw_py_element_detail_group")
 public class PayrollElementDetailGroup  {

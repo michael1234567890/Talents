@@ -1,7 +1,6 @@
 package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,18 +11,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
+import com.phincon.talents.app.dto.CountObjectDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
-import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.model.AttachmentDataApproval;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
-import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.services.AttachmentDataApprovalService;
 import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.FamilyService;
@@ -45,6 +45,9 @@ public class WorkflowController {
 
 	@Autowired
 	DataApprovalService dataApprovalService;
+	
+	@Autowired
+	DataApprovalRepository dataApprovalRepository;
 
 	@Autowired
 	AttachmentDataApprovalService attachmentDataApprovalService;
@@ -74,15 +77,20 @@ public class WorkflowController {
 	
 	@RequestMapping(value = "/user/workflow/myrequest", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> myRequest(
+	public ResponseEntity<List<DataApproval>> myRequest(@RequestParam(value="module",required=false) String module,
 			OAuth2Authentication authentication) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		
-		// get workflow record with task name
+		List<DataApproval> listDataApproval = null;
 		
-		List<DataApproval> listDataApproval = dataApprovalService.findByEmployee(user.getEmployee());
+		if(module == null){
+			listDataApproval  = dataApprovalService.findByEmployee(user.getEmployee());
+		}else {
+			listDataApproval  = dataApprovalService.findByEmployeeAndModule(user.getEmployee(),module);
+		}
+		
 		return new ResponseEntity<List<DataApproval>>(listDataApproval, HttpStatus.OK);
 
 	}
@@ -90,7 +98,7 @@ public class WorkflowController {
 	
 	@RequestMapping(value = "/user/workflow/needapproval", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> listDataApproval(
+	public ResponseEntity<List<DataApproval>> listDataApproval(@RequestParam(value="module",required=false) String module,
 			OAuth2Authentication authentication) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
@@ -98,10 +106,40 @@ public class WorkflowController {
 		
 		// get workflow record with task name
 		String strEmployee = "#" + user.getEmployee() + "#";
-		List<DataApproval> listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany());
+		List<DataApproval> listDataApproval = null;
+		if(module == null)
+			listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),null);
+		else
+			listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),module);
+		
 		return new ResponseEntity<List<DataApproval>>(listDataApproval, HttpStatus.OK);
 
 	}
+	@RequestMapping(value = "/user/workflow/countneedapproval", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<CountObjectDTO> CountDataApproval(
+			OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+		
+		CountObjectDTO obj = new CountObjectDTO();
+		obj.setName("count need approval");
+		obj.setCount(0L);
+		String emp = "#"+user.getEmployee()+"#";
+		List<Long> countNeedApproval = dataApprovalRepository.countNeedApproval(emp, DataApproval.NOT_COMPLETED, user.getCompany());
+		if(countNeedApproval != null && countNeedApproval.size() > 0) {
+			for (Long objects : countNeedApproval) {
+				obj.setCount(objects);
+			}
+		}
+		
+		return new ResponseEntity<CountObjectDTO>(obj, HttpStatus.OK);
+
+	}
+	
+	
+	
 	
 	@RequestMapping(value = "/user/workflow/dataapproval/{id}", method = RequestMethod.GET)
 	@ResponseBody

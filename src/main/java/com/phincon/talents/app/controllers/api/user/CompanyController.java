@@ -19,6 +19,7 @@ import com.phincon.talents.app.model.Company;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.services.CompanyService;
+import com.phincon.talents.app.utils.Utils;
 
 @RestController
 @RequestMapping("api")
@@ -51,7 +52,11 @@ public class CompanyController {
 		}
 		
 		Company company = companyRepository.findOne(user.getCompany());
-		
+		if(company.getLogo()!= null && !company.getLogo().equals("")) {
+			String logo = Utils
+					.convertImageToBase64(company.getLogo());
+			company.setLogo(logo);
+		}
 		if(company != null){
 			List<BranchCompany> listBranchCompany = branchCompanyRepository.findByCompany(company.getId());
 			company.setListBranchCompany(listBranchCompany);

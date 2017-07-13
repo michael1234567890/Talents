@@ -23,7 +23,6 @@ import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.AddressTemp;
 import com.phincon.talents.app.model.hr.Employee;
-import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.services.AddressService;
 import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.EmployeeService;
@@ -124,7 +123,7 @@ public class AddressController {
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(address.getId());
 			dataApprovalDTO.setTask(Workflow.SUBMIT_ADDRESS);
-
+			dataApprovalDTO.setModule(workflow.getModule());
 			System.out.println("Controller Employee ID " + user.getEmployee());
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
@@ -189,7 +188,7 @@ public class AddressController {
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(address.getId());
 			dataApprovalDTO.setTask(Workflow.CHANGE_ADDRESS);
-			
+			dataApprovalDTO.setModule(workflow.getModule());
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
 

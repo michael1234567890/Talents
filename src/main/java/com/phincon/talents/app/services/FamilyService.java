@@ -1,9 +1,13 @@
 package com.phincon.talents.app.services;
 
+import java.io.IOException;
 import java.util.Date;
 
 import javax.transaction.Transactional;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +40,8 @@ public class FamilyService {
 	
 	@Autowired
 	DataApprovalRepository dataApprovalRepository;
+	
+	private ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Transactional
 	public Iterable<Family> findAll() {
@@ -90,6 +96,14 @@ public class FamilyService {
 	
 	public void rejectedChange(DataApproval dataApproval) {
 		Family family = familyRepository.findOne(dataApproval.getObjectRef());
+		String dataFamily = null;
+		try {
+			 dataFamily = this.objectMapper.writeValueAsString(family);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Family family1 = family;
 		if(family!= null){
 			FamilyTemp familyTemp = familyTempRepository.findOne(family.getFamilyTemp());
 			if(familyTemp != null) {
@@ -98,6 +112,12 @@ public class FamilyService {
 				family.setFamilyTemp(null);
 				family.setStatus(null);
 				familyRepository.save(family);
+				familyTemp = copyFamilyToTemp(family1, familyTemp);
+				familyTempRepository.save(familyTemp);
+				// change Data Approval
+				dataApproval.setObjectName(FamilyTemp.class.getSimpleName());
+				dataApproval.setObjectRef(familyTemp.getId());
+				dataApproval.setData(dataFamily);
 			}
 			
 		}
@@ -129,6 +149,7 @@ public class FamilyService {
 		familyTemp.setBloodType(family.getBloodType());
 		// familyTemp.setfamily.getEmail()
 		familyTemp.setName(family.getName());
+	
 		familyTemp.setPhone(family.getPhone());
 		familyTemp.setRelationship(family.getRelationship());
 		familyTemp.setEmployee(family.getEmployee());

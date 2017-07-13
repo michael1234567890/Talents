@@ -11,6 +11,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.dao.AddressTempRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
@@ -20,9 +21,12 @@ import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
+import com.phincon.talents.app.model.hr.AddressTemp;
 import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.model.hr.Family;
+import com.phincon.talents.app.model.hr.FamilyTemp;
 import com.phincon.talents.app.model.hr.LeaveRequest;
+import com.phincon.talents.app.model.hr.TMRequestHeader;
 import com.phincon.talents.app.utils.Utils;
 
 /**
@@ -41,9 +45,18 @@ public class DataApprovalService {
 
 	@Autowired
 	FamilyService familyService;
-	
+
+	@Autowired
+	FamilyTempService familyTempService;
+
+	@Autowired
+	TMRequestHeaderService tmRequestHeaderService;
+
 	@Autowired
 	AddressService addressService;
+
+	@Autowired
+	AddressTempRepository addressTempRepository;
 
 	@Autowired
 	LeaveRequestService leaveRequestService;
@@ -61,24 +74,47 @@ public class DataApprovalService {
 	public DataApproval findById(Long id) {
 		DataApproval dataApproval = dataApprovalRepository.findOne(id);
 		if (dataApproval != null) {
-			if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY)) {
-				Family family = familyService.findById(dataApproval
-						.getObjectRef());
-				dataApproval.setRef(family);
+			if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY) || dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
+				System.out.println("Family Data Approval");
+				if (dataApproval.getProcessingStatus().equals(
+						DataApproval.PROC_STATUS_REJECT)) {
+					System.out.println("Data Approval Object Ref " + dataApproval.getObjectRef());
+					FamilyTemp familyTemp = familyTempService
+							.findById(dataApproval.getObjectRef());
+					dataApproval.setRef(familyTemp);
+				} else {
+					Family family = familyService.findById(dataApproval
+							.getObjectRef());
+					dataApproval.setRef(family);
+				}
+
 			} else if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
 				LeaveRequest obj = leaveRequestService.findById(dataApproval
 						.getObjectRef());
 				Object objConvert = (Object) obj;
 				dataApproval.setRef(objConvert);
-			} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
-				Address obj = addressService.findById(dataApproval
-						.getObjectRef());
-				Object objConvert = (Object) obj;
-				dataApproval.setRef(objConvert);
+			} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)
+					|| dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
+				if (dataApproval.getProcessingStatus().equals(
+						DataApproval.PROC_STATUS_REJECT)) {
+					AddressTemp addressTemp = addressTempRepository
+							.findOne(dataApproval.getObjectRef());
+					dataApproval.setRef(addressTemp);
+				} else {
+					Address obj = addressService.findById(dataApproval
+							.getObjectRef());
+					Object objConvert = (Object) obj;
+					dataApproval.setRef(objConvert);
+				}
+
+			} else if (dataApproval.getTask().equals(Workflow.SUBMIT_BENEFIT)) {
+				TMRequestHeader tmRequestHeader = tmRequestHeaderService
+						.findByIdWithDetail(dataApproval.getObjectRef());
+				dataApproval.setRef(tmRequestHeader);
+
 			}
-//			Employee objEmployee = employeeService.findEmployee(dataApproval
-//					.getEmpRequest());
-			Employee objEmployee = employeeService.findEmployeeWithAssignment(dataApproval.getEmpRequest());
+			Employee objEmployee = employeeService
+					.findEmployeeWithAssignment(dataApproval.getEmpRequest());
 			dataApproval.setEmployeeRequest(objEmployee);
 		}
 
@@ -103,6 +139,12 @@ public class DataApprovalService {
 							.findById(dataApproval.getObjectRef());
 					Object objConvert = (Object) obj;
 					dataApproval.setRef(objConvert);
+				} else if (dataApproval.getTask().equals(
+						Workflow.SUBMIT_BENEFIT)) {
+					TMRequestHeader obj = tmRequestHeaderService
+							.findById(dataApproval.getObjectRef());
+					Object objConvert = (Object) obj;
+					dataApproval.setRef(objConvert);
 				}
 				lisApprovalsTemp.add(dataApproval);
 			}
@@ -119,25 +161,26 @@ public class DataApprovalService {
 	}
 
 	@Transactional
-	public List<DataApproval> findNeedApproval(String emp, String status,
-			Long company) {
+	public List<DataApproval> findByEmployeeAndModule(Long empRequest,
+			String module) {
 		List<DataApproval> listDataApprovals = dataApprovalRepository
-				.findNeedApproval(emp, status, company);
-		List<DataApproval> lisApprovalsTemp = new ArrayList<DataApproval>();
-		if (listDataApprovals != null && listDataApprovals.size() > 0) {
-			for (DataApproval dataApproval : listDataApprovals) {
-				Employee objEmployee = employeeService
-						.findEmployee(dataApproval.getEmpRequest());
-				dataApproval.setEmployeeRequest(objEmployee);
-				if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
-					LeaveRequest obj = leaveRequestService
-							.findById(dataApproval.getObjectRef());
-					Object objConvert = (Object) obj;
-					dataApproval.setRef(objConvert);
-				}
-				lisApprovalsTemp.add(dataApproval);
-			}
-		}
+				.findByEmpRequestAndModule(empRequest, module);
+		List<DataApproval> lisApprovalsTemp = modifyResultDataApproval(listDataApprovals);
+		return lisApprovalsTemp;
+	}
+
+	@Transactional
+	public List<DataApproval> findNeedApproval(String emp, String status,
+			Long company, String module) {
+		List<DataApproval> listDataApprovals = null;
+		if (module == null)
+			listDataApprovals = dataApprovalRepository.findNeedApproval(emp,
+					status, company);
+		else
+			listDataApprovals = dataApprovalRepository
+					.findNeedApprovalAndModule(emp, status, company, module);
+
+		List<DataApproval> lisApprovalsTemp = modifyResultDataApproval(listDataApprovals);
 		return lisApprovalsTemp;
 	}
 
@@ -226,6 +269,7 @@ public class DataApprovalService {
 			dataApproval.setActive(true);
 			dataApproval.setObjectRef(request.getIdRef());
 			dataApproval.setTask(request.getTask());
+			dataApproval.setModule(request.getModule());
 			dataApproval.setEmpRequest(user.getEmployee());
 			dataApproval.setCompany(user.getCompany());
 			dataApproval.setCreatedDate(new Date());
@@ -244,11 +288,12 @@ public class DataApprovalService {
 			dataApproval.setObjectName(request.getObjectName());
 			dataApproval.setDescription(request.getDescription());
 		}
-		
-		if(request.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
+
+		if (request.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			dataApproval.setDescription(workflow.getDescription());
 			dataApproval.setObjectName(Employee.class.getSimpleName());
 		}
+		dataApproval.setModule(workflow.getModule());
 
 		save(dataApproval);
 		if (request.getAttachments() != null
@@ -272,8 +317,6 @@ public class DataApprovalService {
 			}
 
 		}
-
-		// action after data approval saved
 
 		if (request.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.requestMaritalStatus(dataApproval);
@@ -316,7 +359,7 @@ public class DataApprovalService {
 				dataApproval.setStatus(DataApproval.COMPLETED);
 				dataApproval
 						.setProcessingStatus(DataApproval.PROC_STATUS_APPROVE);
-				callingApprovedMethod(dataApproval);
+				callingApprovedMethod(dataApproval, approvalWorkflow);
 
 			} else {
 				Integer nextLevelApproval = dataApproval
@@ -363,16 +406,19 @@ public class DataApprovalService {
 			leaveRequestService.rejected(dataApproval, LeaveRequest.REJECTED);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY)) {
 			familyService.rejected(dataApproval);
-		} else if(dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
+		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
 			addressService.rejected(dataApproval);
-		}else if(dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
+		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_BENEFIT)) {
+			tmRequestHeaderService.rejected(dataApproval);
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
 			familyService.rejectedChange(dataApproval);
-		}else if(dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
 			addressService.rejectedChange(dataApproval);
 		}
 	}
 
-	private void callingApprovedMethod(DataApproval dataApproval) {
+	private void callingApprovedMethod(DataApproval dataApproval,
+			ApprovalWorkflowDTO approvalWorkflow) {
 		if (dataApproval.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.approvedChangeMaritalStatus(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
@@ -381,14 +427,15 @@ public class DataApprovalService {
 			familyService.approvedSubmitFamily(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
 			addressService.approvedSubmitAddress(dataApproval);
-		}else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
 			familyService.approvedChangeFamily(dataApproval);
-		}else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
 			addressService.approvedChangeAddress(dataApproval);
+		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_BENEFIT)) {
+			tmRequestHeaderService.approved(dataApproval, approvalWorkflow);
+
 		}
 	}
-	
-	
 
 	public void cancelRequest(ApprovalWorkflowDTO approvalWorkflow, User user) {
 		DataApproval dataApproval = dataApprovalRepository
@@ -401,23 +448,20 @@ public class DataApprovalService {
 			throw new RuntimeException(
 					"Error : This request is already Completed");
 		}
-		
-		
 
 		System.out.println(user.getEmployee());
-		
-		if(!dataApproval.getEmpRequest().equals(user.getEmployee()) ) {
+
+		if (!dataApproval.getEmpRequest().equals(user.getEmployee())) {
 			throw new RuntimeException(
 					"Error : You dont have access this request");
 		}
-		
+
 		dataApproval.setStatus(DataApproval.COMPLETED);
-		dataApproval
-				.setProcessingStatus(DataApproval.PROC_STATUS_CANCEL);
-		
+		dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_CANCEL);
+
 		dataApprovalRepository.save(dataApproval);
 		callingRejectedMethod(dataApproval);
-		
+
 	}
 
 }

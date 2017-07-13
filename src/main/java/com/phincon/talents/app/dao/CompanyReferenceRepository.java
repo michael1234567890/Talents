@@ -14,6 +14,13 @@ public interface CompanyReferenceRepository extends PagingAndSortingRepository<C
 	 @Query
 	 List<CompanyReference> findByCompany(Long company);
 	 
+	 @Query
+	 List<CompanyReference> findByCompanyAndCategory(Long company, String category);
+	 
+
+	 @Query
+	 List<CompanyReference> findByCompanyAndCategoryAndField(Long company, String category, String field);
+	 
 	
 	
 }

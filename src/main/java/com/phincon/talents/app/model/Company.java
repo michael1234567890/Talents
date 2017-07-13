@@ -28,20 +28,15 @@ public class Company extends AbstractEntity {
 	@Column(name = "address", length = 255)
 	private String address;
 	
-	@Column(name = "branch_1_name")
-	private String branch1Name;
-	
-	@Column(name = "branch_1_address", length = 255)
-	private String branch1Address;
-	
-	@Column(name = "branch_2_name")
-	private String branch2Name;
-	
-	@Column(name = "branch_2_address", length = 255)
-	private String branch2Address;
 	
 	@Column(name = "logo", length = 255)
 	private String logo;
+	
+	@Column(name = "telephone", length = 100)
+	private String telephone;
+	
+	@Column(name = "email", length = 100)
+	private String email;
 	
 	@Transient
 	private List<BranchCompany> listBranchCompany;
@@ -82,38 +77,7 @@ public class Company extends AbstractEntity {
 		this.address = address;
 	}
 
-	public String getBranch1Name() {
-		return branch1Name;
-	}
-
-	public void setBranch1Name(String branch1Name) {
-		this.branch1Name = branch1Name;
-	}
-
-	public String getBranch1Address() {
-		return branch1Address;
-	}
-
-	public void setBranch1Address(String branch1Address) {
-		this.branch1Address = branch1Address;
-	}
-
-	public String getBranch2Name() {
-		return branch2Name;
-	}
-
-	public void setBranch2Name(String branch2Name) {
-		this.branch2Name = branch2Name;
-	}
-
-	public String getBranch2Address() {
-		return branch2Address;
-	}
-
-	public void setBranch2Address(String branch2Address) {
-		this.branch2Address = branch2Address;
-	}
-
+	
 	public String getLogo() {
 		return logo;
 	}
@@ -128,6 +92,24 @@ public class Company extends AbstractEntity {
 
 	public void setConnectedApp(ConnectedApp connectedApp) {
 		this.connectedApp = connectedApp;
+	}
+	
+	
+
+	public String getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public Company() {

@@ -22,14 +22,14 @@ import com.phincon.talents.app.model.hr.VwEmpAssignment;
 public class VwEmpAssignmentService {
 
 	@Autowired
-	VwEmpAssignmentRepository reportToRepository;
+	VwEmpAssignmentRepository vwAssignmentRepository;
 
 	@Autowired
 	EmployeeRepository employeeRepository;
 
 	@Transactional
 	public Employee findReportTo(Long employee) {
-		List<VwEmpAssignment> listReportTo = reportToRepository
+		List<VwEmpAssignment> listReportTo = vwAssignmentRepository
 				.findByEmployee(employee);
 		if (listReportTo != null && listReportTo.size() > 0) {
 			VwEmpAssignment reportToSelected = listReportTo.get(0);
@@ -48,7 +48,7 @@ public class VwEmpAssignmentService {
 
 	@Transactional
 	public List<Employee> findEmployee(Long reportTo) {
-		List<VwEmpAssignment> listReportTo = reportToRepository
+		List<VwEmpAssignment> listReportTo = vwAssignmentRepository
 				.findByDirectEmployee(reportTo);
 		if (listReportTo != null && listReportTo.size() > 0) {
 			List<Long> employeeIds = new ArrayList<Long>();
@@ -66,8 +66,19 @@ public class VwEmpAssignmentService {
 
 	@Transactional
 	public VwEmpAssignment findAssignmentByEmployee(Long employee) {
-		List<VwEmpAssignment> listAssignMent = reportToRepository
+		List<VwEmpAssignment> listAssignMent = vwAssignmentRepository
 				.findByEmployee(employee);
+		if (listAssignMent != null && listAssignMent.size() > 0) {
+			return listAssignMent.get(0);
+		}
+
+		return null;
+	}
+	
+	@Transactional
+	public VwEmpAssignment findAssignmentWithGradeByEmployee(Long employee) {
+		List<VwEmpAssignment> listAssignMent = vwAssignmentRepository
+				.findWithGradeByEmployee(employee);
 		if (listAssignMent != null && listAssignMent.size() > 0) {
 			return listAssignMent.get(0);
 		}

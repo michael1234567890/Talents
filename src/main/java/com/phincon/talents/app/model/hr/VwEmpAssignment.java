@@ -74,6 +74,15 @@ public class VwEmpAssignment  {
 	
 	@Column(name = "direct_last_name")
 	private String directLastName;
+	
+	@Column(name = "grade_name", length = 100)
+	private String gradeName;
+
+	@Column(name = "grade_id")
+	private Long grade;
+	
+	@Column(name = "grade_nominal")
+	private Integer gradeNominal;
 
 	public Long getEmployment() {
 		return employment;
@@ -251,6 +260,30 @@ public class VwEmpAssignment  {
 
 	public void setEmployeeNo(String employeeNo) {
 		this.employeeNo = employeeNo;
+	}
+
+	public String getGradeName() {
+		return gradeName;
+	}
+
+	public void setGradeName(String gradeName) {
+		this.gradeName = gradeName;
+	}
+
+	public Long getGrade() {
+		return grade;
+	}
+
+	public void setGrade(Long grade) {
+		this.grade = grade;
+	}
+
+	public Integer getGradeNominal() {
+		return gradeNominal;
+	}
+
+	public void setGradeNominal(Integer gradeNominal) {
+		this.gradeNominal = gradeNominal;
 	}
 	
 	
