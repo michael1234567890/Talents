@@ -8,6 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
 
 @Repository
@@ -34,7 +35,7 @@ public interface TMRequestHeaderRepository extends PagingAndSortingRepository<TM
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.module=:module ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployeeAndModule(@Param("company") Long company, @Param("employee") Long employee,@Param("module") String module);
 	
-	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.module=:module AND u.needReport=TRUE ORDER BY createdDate DESC")
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.module=:module AND u.needReport=TRUE AND u.status ='"+TMRequest.APPROVED+"' ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployeeAndModuleAndNeedReport(@Param("company") Long company, @Param("employee") Long employee,@Param("module") String module);
 	
 	

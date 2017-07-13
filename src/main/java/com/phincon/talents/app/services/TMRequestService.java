@@ -154,14 +154,10 @@ public class TMRequestService {
 					if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().equals("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") )) {
 						tmBalance.setBalanceUsed(balanceUsed);
 						//tmBalance.setLastClaimDate(null);
-						tmBalance.setLastClaimDate(tmBalance.getLastClaimDateBefore());
-						tmBalance.setLastClaimDateBefore(null);
 						
 					} else if(tmBalance.getBalanceType() != null && tmBalance.getBalanceType().toLowerCase().equals("one time")){
 						tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
-						tmBalance.setLastClaimDate(tmBalance.getLastClaimDateBefore());
-						tmBalance.setLastClaimDateBefore(null);
 						
 						
 						// tmBalance.setLastClaimDate(null);
@@ -169,10 +165,10 @@ public class TMRequestService {
 						tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
 						
-						tmBalance.setLastClaimDate(tmBalance.getLastClaimDateBefore());
-						tmBalance.setLastClaimDateBefore(null);
-						
 					}
+					tmBalance.setLastClaimDate(tmBalance.getLastClaimDateBefore());
+					tmBalance.setLastClaimDateBefore(null);
+					
 					tmBalanceRepository.save(tmBalance);
 				}
 					

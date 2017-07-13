@@ -283,7 +283,8 @@ public class TMRequestHeaderService {
 				Double decrease = Double.valueOf("0");
 				decrease = mapBenefitDetail.get(tmBalance.getType()
 						.toLowerCase());
-				if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().contains("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") ||  tmBalance.getBalanceType().toLowerCase().equals("one time (2 years)") ||  tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)"))) {
+				// if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().contains("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") ||  tmBalance.getBalanceType().toLowerCase().equals("one time (2 years)") ||  tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)"))) {
+				if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().contains("daily") || tmBalance.getBalanceType().toLowerCase().contains("one time") )){
 					tmBalance.setBalanceUsed(decrease);
 				}else {
 					Double balanceEnd = tmBalance.getBalanceEnd() - decrease;
@@ -380,6 +381,11 @@ public class TMRequestHeaderService {
 		if (detail.getType().toLowerCase().equals("sumbangan perabot")) {
 			TMBalance balance = getBalanceByCategoryAndType(listBalance,
 					"mutasi", "sumbangan perabot");
+			if(employee.getMaritalStatus() == null || employee.getMaritalStatus().equals("")){
+				throw new RuntimeException(
+						"Your Marital Status is Unknown. Please contact your Admin");
+			}
+			
 			if (balance.getLastClaimDate() != null) {
 				// check marital status is same or not, it should be not
 				if (balance.getMaritalStatus().equals(
@@ -410,6 +416,7 @@ public class TMRequestHeaderService {
 				System.out.println("Last Claim Date "+ balance.getLastClaimDate());
 				
 				
+				
 				if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time (2 years)")) {
 					// check last claim date
 					if(balance.getLastClaimDate() != null && (Utils.diffDay(balance.getLastClaimDate(), new Date())  < 730 )) {
@@ -424,6 +431,13 @@ public class TMRequestHeaderService {
 								"Error : You have already applied '"
 										+ type
 										+ "'. This type Only one time apply in 5 Years.");
+					}
+				}else if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
+					if(balance.getLastClaimDate() != null) {
+						throw new RuntimeException(
+								"Error : You have already applied '"
+										+ type
+										+ "'. This type Only one time.");
 					}
 				}
 				
