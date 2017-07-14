@@ -109,7 +109,9 @@ public class PayrollElementHeaderYearly extends AbstractEntity {
 	@Transient
 	private List<PayrollElementDetailYearly> detailOut;
 	
-	
+
+	@Column(name = "total_allowance")
+	private Double totalAllowance;
 	
 	public Double getJumlahPhBruto() {
 		return jumlahPhBruto;
@@ -317,6 +319,14 @@ public class PayrollElementHeaderYearly extends AbstractEntity {
 
 	public void setDetailOut(List<PayrollElementDetailYearly> detailOut) {
 		this.detailOut = detailOut;
+	}
+
+	public Double getTotalAllowance() {
+		return totalAllowance;
+	}
+
+	public void setTotalAllowance(Double totalAllowance) {
+		this.totalAllowance = totalAllowance;
 	}
 
 	
