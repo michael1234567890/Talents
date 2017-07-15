@@ -35,6 +35,7 @@ import com.phincon.talents.app.utils.Utils;
 
 @Service
 public class TMRequestHeaderService {
+	
 	@Autowired
 	TMRequestHeaderRepository tmRequestHeaderRepository;
 	@Autowired
@@ -81,10 +82,10 @@ public class TMRequestHeaderService {
 
 		if (request.getModule() == null || request.getCategoryType() == null) {
 			throw new RuntimeException(
-					"Error : Module and Category Type can't be Empty.");
+					"Module and Category Type can't be Empty.");
 		}
 		if (request.getDetails() == null || request.getDetails().size() == 0) {
-			throw new RuntimeException("Error : Your request can't be Empty.");
+			throw new RuntimeException("Your request can't be Empty.");
 		}
 
 		System.out.println("Transaction Date " + request.getTransactionDate());
@@ -146,13 +147,18 @@ public class TMRequestHeaderService {
 		request.setDetails(listBenefitDetail);
 
 		if (request.getDetails().size() == 0) {
-			throw new RuntimeException("Error : Your request can't be empty.");
+			throw new RuntimeException("Your request can't be empty.");
 		}
-
+		
+		
+		// move listBalance into MapBalance
+		Map<String, Double> mapBalance = new HashMap<String, Double>();
+		for (TMBalance tmBalance : listBalance) {
+			mapBalance.put(tmBalance.getType().toLowerCase(), tmBalance.getBalanceEnd());
+		}
+		
 		// check masing - masing type mencukupi gak Balance end nya
-		validationBenefitAmount(request, listBalance, user, employment);
-
-		System.out.println("Transaction Date 2 " + request.getTransactionDate());
+		validationBenefitAmount(request, mapBalance, listBalance, user, employment);		
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
 		tmRequestHeader.setTransactionDate(request.getTransactionDate());
 		tmRequestHeader.setCompany(user.getCompany());
@@ -172,6 +178,7 @@ public class TMRequestHeaderService {
 		if(request.getCategoryType()!= null && request.getCategoryType().toLowerCase().equals("spd advance")) {
 			tmRequestHeader.setNeedReport(true);
 		}
+		
 		Workflow workflow = null;
 		String taskName = Workflow.SUBMIT_BENEFIT;
 		workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
@@ -197,8 +204,16 @@ public class TMRequestHeaderService {
 		// loop listbalance and put to mapBalance
 		Map<String, Double> mapBenefitDetail = new HashMap<String, Double>();
 		for (BenefitDetailDTO benefitDetailDto : request.getDetails()) {
-			mapBenefitDetail.put(benefitDetailDto.getType().toLowerCase(),
-					benefitDetailDto.getAmount());
+			if(benefitDetailDto.getType().toLowerCase().equals("sumbangan pernikahan")) {
+				Double objAmount = (Double) mapBalance.get(benefitDetailDto.getType().toLowerCase());
+				mapBenefitDetail.put(benefitDetailDto.getType().toLowerCase(),
+						objAmount);
+			}else {
+				mapBenefitDetail.put(benefitDetailDto.getType().toLowerCase(),
+						benefitDetailDto.getAmount());
+			}
+				
+			
 		}
 
 		for (BenefitDetailDTO details : request.getDetails()) {
@@ -208,7 +223,13 @@ public class TMRequestHeaderService {
 			tmRequest.setStartDate(request.getTransactionDate());
 			tmRequest.setOrigin(request.getOrigin());
 			tmRequest.setDestination(request.getDestination());
-			tmRequest.setAmount(details.getAmount());
+			if(details.getType().toLowerCase().equals("sumbangan pernikahan")) {
+				Double objAmount = (Double) mapBalance.get(details.getType().toLowerCase());
+				tmRequest.setAmount(objAmount);
+			}else {
+				tmRequest.setAmount(details.getAmount());
+			}
+				
 			tmRequest.setType(details.getType());
 			tmRequest.setCategoryType(request.getCategoryType());
 			tmRequest.setCategoryTypeExtId(request.getCategoryTypeExtId());
@@ -235,31 +256,6 @@ public class TMRequestHeaderService {
 
 		// decrease Balance end and increase balance used in TMBalance
 		actionForBalance(listBalance, mapBenefitDetail, user);
-		/*for (TMBalance tmBalance : listBalance) {
-			if (mapBenefitDetail.get(tmBalance.getType().toLowerCase()) != null) {
-				Double decrease = Double.valueOf("0");
-				decrease = mapBenefitDetail.get(tmBalance.getType()
-						.toLowerCase());
-				if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().contains("daily") || tmBalance.getBalanceType().toLowerCase().contains("one time (transaction)"))) {
-					tmBalance.setBalanceUsed(decrease);
-				}else {
-					Double balanceEnd = tmBalance.getBalanceEnd() - decrease;
-					tmBalance.setBalanceEnd(balanceEnd);
-					Double balanceUsed = tmBalance.getBalanceUsed() + decrease;
-					tmBalance.setBalanceUsed(balanceUsed);
-				}
-				
-				tmBalance.setLastClaimDate(new Date());
-				if (tmBalance.getType().toLowerCase()
-						.equals("sumbangan perabot")) {
-					Employee employee = employeeRepository.findOne(user
-							.getEmployee());
-					tmBalance.setMaritalStatus(employee.getMaritalStatus());
-				}
-				tmBalanceRepository.save(tmBalance);
-			}
-		}*/
-
 		if (workflow != null) {
 			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
 			dataApprovalDTO
@@ -319,13 +315,7 @@ public class TMRequestHeaderService {
 	}
 
 	public void validationBenefitAmount(BenefitDTO obj,
-			List<TMBalance> listBalance, User user, Employment employment) {
-
-		Map<String, Double> mapBalance = new HashMap<String, Double>();
-		for (TMBalance tmBalance : listBalance) {
-			mapBalance.put(tmBalance.getType().toLowerCase(), tmBalance.getBalanceEnd());
-		}
-
+			Map<String,Double> mapBalance,List<TMBalance> listBalance, User user, Employment employment) {
 
 		if (obj.getDetails() != null && obj.getDetails().size() > 0) {
 			for (BenefitDetailDTO details : obj.getDetails()) {
@@ -343,7 +333,7 @@ public class TMRequestHeaderService {
 				System.out.println(mapBalance.get(details.getType().toLowerCase()));
 				if (mapBalance.get(details.getType().toLowerCase()) != null
 						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount) {
-					throw new RuntimeException("Error : Your Balance "
+					throw new RuntimeException("Your Balance "
 							+ details.getType() + " is not enought.");
 				}
 			}
@@ -391,7 +381,7 @@ public class TMRequestHeaderService {
 				if (balance.getMaritalStatus().equals(
 						employee.getMaritalStatus())) {
 					throw new RuntimeException(
-							"Error : You are not allowed apply '"
+							"You are not allowed apply '"
 									+ detail.getType()
 									+ "' Your marital status is same with before.");
 				}
@@ -415,27 +405,25 @@ public class TMRequestHeaderService {
 				System.out.println("Balance ID "+ balance.getId());
 				System.out.println("Last Claim Date "+ balance.getLastClaimDate());
 				
-				
-				
 				if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time (2 years)")) {
 					// check last claim date
 					if(balance.getLastClaimDate() != null && (Utils.diffDay(balance.getLastClaimDate(), new Date())  < 730 )) {
 						throw new RuntimeException(
-								"Error : You have already applied '"
+								"You have already applied '"
 										+ type
 										+ "'. This type Only one time apply in 2 years.");
 					}
 				}else if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time (5 years)")){
 					if(balance.getLastClaimDate() != null && (Utils.diffDay(balance.getLastClaimDate(), new Date())  < 1825)) {
 						throw new RuntimeException(
-								"Error : You have already applied '"
+								"You have already applied '"
 										+ type
 										+ "'. This type Only one time apply in 5 Years.");
 					}
 				}else if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
 					if(balance.getLastClaimDate() != null) {
 						throw new RuntimeException(
-								"Error : You have already applied '"
+								"You have already applied '"
 										+ type
 										+ "'. This type Only one time.");
 					}
@@ -460,11 +448,6 @@ public class TMRequestHeaderService {
 					throw new RuntimeException(
 							"Error : You have already applied. This type '"+tmRequest.getType()+"' Only one time per Daily.");
 				}
-				
-				/*if(balance.getLastClaimDate() != null && Utils.isSameDay(header.getTransactionDate(), balance.getLastClaimDate())) {
-					throw new RuntimeException(
-							"Error : You have already applied. This type '"+tmRequest.getType()+"' Only one time per Daily.");
-				}*/
 			}
 		}
 	}

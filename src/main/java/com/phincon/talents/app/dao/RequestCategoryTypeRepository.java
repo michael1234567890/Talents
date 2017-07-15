@@ -14,6 +14,4 @@ public interface RequestCategoryTypeRepository extends PagingAndSortingRepositor
 	@Query
 	List<RequestCategoryType> findByCompany(Long company);
 	
-	
-		
 }

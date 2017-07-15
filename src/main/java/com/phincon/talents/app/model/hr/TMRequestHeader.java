@@ -29,6 +29,10 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "transaction_date")
 	private Date transactionDate;
 	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "end_date")
+	private Date endDate;
+	
 	@Column(name = "request_no", length=100)
 	private String reqNo;
 	
@@ -221,6 +225,14 @@ public class TMRequestHeader extends AbstractEntity {
 
 	public void setDestination(String destination) {
 		this.destination = destination;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 	
 	

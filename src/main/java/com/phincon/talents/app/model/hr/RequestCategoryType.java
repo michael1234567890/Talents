@@ -32,7 +32,18 @@ public class RequestCategoryType extends AbstractEntity {
 	
 	@Column(name = "company_id")
 	private Long company;
+	
+	@Column(name = "is_direct_type")
+	private boolean isDirectType = false;
+	
+	
+	@Column(name = "label", length = 100)
+	private String label;
 
+	@Column(name = "type", length = 100)
+	private String type;
+
+	
 	@Transient
 	private List<RequestType> listRequestType;
 	
@@ -84,6 +95,34 @@ public class RequestCategoryType extends AbstractEntity {
 	public void setListRequestType(List<RequestType> listRequestType) {
 		this.listRequestType = listRequestType;
 	}
+
+	public boolean isDirectType() {
+		return isDirectType;
+	}
+
+	public void setDirectType(boolean isDirectType) {
+		this.isDirectType = isDirectType;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	
+	
+	
 	
 	
 	
