@@ -9,6 +9,9 @@ import javax.persistence.Table;
 
 public class CompanySettings extends AbstractEntity {
 	
+	public static final String PAYSLIP_TYPE_MONTHLY = "monthly";
+	public static final String PAYSLIP_TYPE_LATEST = "latest";
+	
 	
 //	@ManyToOne(fetch = FetchType.LAZY)
 //	@JoinColumn(name="company_id")
@@ -29,6 +32,14 @@ public class CompanySettings extends AbstractEntity {
 
 	@Column(name="msg_error_regex_password", length=255)
 	private String msgErrorRegexPassword;
+	
+
+	@Column(name="payslip_type", length=100)
+	private String payslipType; // latest, monthly
+	
+
+	@Column(name="logo", length=255)
+	private String logo;
 
 	public Long getCompany() {
 		return company;
@@ -68,6 +79,22 @@ public class CompanySettings extends AbstractEntity {
 
 	public void setIsRegexPasswordActive(Boolean isRegexPasswordActive) {
 		this.isRegexPasswordActive = isRegexPasswordActive;
+	}
+
+	public String getPayslipType() {
+		return payslipType;
+	}
+
+	public void setPayslipType(String payslipType) {
+		this.payslipType = payslipType;
+	}
+
+	public String getLogo() {
+		return logo;
+	}
+
+	public void setLogo(String logo) {
+		this.logo = logo;
 	}
 	
 	

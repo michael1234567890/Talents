@@ -26,8 +26,11 @@ public interface TMRequestHeaderRepository extends PagingAndSortingRepository<TM
 	 @Query("UPDATE TMRequestHeader set status='"+TMRequestHeader.REJECTED+"' where id=:id")
 	 void rejected(@Param("id") Long id);
 	 
-	 @Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee ORDER BY createdDate DESC")
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployee(@Param("company") Long company, @Param("employee") Long employee);
+	
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.employee=:employee AND u.id=:id")
+	TMRequestHeader findByEmployeeAndId( @Param("employee") Long employee,@Param("id") Long id);
 	 
 	 @Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee  AND u.needReport=TRUE ORDER BY createdDate DESC")
 	 List<TMRequestHeader> findByCompanyAndEmployeeAndNeedReport(@Param("company") Long company, @Param("employee") Long employee);

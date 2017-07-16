@@ -70,6 +70,14 @@ public class TMRequestHeaderService {
 		obj.setDetails(details);
 		return obj;
 	}
+	
+	@Transactional
+	public TMRequestHeader findByIdWithDetail(Long id,Long employeeId) {
+		TMRequestHeader obj = tmRequestHeaderRepository.findByEmployeeAndId(employeeId, id);
+		List<TMRequest> details = tmRequestRepository.findByTmRequestHeader(id);
+		obj.setDetails(details);
+		return obj;
+	}
 
 	@Transactional
 	public void save(TMRequestHeader obj) {
@@ -88,7 +96,6 @@ public class TMRequestHeaderService {
 			throw new RuntimeException("Your request can't be Empty.");
 		}
 
-		System.out.println("Transaction Date " + request.getTransactionDate());
 		Date today = new Date();
 		// get all type in categoryTYpe with module BN
 		
@@ -160,7 +167,7 @@ public class TMRequestHeaderService {
 		// check masing - masing type mencukupi gak Balance end nya
 		validationBenefitAmount(request, mapBalance, listBalance, user, employment);		
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
-		tmRequestHeader.setTransactionDate(request.getTransactionDate());
+//		tmRequestHeader.setTransactionDate(request.getTransactionDate());
 		tmRequestHeader.setCompany(user.getCompany());
 		tmRequestHeader.setCreatedBy(user.getUsername());
 		tmRequestHeader.setModifiedBy(user.getUsername());
@@ -212,15 +219,30 @@ public class TMRequestHeaderService {
 				mapBenefitDetail.put(benefitDetailDto.getType().toLowerCase(),
 						benefitDetailDto.getAmount());
 			}
-				
-			
+						
 		}
 
 		for (BenefitDetailDTO details : request.getDetails()) {
 			// create new TM Request
 			TMRequest tmRequest = new TMRequest();
 			// tmRequest.setTransactionDate(request.getTransactionDate());
-			tmRequest.setStartDate(request.getTransactionDate());
+			tmRequest.setStartDate(request.getStartDate());
+			tmRequest.setEndDate(request.getEndDate());
+			
+			if(request.getStartDate() != null && request.getEndDate() != null) {
+				Double totalDay = Double.valueOf("1");
+				if(Utils.comparingDate(request.getEndDate(), request.getStartDate(), "<")) {
+					throw new RuntimeException("The end date must be greater than The start date.");
+				}
+				Long diffDays = Utils.diffDay(request.getStartDate(), request.getEndDate());
+				if(diffDays != null){
+					diffDays +=1;
+					totalDay = diffDays.doubleValue();
+				}
+					
+				System.out.println("Diff Days " + diffDays);
+				tmRequest.setTotalDay(totalDay);
+			}
 			tmRequest.setOrigin(request.getOrigin());
 			tmRequest.setDestination(request.getDestination());
 			if(details.getType().toLowerCase().equals("sumbangan pernikahan")) {
@@ -443,7 +465,7 @@ public class TMRequestHeaderService {
 			
 			if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().contains("daily")) {
 				// Ignore if any record in request with same day transaction date 
-				List<TMRequest> listRequestDaily = tmRequestRepository.findTMRequestByStartDate(companyId, employmentId, header.getModule(), header.getCategoryType(), tmRequest.getType(), header.getTransactionDate());
+				List<TMRequest> listRequestDaily = tmRequestRepository.findTMRequestByStartDate(companyId, employmentId, header.getModule(), header.getCategoryType(), tmRequest.getType(), header.getStartDate());
 				if(listRequestDaily!= null && listRequestDaily.size() > 0) {
 					throw new RuntimeException(
 							"Error : You have already applied. This type '"+tmRequest.getType()+"' Only one time per Daily.");

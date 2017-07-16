@@ -13,7 +13,8 @@ public class BenefitDTO {
 	private String destination;
 	private String categoryType;
 	private String categoryTypeExtId;
-	private Date transactionDate;
+	private Date startDate;
+	private Date endDate;
 	private Long linkRef;
 	private Long linkRefHeader;
 
@@ -56,16 +57,33 @@ public class BenefitDTO {
 		this.categoryType = categoryType;
 	}
 
-	public Date getTransactionDate() {
-		return transactionDate;
+
+	public void setStartDate(String startDate) {
+		if (startDate != null && !startDate.equals(""))
+			this.startDate = Utils.convertStringToDate(startDate);
+		else
+			this.startDate = null;
 	}
 
-	public void setTransactionDate(String transactionDate) {
-		if (transactionDate != null && !transactionDate.equals(""))
-			this.transactionDate = Utils.convertStringToDate(transactionDate);
-		else
-			this.transactionDate = null;
+	
+	public Date getStartDate() {
+		return startDate;
 	}
+	
+
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		if (endDate != null && !endDate.equals(""))
+			this.endDate = Utils.convertStringToDate(endDate);
+		else
+			this.endDate = null;
+	}
+	
+	
 
 	public String getCategoryTypeExtId() {
 		return categoryTypeExtId;

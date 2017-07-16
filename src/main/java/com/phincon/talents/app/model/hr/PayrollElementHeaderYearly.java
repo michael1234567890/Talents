@@ -113,6 +113,15 @@ public class PayrollElementHeaderYearly extends AbstractEntity {
 	@Column(name = "total_allowance")
 	private Double totalAllowance;
 	
+	@Column(name = "current_tax_allowance")
+	private Double currentTaxAllowance;
+	
+	@Column(name = "current_tax_gross")
+	private Double currentTaxGross;
+	
+	@Column(name = "current_tax_penalty")
+	private Double currentTaxPenalty;
+	
 	public Double getJumlahPhBruto() {
 		return jumlahPhBruto;
 	}
@@ -327,6 +336,30 @@ public class PayrollElementHeaderYearly extends AbstractEntity {
 
 	public void setTotalAllowance(Double totalAllowance) {
 		this.totalAllowance = totalAllowance;
+	}
+
+	public Double getCurrentTaxAllowance() {
+		return currentTaxAllowance;
+	}
+
+	public void setCurrentTaxAllowance(Double currentTaxAllowance) {
+		this.currentTaxAllowance = currentTaxAllowance;
+	}
+
+	public Double getCurrentTaxGross() {
+		return currentTaxGross;
+	}
+
+	public void setCurrentTaxGross(Double currentTaxGross) {
+		this.currentTaxGross = currentTaxGross;
+	}
+
+	public Double getCurrentTaxPenalty() {
+		return currentTaxPenalty;
+	}
+
+	public void setCurrentTaxPenalty(Double currentTaxPenalty) {
+		this.currentTaxPenalty = currentTaxPenalty;
 	}
 
 	

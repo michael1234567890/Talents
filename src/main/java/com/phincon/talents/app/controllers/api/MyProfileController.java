@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.dao.AttachmentCertificationRepository;
-import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.AddressDTO;
@@ -27,7 +25,6 @@ import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.model.AttachmentCertification;
-import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
@@ -44,7 +41,6 @@ import com.phincon.talents.app.services.UserService;
 import com.phincon.talents.app.services.VwEmpAssignmentService;
 import com.phincon.talents.app.services.WorkflowService;
 import com.phincon.talents.app.utils.CustomMessage;
-import com.phincon.talents.app.utils.PasswordValidator;
 import com.phincon.talents.app.utils.Utils;
 
 @RestController
