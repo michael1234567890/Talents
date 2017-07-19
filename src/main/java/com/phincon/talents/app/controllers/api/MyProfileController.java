@@ -170,7 +170,20 @@ public class MyProfileController {
 				} else {
 					employee.setAssignment(null);
 				}
+				
+				
+				
+				// User
+				User userEmployee = userRepository.findByEmployee(employee.getId());
+			
+				// ambil foto profile
+				if(userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
+					 // get foto 
+				}
+				
 				lisEmployeesReturn.add(employee);
+				
+				
 			}
 		}
 

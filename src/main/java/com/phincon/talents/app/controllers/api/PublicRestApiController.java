@@ -180,7 +180,9 @@ public class PublicRestApiController {
 	private SimpleMailMessage constructResetTokenEmail(
 			final String contextPath, final Locale locale, final String token,
 			final User user) {
-		final String url = contextPath + "/user/changePassword?id="
+//		final String url = contextPath + "/user/changePassword?id="
+//				+ user.getId() + "&token=" + token;
+		final String url = env.getProperty("url.resetpassword")+"?id="
 				+ user.getId() + "&token=" + token;
 		final String message = messages.getMessage("message.resetPassword",
 				null, locale);
