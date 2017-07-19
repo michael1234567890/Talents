@@ -177,6 +177,7 @@ public class MyProfileController {
 				// ambil foto profile
 				String image = null;
 				if(userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
+					
 					 // get foto
 					image = Utils.convertImageToBase64(userEmployee.getPhotoProfile());
 				}
