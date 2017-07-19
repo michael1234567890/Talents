@@ -157,9 +157,19 @@ public class MyProfileController {
 		if (user.getEmployee() == null) {
 			return new ResponseEntity(HttpStatus.BAD_REQUEST);
 		}
-
+		
+		// cek dl di viewAssignment atasan atau bawahan berdasarkan ada enggaknya row di direct_employee_id -->user.getEmployee 
+		
+		
+		// klo ada
 		List<Employee> listEmployee = assignmentService.findEmployee(user
 				.getEmployee());
+		
+		// klo gak ada , direct_emp_id siapa,
+		// siapa aja yg direct_employee_id nya sama
+		/*List<Employee> listEmployee = assignmentService.findEmployee(user
+				.getEmployee());*/
+		
 		List<Employee> lisEmployeesReturn = new ArrayList<Employee>();
 		if (listEmployee != null && listEmployee.size() > 0) {
 			for (Employee employee : listEmployee) {
