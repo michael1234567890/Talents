@@ -42,6 +42,13 @@ public class RequestCategoryType extends AbstractEntity {
 
 	@Column(name = "type", length = 100)
 	private String type;
+	
+	@Column(name = "workflow", length = 100)
+	private String workflow;
+	
+	@Column(name = "default_value")
+	private Double defaultValue;
+
 
 	
 	@Transient
@@ -119,6 +126,24 @@ public class RequestCategoryType extends AbstractEntity {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	public String getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(String workflow) {
+		this.workflow = workflow;
+	}
+
+	public Double getDefaultValue() {
+		return defaultValue;
+	}
+
+	public void setDefaultValue(Double defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+	
+	
 	
 	
 	

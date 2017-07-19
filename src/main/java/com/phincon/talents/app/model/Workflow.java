@@ -25,6 +25,12 @@ public class Workflow extends AbstractEntity {
 	public final static String CHANGE_ADDRESS = "CHANGEADDRESS";
 	
 	public final static String SUBMIT_BENEFIT = "SUBMITBENEFIT";
+	public final static String SUBMIT_BENEFIT1 = "SUBMITBENEFIT1";
+	public final static String SUBMIT_BENEFIT2 = "SUBMITBENEFIT2";
+	public final static String SUBMIT_BENEFIT3 = "SUBMITBENEFIT3";
+	public final static String SUBMIT_BENEFIT4 = "SUBMITBENEFIT4";
+	public final static String SUBMIT_BENEFIT5 = "SUBMITBENEFIT5";
+	
 	
 	
 	

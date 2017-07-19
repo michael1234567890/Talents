@@ -21,12 +21,19 @@ List<TMBalance> findBalanceCategoryTypeByEmployment(@Param("company") Long compa
 @Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType)")
 List<TMBalance> findBalanceCategoryTypeByEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType);
 
+@Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module)")
+List<TMBalance> findBalanceByModuleEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module);
+
+
 
 @Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND p.startDate <=:today AND p.endDate>=:today")
 List<TMBalance> findBalanceTypeByEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType, @Param("type") String type,   @Param("today")  Date today);
 
 @Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type)")
 List<TMBalance> findBalanceTypeByEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType, @Param("type") String type);
+
+@Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.type)=LOWER(:type)")
+List<TMBalance> findBalanceTypeByEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("type") String type);
 
 
 @Query("select p from TMBalance p where p.company=:company AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND p.employment=:employment")

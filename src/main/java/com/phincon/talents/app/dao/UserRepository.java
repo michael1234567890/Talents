@@ -13,6 +13,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query
     User findByEmail(String email);
+    
+    @Query
+    User findByEmployee(Long employee);
 
     @Query
     User findByEmailAndActivationKey(String email, String activationKey);
@@ -20,6 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query
     User findByEmailAndResetPasswordKey(String email, String resetPasswordKey);
     
-
+    
 
 }

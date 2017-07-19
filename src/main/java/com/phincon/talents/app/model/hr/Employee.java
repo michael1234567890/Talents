@@ -477,6 +477,10 @@ public class Employee extends AbstractEntity {
 	@Transient
 	private String jobTitle;
 	
+	@Transient
+	private String photoProfile;
+	
+	
 
 	public String getAge() {
 		return age;
@@ -1366,6 +1370,16 @@ public class Employee extends AbstractEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	
+
+	public String getPhotoProfile() {
+		return photoProfile;
+	}
+
+	public void setPhotoProfile(String photoProfile) {
+		this.photoProfile = photoProfile;
 	}
 
 	@Override

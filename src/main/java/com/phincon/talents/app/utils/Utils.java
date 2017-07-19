@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sun.misc.BASE64Decoder;
@@ -30,7 +31,9 @@ public class Utils {
 	public static String UPLOAD_ROOT_PATH = "D:/upload/";
 	public static String UPLOAD_IMAGE_TYPE = "jpg";
 	public static int TIMEBETWEENPROCESS = 100;
-
+	
+	
+	
 	public static void sendEmail() {
 
 	}
@@ -48,7 +51,9 @@ public class Utils {
 
 	public static void createImage(String image, String filename) {
 		String fileType = UPLOAD_IMAGE_TYPE;
-		String path = UPLOAD_ROOT_PATH;
+		// String path = UPLOAD_ROOT_PATH;
+		String path = GlobalValue.PATH_UPLOAD;
+		System.out.println("Path Upload : " + path);
 
 		try {
 			BufferedImage bufImg = decodeToImage(image);
@@ -61,7 +66,12 @@ public class Utils {
 	}
 
 	public static String convertImageToBase64(String path) {
-		String fullpath = UPLOAD_ROOT_PATH + path;
+
+		String pathupload = GlobalValue.PATH_UPLOAD;
+		System.out.println("Path Upload : " + pathupload);
+		
+		// String fullpath = UPLOAD_ROOT_PATH + path;
+		String fullpath = pathupload + path;
 		File file = new File(fullpath);
 		try {
 			// Reading a Image file from file system

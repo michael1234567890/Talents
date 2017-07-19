@@ -17,6 +17,7 @@ public class BenefitDTO {
 	private Date endDate;
 	private Long linkRef;
 	private Long linkRefHeader;
+	private String workflow;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -131,6 +132,16 @@ public class BenefitDTO {
 
 	public void setLinkRef(Long linkRef) {
 		this.linkRef = linkRef;
+	}
+	
+	
+
+	public String getWorkflow() {
+		return workflow;
+	}
+
+	public void setWorkflow(String workflow) {
+		this.workflow = workflow;
 	}
 
 	@Override

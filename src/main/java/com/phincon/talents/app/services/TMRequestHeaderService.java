@@ -100,10 +100,17 @@ public class TMRequestHeaderService {
 		// get all type in categoryTYpe with module BN
 		
 		List<TMBalance> listBalance = new ArrayList<TMBalance>();
-		List<TMBalance> resultBalance = tmBalanceRepository
+		
+		
+		/*List<TMBalance> resultBalance = tmBalanceRepository
 				.findBalanceCategoryTypeByEmployment(user.getCompany(),
 				employment.getId(), request.getModule(),
 				request.getCategoryType());
+		*/
+		
+		List<TMBalance> resultBalance = tmBalanceRepository
+				.findBalanceByModuleEmployment(user.getCompany(),
+				employment.getId(), request.getModule());
 		for (TMBalance tmBalance : resultBalance) {
 			if(tmBalance.getStartDate()!= null && tmBalance.getEndDate() != null){
 				if(Utils.comparingDate(today, tmBalance.getStartDate(), ">=") && Utils.comparingDate(today, tmBalance.getEndDate(), "<=")) {
@@ -187,7 +194,8 @@ public class TMRequestHeaderService {
 		}
 		
 		Workflow workflow = null;
-		String taskName = Workflow.SUBMIT_BENEFIT;
+		// String taskName = Workflow.SUBMIT_BENEFIT;
+		String taskName = request.getWorkflow();
 		workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
 				user.getCompany(), true);
 		tmRequestHeader.setStatus(TMRequestHeader.APPROVED);
@@ -284,7 +292,8 @@ public class TMRequestHeaderService {
 					.setObjectName(TMRequestHeader.class.getSimpleName());
 			dataApprovalDTO.setDescription(workflow.getDescription());
 			dataApprovalDTO.setIdRef(tmRequestHeader.getId());
-			dataApprovalDTO.setTask(Workflow.SUBMIT_BENEFIT);
+			// dataApprovalDTO.setTask(Workflow.SUBMIT_BENEFIT);
+			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
 			if (request.getAttachments() != null
 					&& request.getAttachments().size() > 0) {
@@ -392,7 +401,7 @@ public class TMRequestHeaderService {
 		Employee employee = employeeRepository.findOne(user.getEmployee());
 		if (detail.getType().toLowerCase().equals("sumbangan perabot")) {
 			TMBalance balance = getBalanceByCategoryAndType(listBalance,
-					"mutasi", "sumbangan perabot");
+					"sumbangan perabot");
 			if(employee.getMaritalStatus() == null || employee.getMaritalStatus().equals("")){
 				throw new RuntimeException(
 						"Your Marital Status is Unknown. Please contact your Admin");
@@ -483,13 +492,11 @@ public class TMRequestHeaderService {
 		return false;
 	}
 
-	public TMBalance getBalanceByCategoryAndType(List<TMBalance> listBalance,
-			String category, String type) {
-		category = category.toLowerCase();
+	public TMBalance getBalanceByCategoryAndType(List<TMBalance> listBalance, String type) {
+		
 		type = type.toLowerCase();
 		for (TMBalance tmBalance : listBalance) {
-			if (tmBalance.getCategoryType().toLowerCase().equals(category)
-					&& tmBalance.getType().toLowerCase().equals(type))
+			if (tmBalance.getType().toLowerCase().equals(type))
 				return tmBalance;
 		}
 		return null;

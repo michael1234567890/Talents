@@ -68,8 +68,9 @@ public class WorkflowService {
 					.findByCodeAndCompanyAndActive(codeApproval, company, true);
 			if (listApprovalGroup != null && listApprovalGroup.size() > 0) {
 				ApprovalGroup approvalGroup = listApprovalGroup.get(0);
-				
 				assignApproval = approvalGroup.getMember();
+				System.out.println("Approval Group " + approvalGroup.getCode());
+				System.out.println("Member Group " + assignApproval);
 			}
 		}
 		return assignApproval;
