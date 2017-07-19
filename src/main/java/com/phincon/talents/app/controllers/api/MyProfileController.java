@@ -171,19 +171,19 @@ public class MyProfileController {
 					employee.setAssignment(null);
 				}
 				
-				
-				
 				// User
 				User userEmployee = userRepository.findByEmployee(employee.getId());
 			
 				// ambil foto profile
+				String image = null;
 				if(userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
-					 // get foto 
+					 // get foto
+					image = Utils.convertImageToBase64(userEmployee.getPhotoProfile());
 				}
 				
+				employee.setPhotoProfile(image);
+				
 				lisEmployeesReturn.add(employee);
-				
-				
 			}
 		}
 
