@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phincon.talents.app.dao.AttachmentCertificationRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
+import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.AddressDTO;
 import com.phincon.talents.app.dto.CertificationDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
@@ -81,6 +82,9 @@ public class MyProfileController {
 
 	@Autowired
 	VwEmpAssignmentService assignmentService;
+	
+	@Autowired
+	VwEmpAssignmentRepository assignmentRepository;
 
 	@RequestMapping(value = "/myprofile", method = RequestMethod.GET)
 	public ResponseEntity<User> myprofile(OAuth2Authentication authentication) {
@@ -159,11 +163,25 @@ public class MyProfileController {
 		}
 		
 		// cek dl di viewAssignment atasan atau bawahan berdasarkan ada enggaknya row di direct_employee_id -->user.getEmployee 
-		
+		List<VwEmpAssignment> employeeAssignment = assignmentRepository.findByDirectEmployee(
+				user.getEmployee());
 		
 		// klo ada
-		List<Employee> listEmployee = assignmentService.findEmployee(user
-				.getEmployee());
+		List<Employee> listEmployee = null;
+		if(employeeAssignment != null && employeeAssignment.size() > 0){
+			listEmployee = assignmentService.findEmployee(user
+					.getEmployee());
+		}else{
+			List<VwEmpAssignment> myAssignmentList = assignmentRepository.findByEmployee(
+					user.getEmployee());
+			VwEmpAssignment myAssignment = null;
+			if(myAssignmentList != null && myAssignmentList.size() > 0){
+				myAssignment = myAssignmentList.get(0);
+				listEmployee = assignmentService.findEmployee(myAssignment.getDirectEmployee());
+			}
+		}
+		
+		
 		
 		// klo gak ada , direct_emp_id siapa,
 		// siapa aja yg direct_employee_id nya sama
