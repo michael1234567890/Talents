@@ -84,6 +84,9 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "total_amount")
 	private Double totalAmount;
 	
+	@Column(name = "total_amount_submit")
+	private Double totalAmountSubmit;
+	
 //	@ManyToOne(fetch = FetchType.LAZY)
 //	@JoinColumn(name = "company_id")
 //	private Company company;
@@ -234,7 +237,15 @@ public class TMRequestHeader extends AbstractEntity {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-	
+
+	public Double getTotalAmountSubmit() {
+		return totalAmountSubmit;
+	}
+
+	public void setTotalAmountSubmit(Double totalAmountSubmit) {
+		this.totalAmountSubmit = totalAmountSubmit;
+	}
+
 	
 	
 	

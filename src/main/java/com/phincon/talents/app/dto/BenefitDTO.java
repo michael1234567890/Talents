@@ -8,6 +8,7 @@ import com.phincon.talents.app.utils.Utils;
 
 public class BenefitDTO {
 	private Double total;
+	private Double totalSubmit;
 	private String module;
 	private String origin;
 	private String destination;
@@ -18,6 +19,8 @@ public class BenefitDTO {
 	private Long linkRef;
 	private Long linkRefHeader;
 	private String workflow;
+	private String remark;
+	private boolean isVerified = false;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -133,8 +136,6 @@ public class BenefitDTO {
 	public void setLinkRef(Long linkRef) {
 		this.linkRef = linkRef;
 	}
-	
-	
 
 	public String getWorkflow() {
 		return workflow;
@@ -142,6 +143,38 @@ public class BenefitDTO {
 
 	public void setWorkflow(String workflow) {
 		this.workflow = workflow;
+	}
+	
+	
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	
+	
+
+	public boolean isVerified() {
+		return isVerified;
+	}
+
+	public void setVerified(boolean isVerified) {
+		this.isVerified = isVerified;
+	}
+	
+	
+
+	
+
+	public Double getTotalSubmit() {
+		return totalSubmit;
+	}
+
+	public void setTotalSubmit(Double totalSubmit) {
+		this.totalSubmit = totalSubmit;
 	}
 
 	@Override

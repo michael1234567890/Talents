@@ -23,6 +23,8 @@ public class TMRequest extends AbstractEntity {
 	public final static String CAT_MEDICAL = "Medical";
 	public final static String CAT_MUTASI = "mutasi";
 	
+	public final static Double CLAIM_PERABOT_SINGLE = Double.valueOf("3000000");
+	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "request_date")
 	private Date requestDate;
@@ -134,6 +136,9 @@ public class TMRequest extends AbstractEntity {
 	
 	@Column(name = "amount")
 	private Double amount;
+	
+	@Column(name = "amount_submit")
+	private Double amountSubmit;
 	
 	@Column(name = "need_sync")
 	private Boolean needSync;
@@ -410,6 +415,17 @@ public class TMRequest extends AbstractEntity {
 		this.linkRef = linkRef;
 	}
 
+	public Double getAmountSubmit() {
+		return amountSubmit;
+	}
+
+	public void setAmountSubmit(Double amountSubmit) {
+		this.amountSubmit = amountSubmit;
+	}
+
+	
+
+	
 	
 	
 	

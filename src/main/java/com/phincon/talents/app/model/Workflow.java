@@ -31,6 +31,10 @@ public class Workflow extends AbstractEntity {
 	public final static String SUBMIT_BENEFIT4 = "SUBMITBENEFIT4";
 	public final static String SUBMIT_BENEFIT5 = "SUBMITBENEFIT5";
 	
+	public final static String APPROVAL_TYPE_CENTRALIZE = "centralize";
+
+	public final static String APPROVAL_TYPE_DECENTRALIZE = "decentralize";
+	
 	
 	
 	
@@ -75,6 +79,8 @@ public class Workflow extends AbstractEntity {
 	@Column(name = "active")
 	private Boolean active = true;
 	
+	@Column(name = "approval_type", length = 50)
+	private String approvalType = APPROVAL_TYPE_CENTRALIZE;
 	
 
 	public Long getCompany() {
@@ -171,6 +177,14 @@ public class Workflow extends AbstractEntity {
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+
+	public String getApprovalType() {
+		return approvalType;
+	}
+
+	public void setApprovalType(String approvalType) {
+		this.approvalType = approvalType;
 	}
 
 	

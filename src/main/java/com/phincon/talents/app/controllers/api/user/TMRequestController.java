@@ -61,7 +61,7 @@ public class TMRequestController {
 
 	@RequestMapping(value = "/user/tmrequestheader/benefit", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<CustomMessage> changePhotoProfile(
+	public ResponseEntity<CustomMessage> createBenefit(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
@@ -80,6 +80,28 @@ public class TMRequestController {
 				requester);
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Your request submitted successfully", false), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/user/tmrequestheader/verificationbenefit", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<BenefitDTO> verificationBenefit(
+			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		List<Employment> listEmployment = employmentRepository
+				.findByEmployee(user.getEmployee());
+		if (listEmployment == null || listEmployment.size() == 0)
+			throw new RuntimeException(
+					"Error : Your Employment ID is not Found.");
+
+		Employment employment = listEmployment.get(0);
+		Employment requester = listEmployment.get(0);
+
+		tmRequestHeaderService.verificationBenefit(request, user, employment,
+				requester);
+		return new ResponseEntity<BenefitDTO>(request, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/user/tmrequest/type", method = RequestMethod.GET)
