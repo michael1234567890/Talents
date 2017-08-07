@@ -46,6 +46,7 @@ List<TMBalance> findByCompanyModuleCategoryTypeType(@Param("company") Long compa
 
 @Query("SELECT DISTINCT categoryTypeId, categoryType  FROM TMBalance where company=:company AND employment=:employment AND module=:module")
 List<Object[]> findListCategoryName(@Param("company") Long company , @Param("employment") Long employment, @Param("module") String module);
+
 //
 //@Query("select p from TMBalance p where p.company=:company AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND p.employment=:employment")
 //List<TMBalance> findCompanyEmploymentModuleCategoryType(@Param("company") Long company,@Param("module") String module, @Param("categoryType") String categoryType,@Param("employment") Long employment);

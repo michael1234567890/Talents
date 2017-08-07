@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.phincon.talents.app.dao.ApprovalGroupRepository;
+import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.WorkflowRepository;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.ApprovalGroup;
@@ -24,6 +25,9 @@ public class WorkflowService {
 	@Autowired
 	WorkflowRepository dataApprovalRepository;
 
+	@Autowired
+	EmployeeRepository employeeRepository;
+	
 	@Autowired
 	ApprovalGroupRepository approvalGroupRepository;
 
@@ -69,8 +73,24 @@ public class WorkflowService {
 			if (listApprovalGroup != null && listApprovalGroup.size() > 0) {
 				ApprovalGroup approvalGroup = listApprovalGroup.get(0);
 				assignApproval = approvalGroup.getMember();
-				System.out.println("Approval Group " + approvalGroup.getCode());
-				System.out.println("Member Group " + assignApproval);
+				if(approvalGroup.getHaveType()!=null && approvalGroup.getHaveType()) {
+					String memberType = null;
+					Employee employeeObj = employeeRepository.findOne(employee);
+					
+					if(employeeObj != null && employeeObj.getBenefitType()!=null && !employeeObj.getBenefitType().equals("")){
+						if(employeeObj.getBenefitType().equals(Employee.APPROVAL_1))
+							memberType = approvalGroup.getMemberTypeOne();
+						else if(employeeObj.getBenefitType().equals(Employee.APPROVAL_2))
+							memberType = approvalGroup.getMemberTypeTwo();
+						else if(employeeObj.getBenefitType().equals(Employee.APPROVAL_3))
+							memberType = approvalGroup.getMemberTypeThree();
+						else if(employeeObj.getBenefitType().equals(Employee.APPROVAL_4))
+							memberType = approvalGroup.getMemberTypeFour();
+					}
+				
+					if(memberType!= null && !memberType.equals(""))
+						assignApproval = memberType;
+				}
 			}
 		}
 		return assignApproval;

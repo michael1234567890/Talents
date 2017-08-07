@@ -22,13 +22,13 @@ import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.PayrollRequestDTO;
 import com.phincon.talents.app.model.User;
-import com.phincon.talents.app.model.hr.Attendance;
 import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
 import com.phincon.talents.app.model.hr.PayrollElementHeaderYearly;
 import com.phincon.talents.app.services.PayrollElementHeaderService;
 import com.phincon.talents.app.services.PayrollElementHeaderYearlyService;
 import com.phincon.talents.app.services.UserService;
+import com.phincon.talents.app.utils.Utils;
 
 @RestController
 @RequestMapping("api")
@@ -67,11 +67,13 @@ public class PayrollController {
 		
 		List<Employment> listEmployment = employmentRepository.findByEmployee(user.getEmployee());
 		if(listEmployment == null && listEmployment.size() == 0)
-			throw new RuntimeException("Error : Your Employment ID is not Found.");
+			throw new RuntimeException("Your Employment ID is not Found.");
 		
 		String month = null;
+
+		Employment employment = listEmployment.get(0);
 		if (request.getPayrollType() == null) {
-			throw new RuntimeException("Error : Payroll type can not be empty.");
+			throw new RuntimeException("Payroll type can not be empty.");
 		}
 		
 		if (request.getPayrollType().equals(PayrollRequestDTO.PY_TYPE_LATEST)) {
@@ -80,11 +82,11 @@ public class PayrollController {
 			if(request.getYear() == null || request.getMonth() == null)
 				throw new RuntimeException("Error : Parameter Year and Month must be filled.");
 			month = request.getYear() + "-" + request.getMonth();
+			validationThreeMonth(employment.getId(), month);
 		} else {
-			throw new RuntimeException("Error : Invalid value of payroll type.");
+			throw new RuntimeException("Invalid value of payroll type.");
 		}
 		
-		Employment employment = listEmployment.get(0);
 		System.out.println("month " + month);
 		System.out.println("employment " + employment.getId());
 		
@@ -93,6 +95,27 @@ public class PayrollController {
 		return new ResponseEntity<List<PayrollElementHeader>>(
 				listElementHeaders, HttpStatus.OK);
 
+	}
+	
+	private void validationThreeMonth(Long employmentId, String month){
+		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderRepository
+				.findByLatestMonthAndEmployment(employmentId, new PageRequest(0, 1));
+		if(listElementHeaders != null && listElementHeaders.size() > 0){
+
+			PayrollElementHeader payrollElementHeader = listElementHeaders.get(0);
+			if(payrollElementHeader.getPeriodDate()!= null) {
+				String strRequestPayrollDate =month  + "-01";
+				// implement validation only latest 3 month 
+				Date lastPayrollDate = Utils.convertStringToDate(payrollElementHeader.getPeriodDate());
+				Date currentPayrollRequest = Utils.convertStringToDate(strRequestPayrollDate);
+				int diffMonth = Utils.diffMonth(currentPayrollRequest, lastPayrollDate);
+				if(diffMonth < 0 || diffMonth > 2) {
+					throw new RuntimeException("You could only see the latest 3 months. Please change the requested Month.");
+				}
+			}
+		}else {
+			throw new RuntimeException("Payroll Data Not Found");
+		}
 	}
 	
 	@RequestMapping(value = "/user/payroll/yearly", method = RequestMethod.POST)
@@ -107,7 +130,7 @@ public class PayrollController {
 		
 		List<Employment> listEmployment = employmentRepository.findByEmployee(user.getEmployee());
 		if(listEmployment == null && listEmployment.size() == 0)
-			throw new RuntimeException("Error : Your Employment ID is not Found.");
+			throw new RuntimeException("Your Employment ID is not Found.");
 		
 		SimpleDateFormat df = new SimpleDateFormat("yyyy");
 		String year = df.format(new Date());
@@ -132,7 +155,7 @@ public class PayrollController {
 		
 		List<Employment> listEmployment = employmentRepository.findByEmployee(user.getEmployee());
 		if(listEmployment == null && listEmployment.size() == 0)
-			throw new RuntimeException("Error : Your Employment ID is not Found.");
+			throw new RuntimeException("Your Employment ID is not Found.");
 		Employment employment = listEmployment.get(0);
 		Map<String, Object> map = null;
 		List<Object[]> listObject = payrollElementHeaderRepository.latestPeriodDate(employment.getId(), new PageRequest(0, 1));

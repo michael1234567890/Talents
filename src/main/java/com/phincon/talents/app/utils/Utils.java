@@ -14,11 +14,11 @@ import java.util.Date;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sun.misc.BASE64Decoder;
@@ -26,6 +26,7 @@ import sun.misc.BASE64Decoder;
 public class Utils {
 	public static String INPUT_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static String INPUT_DATE_FORMAT = "yyyy-MM-dd";
+	public static String INPUT_DATE_FORMAT_ID = "dd-MM-yyyy";
 	public static String DB_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 	private static String CONFIG_FILE = "/config.properties";
 	public static String UPLOAD_ROOT_PATH = "D:/upload/";
@@ -48,6 +49,12 @@ public class Utils {
 		}
 		return oldDate;
 	}
+	
+	public static String convertDateToString(Date date){
+		DateFormat fmt = new SimpleDateFormat(INPUT_DATE_FORMAT_ID);
+		String text = fmt.format(date);
+		return text;
+	}
 
 	public static void createImage(String image, String filename) {
 		String fileType = UPLOAD_IMAGE_TYPE;
@@ -67,10 +74,7 @@ public class Utils {
 
 	public static String convertImageToBase64(String path) {
 
-		String pathupload = GlobalValue.PATH_UPLOAD;
-		System.out.println("Path Upload : " + pathupload);
-		
-		// String fullpath = UPLOAD_ROOT_PATH + path;
+		String pathupload = GlobalValue.PATH_UPLOAD;		
 		String fullpath = pathupload + path;
 		File file = new File(fullpath);
 		try {
@@ -90,6 +94,9 @@ public class Utils {
 		}
 		return null;
 	}
+	
+	
+	
 
 	public static BufferedImage decodeToImage(String imageString) {
 
@@ -162,6 +169,16 @@ public class Utils {
 						.get(Calendar.DAY_OF_YEAR);
 		return sameDay;
 	}
+	
+	public static int diffMonth(Date startDate, Date endDate) {
+		Calendar startCal = Calendar.getInstance();
+		Calendar endCal = Calendar.getInstance();
+		startCal.setTime(startDate);
+		endCal.setTime(endDate);
+		int diffYear = endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR);
+		int diffMonth = diffYear * 12 + endCal.get(Calendar.MONTH) - startCal.get(Calendar.MONTH);
+		return diffMonth;
+	}
 
 	public static Long diffDay(Date date1, Date date2) {
 		Calendar cal1 = Calendar.getInstance();
@@ -173,6 +190,17 @@ public class Utils {
 		long diff = milliseconds2 - milliseconds1;
 		long diffDays = diff / (24 * 60 * 60 * 1000);
 		return diffDays;
+	}
+	
+	public static Date addDay(Date dt,int amount) throws ParseException{
+		Calendar c = Calendar.getInstance(); 
+		c.setTime(dt); 
+		c.add(Calendar.DATE, amount);
+		dt = c.getTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+		String dateStr = sdf.format(dt);
+		dt = sdf.parse(dateStr);
+		return dt;
 	}
 
 	public static boolean comparingDate(Date date1, Date date2, String operation) {
@@ -193,6 +221,15 @@ public class Utils {
 				return true;
 		}
 		return false;
+	}
+	
+	public static String getUrlAttachment(String http, HttpServletRequest request,String path){
+		String url=null;
+		if(request != null){
+			url = http +  request.getServerName() + ":"
+					+ request.getServerPort() + "/public/getImage?path="+path;
+		}
+		return url;
 	}
 
 }

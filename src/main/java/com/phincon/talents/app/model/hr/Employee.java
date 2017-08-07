@@ -16,6 +16,10 @@ import com.phincon.talents.app.model.AbstractEntity;
 public class Employee extends AbstractEntity {
 	
 	public final static String STATUS_PENDING = "pending"; 
+	public final static String APPROVAL_1 = "approval 1"; 
+	public final static String APPROVAL_2 = "approval 2"; 
+	public final static String APPROVAL_3 = "approval 3"; 
+	public final static String APPROVAL_4 = "approval 4"; 
 	
 	@Column(name="name", length=255)
 	private String name;
@@ -374,36 +378,9 @@ public class Employee extends AbstractEntity {
 	@Column(name="pre_pension_date")
 	private Date prePensionDate;
 	
-	/*
-	Qualifications__c	Rich Text Area(32768)
-	@Column(name="emergency_contact_district")
-	private String emergencyContactDistrict;
-	
-	
-	Race__c	Picklist
-	@Column(name="emergency_contact_district")
-	private String emergencyContactDistrict;
-	
-	Reason	Reason__c
-	@Column(name="emergency_contact_district")
-	private String emergencyContactDistrict;
-	*/
 	
 	@Column(name="religion", length=50)
 	private String religion;
-	
-	/*
-	
-	Report To	Report_To__c
-	@Column(name="emergency_contact_district")
-	private String emergencyContactDistrict;
-	
-	Report_To_Formulated__c	Formula (Text)
-	@Column(name="report_to")
-	private String emergencyContactDistrict;
-	*/
-	
-	
 	
 	@Column(name="resignation", length=50)
 	private String resignation;
@@ -446,10 +423,6 @@ public class Employee extends AbstractEntity {
 	private String weight;
 	
 	
-//	@ManyToOne(fetch = FetchType.LAZY)
-//	@JoinColumn(name="company_id")
-//	private Company company;
-	
 	@Column(name="company_id")
 	private Long company;
 	
@@ -480,6 +453,8 @@ public class Employee extends AbstractEntity {
 	@Transient
 	private String photoProfile;
 	
+	@Column(name="benefit_type", length=20)
+	private String benefitType;
 	
 
 	public String getAge() {
@@ -1380,6 +1355,16 @@ public class Employee extends AbstractEntity {
 
 	public void setPhotoProfile(String photoProfile) {
 		this.photoProfile = photoProfile;
+	}
+	
+	
+
+	public String getBenefitType() {
+		return benefitType;
+	}
+
+	public void setBenefitType(String benefitType) {
+		this.benefitType = benefitType;
 	}
 
 	@Override

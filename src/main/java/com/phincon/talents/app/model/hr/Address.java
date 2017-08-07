@@ -80,6 +80,17 @@ public class Address extends AbstractEntity {
 	
 	@Column(name="need_sync")
 	private Boolean needSync;
+	
+	@Column(name="company_id")
+	private Long company;
+
+	public Long getCompany() {
+		return company;
+	}
+
+	public void setCompany(Long company) {
+		this.company = company;
+	}
 
 	public String getAddress() {
 		return address;

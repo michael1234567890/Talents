@@ -73,17 +73,17 @@ public class TMRequestService {
 	
 	@Transactional
 	public void approveMedicalOverlimit(Long headerId,List<TMRequest> listTmRequest,Double amount) {
+		
 		tmRequestRepository.approvedMedicalOverlimitByHeaderId(amount,TMRequest.APPROVED, headerId);
+		
 		// update Balance Info
 		for (TMRequest tmRequest : listTmRequest) {
 			// get balance based on like module,  category type,type
-			String module = tmRequest.getModule();
-			Long employmentId = tmRequest.getEmployment();
+			
 			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), employmentId, module, "Medical", "Medical", tmRequest.getRequestDate());
 			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), "Medical", "Medical"); 
+			
 			List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), "Medical"); 
-			System.out.println("listTmBalances");
-			System.out.println(listTmBalances.size());
 			TMBalance balance = null;
 			if(listTmBalances != null && listTmBalances.size() > 0) {
 				// TMBalance balance = listTmBalances.get(0);

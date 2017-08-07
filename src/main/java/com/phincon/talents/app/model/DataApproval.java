@@ -85,6 +85,19 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "approval_level_three", length = 255)
 	private String approvalLevelThree;
 	
+	@Column(name = "approval_level_four", length = 255)
+	private String approvalLevelFour;
+	
+	@Column(name = "approval_level_five", length = 255)
+	private String approvalLevelFive;
+	
+	@Column(name = "approval_level_six", length = 255)
+	private String approvalLevelSix;
+	
+
+	@Column(name = "approval_level_seven", length = 255)
+	private String approvalLevelSeven;
+	
 	
 	@Column(name = "current_assign_approval", length = 255)
 	private String currentAssignApproval;
@@ -310,6 +323,40 @@ public class DataApproval extends AbstractEntity {
 
 	public void setReasonReject(String reasonReject) {
 		this.reasonReject = reasonReject;
+	}
+	
+	
+
+	public String getApprovalLevelFour() {
+		return approvalLevelFour;
+	}
+
+	public void setApprovalLevelFour(String approvalLevelFour) {
+		this.approvalLevelFour = approvalLevelFour;
+	}
+
+	public String getApprovalLevelFive() {
+		return approvalLevelFive;
+	}
+
+	public void setApprovalLevelFive(String approvalLevelFive) {
+		this.approvalLevelFive = approvalLevelFive;
+	}
+
+	public String getApprovalLevelSix() {
+		return approvalLevelSix;
+	}
+
+	public void setApprovalLevelSix(String approvalLevelSix) {
+		this.approvalLevelSix = approvalLevelSix;
+	}
+
+	public String getApprovalLevelSeven() {
+		return approvalLevelSeven;
+	}
+
+	public void setApprovalLevelSeven(String approvalLevelSeven) {
+		this.approvalLevelSeven = approvalLevelSeven;
 	}
 
 	@Override

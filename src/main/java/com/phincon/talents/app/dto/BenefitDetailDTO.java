@@ -1,5 +1,7 @@
 package com.phincon.talents.app.dto;
 
+import java.util.Date;
+
 
 
 public class BenefitDetailDTO {
@@ -12,6 +14,7 @@ public class BenefitDetailDTO {
 	private Double totalClaim; // isi kwitansi
 	private Double totalSubmitedClaim; // total isi yang sudah di klaim ( balance used)
 	private Double totalCurrentClaim; // total klaim yang di approve (min balance or total claim)
+	private Date lastClaimDate;
 	
 	
 	
@@ -85,6 +88,15 @@ public class BenefitDetailDTO {
 
 	public void setTotalCurrentClaim(Double totalCurrentClaim) {
 		this.totalCurrentClaim = totalCurrentClaim;
+	}
+	
+
+	public Date getLastClaimDate() {
+		return lastClaimDate;
+	}
+
+	public void setLastClaimDate(Date lastClaimDate) {
+		this.lastClaimDate = lastClaimDate;
 	}
 
 	@Override

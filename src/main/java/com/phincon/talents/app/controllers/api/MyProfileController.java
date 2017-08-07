@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -73,6 +78,9 @@ public class MyProfileController {
 
 	@Autowired
 	EmployeeRepository employeeRepository;
+	
+	@Autowired
+	private Environment env;
 
 	@Autowired
 	AttachmentCertificationRepository attachmentCertificationRepository;
@@ -149,7 +157,7 @@ public class MyProfileController {
 
 	@RequestMapping(value = "/myprofile/team", method = RequestMethod.GET)
 	public ResponseEntity<List<Employee>> myTeam(
-			OAuth2Authentication authentication) {
+			OAuth2Authentication authentication,HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -207,7 +215,9 @@ public class MyProfileController {
 				if(userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
 					
 					 // get foto
-					image = Utils.convertImageToBase64(userEmployee.getPhotoProfile());
+					// image = Utils.convertImageToBase64(userEmployee.getPhotoProfile());
+					String http = env.getProperty("talents.protocol");
+					image = Utils.getUrlAttachment(http, request, userEmployee.getPhotoProfile());
 				}
 				
 				employee.setPhotoProfile(image);

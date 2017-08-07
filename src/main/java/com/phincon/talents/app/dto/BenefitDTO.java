@@ -21,6 +21,7 @@ public class BenefitDTO {
 	private String workflow;
 	private String remark;
 	private boolean isVerified = false;
+	private Boolean pulangKampung;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -168,6 +169,14 @@ public class BenefitDTO {
 	
 
 	
+
+	public Boolean getPulangKampung() {
+		return pulangKampung;
+	}
+
+	public void setPulangKampung(Boolean pulangKampung) {
+		this.pulangKampung = pulangKampung;
+	}
 
 	public Double getTotalSubmit() {
 		return totalSubmit;

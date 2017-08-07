@@ -29,9 +29,13 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "transaction_date")
 	private Date transactionDate;
 	
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "end_date")
 	private Date endDate;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_date")
+	private Date startDate;
 	
 	@Column(name = "request_no", length=100)
 	private String reqNo;
@@ -94,12 +98,22 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "company_id")
 	private Long company;
 	
+	@Column(name = "ref_request_header")
+	private Long refRequestHeader;
+	
 	@Column(name = "need_report")
 	private Boolean needReport;
+	
+	@Column(name = "pulang_kampung")
+	private Boolean pulangKampung = false;
+	
 	
 	
 	@Transient
 	private List<TMRequest> details;
+	
+	@Transient
+	private TMRequestHeader refRequestHeaderObj;
 	
 
 	public Date getRequestDate() {
@@ -245,6 +259,42 @@ public class TMRequestHeader extends AbstractEntity {
 	public void setTotalAmountSubmit(Double totalAmountSubmit) {
 		this.totalAmountSubmit = totalAmountSubmit;
 	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Long getRefRequestHeader() {
+		return refRequestHeader;
+	}
+
+	public void setRefRequestHeader(Long refRequestHeader) {
+		this.refRequestHeader = refRequestHeader;
+	}
+
+	public TMRequestHeader getRefRequestHeaderObj() {
+		return refRequestHeaderObj;
+	}
+
+	public void setRefRequestHeaderObj(TMRequestHeader refRequestHeaderObj) {
+		this.refRequestHeaderObj = refRequestHeaderObj;
+	}
+
+	public Boolean getPulangKampung() {
+		return pulangKampung;
+	}
+
+	public void setPulangKampung(Boolean pulangKampung) {
+		this.pulangKampung = pulangKampung;
+	}
+
+	
+	
+	
 
 	
 	

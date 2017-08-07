@@ -27,9 +27,15 @@ public class Workflow extends AbstractEntity {
 	public final static String SUBMIT_BENEFIT = "SUBMITBENEFIT";
 	public final static String SUBMIT_BENEFIT1 = "SUBMITBENEFIT1";
 	public final static String SUBMIT_BENEFIT2 = "SUBMITBENEFIT2";
+	public final static String SUBMIT_BENEFIT2_5 = "SUBMITBENEFIT2_5";
 	public final static String SUBMIT_BENEFIT3 = "SUBMITBENEFIT3";
 	public final static String SUBMIT_BENEFIT4 = "SUBMITBENEFIT4";
 	public final static String SUBMIT_BENEFIT5 = "SUBMITBENEFIT5";
+	public final static String SUBMIT_BENEFIT6 = "SUBMITBENEFIT6";
+	public final static String SUBMIT_BENEFIT7 = "SUBMITBENEFIT7";
+	public final static String SUBMIT_BENEFIT8 = "SUBMITBENEFIT8";
+	public final static String SUBMIT_BENEFIT9 = "SUBMITBENEFIT9";
+	public final static String SUBMIT_BENEFIT10 = "SUBMITBENEFIT10";
 	
 	public final static String APPROVAL_TYPE_CENTRALIZE = "centralize";
 
@@ -75,6 +81,18 @@ public class Workflow extends AbstractEntity {
 
 	@Column(name = "approval_code_level_three", length = 255)
 	private String approvalCodeLevelThree;
+	
+	@Column(name = "approval_code_level_four", length = 255)
+	private String approvalCodeLevelFour;
+	
+	@Column(name = "approval_code_level_five", length = 255)
+	private String approvalCodeLevelFive;
+	
+	@Column(name = "approval_code_level_six", length = 255)
+	private String approvalCodeLevelSix;
+	
+	@Column(name = "approval_code_level_seven", length = 255)
+	private String approvalCodeLevelSeven;
 	
 	@Column(name = "active")
 	private Boolean active = true;
@@ -185,6 +203,38 @@ public class Workflow extends AbstractEntity {
 
 	public void setApprovalType(String approvalType) {
 		this.approvalType = approvalType;
+	}
+
+	public String getApprovalCodeLevelFour() {
+		return approvalCodeLevelFour;
+	}
+
+	public void setApprovalCodeLevelFour(String approvalCodeLevelFour) {
+		this.approvalCodeLevelFour = approvalCodeLevelFour;
+	}
+
+	public String getApprovalCodeLevelFive() {
+		return approvalCodeLevelFive;
+	}
+
+	public void setApprovalCodeLevelFive(String approvalCodeLevelFive) {
+		this.approvalCodeLevelFive = approvalCodeLevelFive;
+	}
+
+	public String getApprovalCodeLevelSix() {
+		return approvalCodeLevelSix;
+	}
+
+	public void setApprovalCodeLevelSix(String approvalCodeLevelSix) {
+		this.approvalCodeLevelSix = approvalCodeLevelSix;
+	}
+
+	public String getApprovalCodeLevelSeven() {
+		return approvalCodeLevelSeven;
+	}
+
+	public void setApprovalCodeLevelSeven(String approvalCodeLevelSeven) {
+		this.approvalCodeLevelSeven = approvalCodeLevelSeven;
 	}
 
 	

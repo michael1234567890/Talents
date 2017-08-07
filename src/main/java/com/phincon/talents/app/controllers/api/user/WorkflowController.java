@@ -3,7 +3,10 @@ package com.phincon.talents.app.controllers.api.user;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -51,6 +54,10 @@ public class WorkflowController {
 
 	@Autowired
 	AttachmentDataApprovalService attachmentDataApprovalService;
+	
+
+	@Autowired
+	private Environment env;
 
 	@RequestMapping(value = "/user/workflow/dataapproval", method = RequestMethod.POST)
 	@ResponseBody
@@ -145,7 +152,7 @@ public class WorkflowController {
 	@RequestMapping(value = "/user/workflow/dataapproval/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<DataApproval> detailApproval(@PathVariable("id") Long id,
-			OAuth2Authentication authentication) {
+			OAuth2Authentication authentication,HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -157,9 +164,12 @@ public class WorkflowController {
 		if (listAttachmentDataApproval != null
 				&& listAttachmentDataApproval.size() > 0)
 			for (AttachmentDataApproval attachmentDataApproval : listAttachmentDataApproval) {
-				if(!attachmentDataApproval.getPath().equals(null)) {
-					String base64String = Utils.convertImageToBase64(attachmentDataApproval.getPath());
-					attachmentDataApproval.setImage(base64String);
+				if(attachmentDataApproval.getPath() != null) {
+//					String base64String = Utils.convertImageToBase64(attachmentDataApproval.getPath());
+//					attachmentDataApproval.setImage(base64String);
+					String http = env.getProperty("talents.protocol");
+					String image = Utils.getUrlAttachment(http, request, attachmentDataApproval.getPath());
+					attachmentDataApproval.setImage(image);
 				}
 				tempAttachmentDataApproval.add(attachmentDataApproval);
 			}

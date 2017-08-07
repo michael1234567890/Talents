@@ -46,7 +46,9 @@ public class TMBalanceController {
 			throw new RuntimeException("Error : Your Employment ID is not Found.");
 		Employment employment = listEmployment.get(0);
 		
-		List<TMBalance> listBalance = tmBalanceRepository.findByCompanyModuleCategoryType(user.getCompany(), request.getModule(), request.getCategoryType(),employment.getId());
+		//List<TMBalance> listBalance = tmBalanceRepository.findByCompanyModuleCategoryType(user.getCompany(), request.getModule(), request.getCategoryType(),employment.getId());
+		List<TMBalance> listBalance = tmBalanceRepository.findBalanceByModuleEmployment(user.getCompany(),employment.getId(), request.getModule());
+		
 		return new ResponseEntity<List<TMBalance>>(listBalance, HttpStatus.OK);
 	}
 	

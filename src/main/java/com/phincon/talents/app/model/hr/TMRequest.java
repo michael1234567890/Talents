@@ -143,6 +143,9 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "need_sync")
 	private Boolean needSync;
 	
+	@Column(name = "qty")
+	private Long qty;
+	
 	
 	
 //	@ManyToOne(fetch = FetchType.LAZY)
@@ -421,6 +424,14 @@ public class TMRequest extends AbstractEntity {
 
 	public void setAmountSubmit(Double amountSubmit) {
 		this.amountSubmit = amountSubmit;
+	}
+
+	public Long getQty() {
+		return qty;
+	}
+
+	public void setQty(Long qty) {
+		this.qty = qty;
 	}
 
 	
