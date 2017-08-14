@@ -2,9 +2,7 @@ package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -48,13 +46,12 @@ public class WorkflowController {
 
 	@Autowired
 	DataApprovalService dataApprovalService;
-	
+
 	@Autowired
 	DataApprovalRepository dataApprovalRepository;
 
 	@Autowired
 	AttachmentDataApprovalService attachmentDataApprovalService;
-	
 
 	@Autowired
 	private Environment env;
@@ -67,62 +64,73 @@ public class WorkflowController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		// get workflow record with task name
 		String taskName = request.getTask();
-		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
-				user.getCompany(), true);
+		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
+				taskName, user.getCompany(), true);
 		if (workflow == null) {
-			throw new RuntimeException("Error : Your workflow activity is Not Registered.");
+			throw new RuntimeException(
+					"Your workflow activity is Not Registered.");
 		}
 		dataApprovalService.save(request, user, workflow);
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Submit Activity successfully. Please waiting approval", false), HttpStatus.OK);
+		return new ResponseEntity<CustomMessage>(
+				new CustomMessage(
+						"Submit Activity successfully. Please waiting approval",
+						false), HttpStatus.OK);
 
 	}
-	
-	
+
 	@RequestMapping(value = "/user/workflow/myrequest", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> myRequest(@RequestParam(value="module",required=false) String module,
-			OAuth2Authentication authentication) {
+	public ResponseEntity<List<DataApproval>> myRequest(
+			@RequestParam(value = "module", required = false) String module,
+			OAuth2Authentication authentication, HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		List<DataApproval> listDataApproval = null;
-		
-		if(module == null){
-			listDataApproval  = dataApprovalService.findByEmployee(user.getEmployee());
-		}else {
-			listDataApproval  = dataApprovalService.findByEmployeeAndModule(user.getEmployee(),module);
+
+		if (module == null) {
+			listDataApproval = dataApprovalService.findByEmployee(
+					user.getEmployee(), request);
+		} else {
+			listDataApproval = dataApprovalService.findByEmployeeAndModule(
+					user.getEmployee(), module, request);
 		}
-		
-		return new ResponseEntity<List<DataApproval>>(listDataApproval, HttpStatus.OK);
+
+		return new ResponseEntity<List<DataApproval>>(listDataApproval,
+				HttpStatus.OK);
 
 	}
-	
-	
+
 	@RequestMapping(value = "/user/workflow/needapproval", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> listDataApproval(@RequestParam(value="module",required=false) String module,
-			OAuth2Authentication authentication) {
+	public ResponseEntity<List<DataApproval>> listDataApproval(
+			@RequestParam(value = "module", required = false) String module,
+			OAuth2Authentication authentication, HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		// get workflow record with task name
 		String strEmployee = "#" + user.getEmployee() + "#";
 		List<DataApproval> listDataApproval = null;
-		if(module == null)
-			listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),null);
+		if (module == null)
+			listDataApproval = dataApprovalService.findNeedApproval(
+					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),
+					null, request);
 		else
-			listDataApproval = dataApprovalService.findNeedApproval(strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),module);
-		
-		return new ResponseEntity<List<DataApproval>>(listDataApproval, HttpStatus.OK);
+			listDataApproval = dataApprovalService.findNeedApproval(
+					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),
+					module, request);
+
+		return new ResponseEntity<List<DataApproval>>(listDataApproval,
+				HttpStatus.OK);
 
 	}
-	
+
 	@RequestMapping(value = "/user/workflow/countneedapproval", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<CountObjectDTO> CountDataApproval(
@@ -130,59 +138,74 @@ public class WorkflowController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		CountObjectDTO obj = new CountObjectDTO();
 		obj.setName("count need approval");
 		obj.setCount(0L);
-		String emp = "#"+user.getEmployee()+"#";
-		List<Long> countNeedApproval = dataApprovalRepository.countNeedApproval(emp, DataApproval.NOT_COMPLETED, user.getCompany());
-		if(countNeedApproval != null && countNeedApproval.size() > 0) {
+		String emp = "#" + user.getEmployee() + "#";
+		List<Long> countNeedApproval = dataApprovalRepository
+				.countNeedApproval(emp, DataApproval.NOT_COMPLETED,
+						user.getCompany());
+		if (countNeedApproval != null && countNeedApproval.size() > 0) {
 			for (Long objects : countNeedApproval) {
 				obj.setCount(objects);
 			}
 		}
-		
+
 		return new ResponseEntity<CountObjectDTO>(obj, HttpStatus.OK);
 
 	}
-	
-	
-	
-	
+
 	@RequestMapping(value = "/user/workflow/dataapproval/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<DataApproval> detailApproval(@PathVariable("id") Long id,
-			OAuth2Authentication authentication,HttpServletRequest request) {
+	public ResponseEntity<DataApproval> detailApproval(
+			@PathVariable("id") Long id, OAuth2Authentication authentication,
+			HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		
+
 		DataApproval dataApproval = dataApprovalService.findById(id);
+		// User
+		User userEmployee = userRepository.findByEmployee(dataApproval
+				.getEmpRequest());
+		// ambil foto profile
+		String imageProfile = null;
+		if (userEmployee != null && userEmployee.getPhotoProfile() != null
+				&& !userEmployee.getPhotoProfile().equals("")) {
+			String http = env.getProperty("talents.protocol");
+			imageProfile = Utils.getUrlAttachment(http, request,
+					userEmployee.getPhotoProfile());
+		}
+
+		dataApproval.setEmployeeRequestPhotoProfile(imageProfile);
 		List<AttachmentDataApproval> listAttachmentDataApproval = attachmentDataApprovalService
 				.findByDataApproval(dataApproval.getId());
 		List<AttachmentDataApproval> tempAttachmentDataApproval = new ArrayList<AttachmentDataApproval>();
 		if (listAttachmentDataApproval != null
 				&& listAttachmentDataApproval.size() > 0)
 			for (AttachmentDataApproval attachmentDataApproval : listAttachmentDataApproval) {
-				if(attachmentDataApproval.getPath() != null) {
-//					String base64String = Utils.convertImageToBase64(attachmentDataApproval.getPath());
-//					attachmentDataApproval.setImage(base64String);
+				if (attachmentDataApproval.getPath() != null) {
+					// String base64String =
+					// Utils.convertImageToBase64(attachmentDataApproval.getPath());
+					// attachmentDataApproval.setImage(base64String);
 					String http = env.getProperty("talents.protocol");
-					String image = Utils.getUrlAttachment(http, request, attachmentDataApproval.getPath());
+					String image = Utils.getUrlAttachment(http, request,
+							attachmentDataApproval.getPath());
 					attachmentDataApproval.setImage(image);
 				}
 				tempAttachmentDataApproval.add(attachmentDataApproval);
 			}
 		dataApproval.setAttachments(tempAttachmentDataApproval);
-		
+
 		return new ResponseEntity<DataApproval>(dataApproval, HttpStatus.OK);
 
 	}
-	
+
 	@RequestMapping(value = "/user/attachmentdataapproval/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<AttachmentDataApproval> detailAttachmentDataApproval(@PathVariable("id") Long id,
-			OAuth2Authentication authentication) {
+	public ResponseEntity<AttachmentDataApproval> detailAttachmentDataApproval(
+			@PathVariable("id") Long id, OAuth2Authentication authentication) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -191,8 +214,7 @@ public class WorkflowController {
 		return new ResponseEntity<AttachmentDataApproval>(obj, HttpStatus.OK);
 
 	}
-	
-	
+
 	@RequestMapping(value = "/user/workflow/actionapproval", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<CustomMessage> actionApproval(
@@ -202,18 +224,18 @@ public class WorkflowController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		String message = "Request has been approved";
-		if(request.getStatus().equals(DataApproval.CANCELLED)) {
-			dataApprovalService.cancelRequest(request,user);
+		if (request.getStatus().equals(DataApproval.CANCELLED)) {
+			dataApprovalService.cancelRequest(request, user);
 			message = "Request has been cancelled";
-		}else {
+		} else {
 			dataApprovalService.approval(request, user);
 		}
-		
-		if(request.getStatus().equals(DataApproval.REJECTED)) 
-			 message = "Request has been Rejected";
-		
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				message, false), HttpStatus.OK);
+
+		if (request.getStatus().equals(DataApproval.REJECTED))
+			message = "Request has been Rejected";
+
+		return new ResponseEntity<CustomMessage>(new CustomMessage(message,
+				false), HttpStatus.OK);
 
 	}
 

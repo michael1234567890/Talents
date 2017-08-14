@@ -166,7 +166,7 @@ public class Employee extends AbstractEntity {
 	@Column(name="end_date_contract")
 	private Date endDateContract;
 	
-	@Column(name="family_card_no", length=20)
+	@Column(name="family_card_no", length=50)
 	private String familyCardNo;
 	
 	@Column(name="first_name", length=50)

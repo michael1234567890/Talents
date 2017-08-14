@@ -251,12 +251,45 @@ public class TMRequestHeaderService {
 	}
 
 	private void validationInputBenefitProcess(BenefitDTO request,User user) {
+		boolean validationBeforeStartDate = true;
+		boolean validationNextStartDate = false;
+		if(request.getCategoryType().toLowerCase().equals("spd advance")) {
+			validationBeforeStartDate = false;
+			validationNextStartDate = true;
+		}
 		
 		if(request.getCategoryType().toLowerCase().equals("perjalanan dinas") || request.getCategoryType().toLowerCase().equals("spd advance")){
 			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(), user.getEmployee(), request.getModule(), request.getCategoryType(), request.getStartDate());
 			if(listHeaderRequest != null && listHeaderRequest.size() > 0){
 				throw new RuntimeException(
 						"You are not allowed request in the range date.");
+			}
+			
+			if (Utils.comparingDate(request.getEndDate(),
+					request.getStartDate(), "<")) {
+				throw new RuntimeException(
+						"The End date must be greater than The start date.");
+			}
+		}
+		
+		if(validationBeforeStartDate) {
+			if(Utils.diffDay(request.getStartDate(), new Date()) < 0) {
+				throw new RuntimeException(
+						"Your transaction Date must be less than Today.");
+			}
+		}
+		
+		if(validationNextStartDate) {
+			if(Utils.diffDay(request.getStartDate(), new Date()) > -1) {
+				throw new RuntimeException(
+						"Your Start Date must be earlier than Today.");
+			}
+		}
+		
+		if(request.getCategoryType().toLowerCase().equals("kacamata") || request.getCategoryType().toLowerCase().equals("medical")) {
+			if(Utils.diffDay(request.getStartDate(), new Date()) > 30) {
+				throw new RuntimeException(
+						"Your transaction Date must be less than 30 days.");
 			}
 		}
 		
@@ -347,11 +380,9 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setTotalAmount(request.getTotal());
 		tmRequestHeader.setTotalAmountSubmit(request.getTotalSubmit());
 		tmRequestHeader.setPulangKampung(request.getPulangKampung());
-		System.out.println("Header Start Date : " + request.getStartDate());
-		System.out.println("Header End Date : " + request.getEndDate());
-
 		tmRequestHeader.setStartDate(request.getStartDate());
 		tmRequestHeader.setEndDate(request.getEndDate());
+		tmRequestHeader.setSpdType(request.getSpdType());
 		if (request.getCategoryType() != null
 				&& request.getCategoryType().toLowerCase()
 						.equals("spd advance")) {
@@ -362,7 +393,7 @@ public class TMRequestHeaderService {
 		Workflow workflow = null;
 		String taskName = request.getWorkflow();
 		
-		if((tmRequestHeader.getCategoryType().toLowerCase().equals("spd advance")|| tmRequestHeader.getCategoryType().toLowerCase().equals("perjalanan dinas")) && tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT){
+		if((tmRequestHeader.getCategoryType().toLowerCase().equals("perjalanan dinas")) && tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT){
 			taskName = Workflow.SUBMIT_BENEFIT2_5;
 		}
 		

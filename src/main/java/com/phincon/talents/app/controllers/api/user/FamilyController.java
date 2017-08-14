@@ -111,7 +111,7 @@ public class FamilyController {
 				.getUserAuthentication().getName());
 		Family family = familyService.findById(id);
 		if(family == null) {
-			throw new RuntimeException("Error : Your ID family is not found.");
+			throw new RuntimeException("Your ID family is not found.");
 		}
 		FamilyTemp familyTemp = copyFromFamily(family);
 		family.setAddress(request.getAddress());

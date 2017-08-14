@@ -71,7 +71,7 @@ public class TMRequestController {
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null && listEmployment.size() == 0)
 			throw new RuntimeException(
-					"Error : Your Employment ID is not Found.");
+					"Your Employment ID is not Found.");
 
 		Employment employment = listEmployment.get(0);
 		Employment requester = listEmployment.get(0);
@@ -94,7 +94,7 @@ public class TMRequestController {
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null || listEmployment.size() == 0)
 			throw new RuntimeException(
-					"Error : Your Employment ID is not Found.");
+					"Your Employment ID is not Found.");
 
 		Employment employment = listEmployment.get(0);
 		Employment requester = listEmployment.get(0);

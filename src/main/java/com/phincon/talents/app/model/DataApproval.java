@@ -118,6 +118,9 @@ public class DataApproval extends AbstractEntity {
 	@Transient
 	private Employee employeeRequest;
 	
+	@Transient
+	private String employeeRequestPhotoProfile;
+	
 
 	@Transient
 	private List<AttachmentDataApproval> attachments;
@@ -379,6 +382,14 @@ public class DataApproval extends AbstractEntity {
 
 	public void setModule(String module) {
 		this.module = module;
+	}
+
+	public String getEmployeeRequestPhotoProfile() {
+		return employeeRequestPhotoProfile;
+	}
+
+	public void setEmployeeRequestPhotoProfile(String employeeRequestPhotoProfile) {
+		this.employeeRequestPhotoProfile = employeeRequestPhotoProfile;
 	}
 	
 	

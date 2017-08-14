@@ -22,6 +22,7 @@ public class BenefitDTO {
 	private String remark;
 	private boolean isVerified = false;
 	private Boolean pulangKampung;
+	private String spdType;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -165,10 +166,13 @@ public class BenefitDTO {
 	public void setVerified(boolean isVerified) {
 		this.isVerified = isVerified;
 	}
-	
-	
+	public String getSpdType() {
+		return spdType;
+	}
 
-	
+	public void setSpdType(String spdType) {
+		this.spdType = spdType;
+	}
 
 	public Boolean getPulangKampung() {
 		return pulangKampung;

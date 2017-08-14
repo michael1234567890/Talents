@@ -164,6 +164,8 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "destination",length=100)
 	private String destination;
 	
+	
+	
 
 	public Date getRequestDate() {
 		return requestDate;
@@ -434,15 +436,6 @@ public class TMRequest extends AbstractEntity {
 		this.qty = qty;
 	}
 
-	
-
-	
-	
-	
-	
-	
-	
-	
 	
 
 }

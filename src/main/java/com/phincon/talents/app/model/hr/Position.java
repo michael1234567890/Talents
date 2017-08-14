@@ -30,7 +30,7 @@ public class Position extends AbstractEntity{
 	@Column(name = "to_grade", length = 30)
 	private String toGrade;
 	
-	@Column(name = "name", length = 50)
+	@Column(name = "name", length = 255)
 	private String name;
 	
 	@Column(name = "direct_position_name", length = 50)

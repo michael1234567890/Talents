@@ -142,7 +142,7 @@ public class AddressController {
 				.getUserAuthentication().getName());
 		Address address = addressService.findById(id);
 		if(address == null) {
-			throw new RuntimeException("Error : Your ID Address is not found.");
+			throw new RuntimeException("Your ID Address is not found.");
 		}
 		AddressTemp addressTemp = copyFromAddress(address);
 		address.setAddress(request.getAddress());

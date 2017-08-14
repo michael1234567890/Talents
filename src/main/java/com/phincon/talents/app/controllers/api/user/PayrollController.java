@@ -80,7 +80,7 @@ public class PayrollController {
 			
 		} else if (request.getPayrollType().equals(PayrollRequestDTO.PY_TYPE_MONTH)) {
 			if(request.getYear() == null || request.getMonth() == null)
-				throw new RuntimeException("Error : Parameter Year and Month must be filled.");
+				throw new RuntimeException("Year and Month can't be empty.");
 			month = request.getYear() + "-" + request.getMonth();
 			validationThreeMonth(employment.getId(), month);
 		} else {

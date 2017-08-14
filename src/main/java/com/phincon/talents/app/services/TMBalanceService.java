@@ -2,16 +2,9 @@ package com.phincon.talents.app.services;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.phincon.talents.app.dao.TMBalanceRepository;
-import com.phincon.talents.app.dao.TMRequestRepository;
 import com.phincon.talents.app.model.hr.TMBalance;
-import com.phincon.talents.app.model.hr.TMRequest;
-import com.phincon.talents.app.utils.Utils;
 
 @Service
 public class TMBalanceService {

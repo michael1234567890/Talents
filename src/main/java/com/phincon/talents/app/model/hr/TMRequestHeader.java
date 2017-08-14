@@ -116,6 +116,9 @@ public class TMRequestHeader extends AbstractEntity {
 	private TMRequestHeader refRequestHeaderObj;
 	
 
+	@Column(name = "spd_type",length=100)
+	private String spdType;
+	
 	public Date getRequestDate() {
 		return requestDate;
 	}
@@ -290,6 +293,14 @@ public class TMRequestHeader extends AbstractEntity {
 
 	public void setPulangKampung(Boolean pulangKampung) {
 		this.pulangKampung = pulangKampung;
+	}
+
+	public String getSpdType() {
+		return spdType;
+	}
+
+	public void setSpdType(String spdType) {
+		this.spdType = spdType;
 	}
 
 	

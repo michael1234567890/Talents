@@ -78,12 +78,12 @@ public class LeaveController {
 				.getUserAuthentication().getName());
 		List<Entitlement> listEntitlement = entitlementService.findByEmployeeAndLeaveType(user.getEmployee(), request.getLeaveType());
 		if(listEntitlement == null || listEntitlement.size() == 0) {
-			throw new RuntimeException("Error : Your Leave type is not found.");
+			throw new RuntimeException("Your Leave type is not found.");
 		}
 		
 		Entitlement objEntitlement = listEntitlement.get(0);
 		if(objEntitlement.getNoOfDays() <= 0) {
-			throw new RuntimeException("Error : Your No of Of days is empty.");
+			throw new RuntimeException("Your No of Of days is empty.");
 		}
 		
 		LeaveType leaveType = leaveTypeService.findById(request.getLeaveType());
