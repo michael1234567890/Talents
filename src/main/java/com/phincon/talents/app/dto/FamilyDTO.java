@@ -17,6 +17,7 @@ public class FamilyDTO {
 	private String address;
 	private String occupation;
 	private String maritalStatus;
+	private String aliveStatus;
 	private List<Map<String,Object>> attachments;
 	
 	
@@ -122,6 +123,14 @@ public class FamilyDTO {
 
 	public void setAttachments(List<Map<String, Object>> attachments) {
 		this.attachments = attachments;
+	}
+
+	public String getAliveStatus() {
+		return aliveStatus;
+	}
+
+	public void setAliveStatus(String aliveStatus) {
+		this.aliveStatus = aliveStatus;
 	}
 	
 	

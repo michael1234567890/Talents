@@ -34,6 +34,17 @@ public interface TMRequestHeaderRepository extends
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployee(
 			@Param("company") Long company, @Param("employee") Long employee);
+	
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.status=:status ORDER BY createdDate DESC")
+	List<TMRequestHeader> findByCompanyAndEmployeeAndStatus(
+			@Param("company") Long company, @Param("employee") Long employee, @Param("status") String status);
+	
+	
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.reqNo like %:reqNo% ORDER BY createdDate DESC")
+	List<TMRequestHeader> findByCompanyAndRequestNoLike(
+			@Param("company") Long company, @Param("reqNo") String reqNo);
+
+	
 
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.employee=:employee AND u.id=:id")
 	TMRequestHeader findByEmployeeAndId(@Param("employee") Long employee,
@@ -47,7 +58,18 @@ public interface TMRequestHeaderRepository extends
 	List<TMRequestHeader> findByCompanyAndEmployeeAndModule(
 			@Param("company") Long company, @Param("employee") Long employee,
 			@Param("module") String module);
+	
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.module=:module AND u.status=:status ORDER BY createdDate DESC")
+	List<TMRequestHeader> findByCompanyAndEmployeeAndModuleAndStatus(
+			@Param("company") Long company, @Param("employee") Long employee,
+			@Param("module") String module,@Param("status") String status);
 
+	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND LOWER(u.reqNo) like lower(concat('%', :reqNo,'%')) AND LOWER(u.module)=LOWER(:module) ORDER BY createdDate DESC")
+	List<TMRequestHeader> findByCompanyAndModuleAndRequestNoLike(
+			@Param("company") Long company, @Param("reqNo") String reqNo,
+			@Param("module") String module);
+
+	
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee AND u.module=:module AND u.needReport=TRUE AND u.status ='"
 			+ TMRequest.APPROVED + "' ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployeeAndModuleAndNeedReport(

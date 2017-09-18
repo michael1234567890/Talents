@@ -13,12 +13,15 @@ import com.phincon.talents.app.model.AbstractEntity;
 @Entity
 @Table(name = "hr_tm_request")
 public class TMRequest extends AbstractEntity {
-
+	public final static String PENDING = "pending";
+	public final static String APPROVED = "approved";
+	public final static String REJECTED = "rejected";
+	
 	public final static String REQUEST = "Request";
-	public final static String WAITING = "Waiting";
+//	public final static String WAITING = "Waiting";
 	public final static String REJECT = "Reject";
-	public final static String APPROVED = "Approved";
-	public final static String CANCEL = "Cancel";
+	//public final static String APPROVED = "Approved";
+//	public final static String CANCEL = "Cancel";
 	
 	public final static String CAT_MEDICAL = "Medical";
 	public final static String CAT_MUTASI = "mutasi";
@@ -164,7 +167,9 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "destination",length=100)
 	private String destination;
 	
-	
+
+	@Column(name = "spd_type",length=100)
+	private String spdType;
 	
 
 	public Date getRequestDate() {
@@ -436,6 +441,13 @@ public class TMRequest extends AbstractEntity {
 		this.qty = qty;
 	}
 
-	
+	public String getSpdType() {
+		return spdType;
+	}
 
+	public void setSpdType(String spdType) {
+		this.spdType = spdType;
+	}
+
+	
 }

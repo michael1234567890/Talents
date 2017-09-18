@@ -1,6 +1,11 @@
 package com.phincon.talents.app.services;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -9,6 +14,11 @@ import org.springframework.stereotype.Service;
 
 import com.phincon.talents.app.dao.TMBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
+import com.phincon.talents.app.dto.BenefitDTO;
+import com.phincon.talents.app.dto.DataApprovalDTO;
+import com.phincon.talents.app.model.User;
+import com.phincon.talents.app.model.Workflow;
+import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.utils.Utils;
@@ -45,9 +55,7 @@ public class TMRequestService {
 	@Transactional
 	public void ApproveWithHeaderId(Long headerId,List<TMRequest> listTmRequest) {
 		tmRequestRepository.approvedByHeaderId(TMRequest.APPROVED, headerId);
-		for (TMRequest tmRequest : listTmRequest) {
-			// get balance based on like module,  category type,type
-			
+		for (TMRequest tmRequest : listTmRequest) {	
 			//List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), employmentId, module, category, type, tmRequest.getRequestDate());
 			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), tmRequest.getCategoryType().toLowerCase(), tmRequest.getType().toLowerCase()); 
 			List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(),  tmRequest.getType().toLowerCase()); 
@@ -78,11 +86,6 @@ public class TMRequestService {
 		
 		// update Balance Info
 		for (TMRequest tmRequest : listTmRequest) {
-			// get balance based on like module,  category type,type
-			
-			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), employmentId, module, "Medical", "Medical", tmRequest.getRequestDate());
-			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), "Medical", "Medical"); 
-			
 			List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), "Medical"); 
 			TMBalance balance = null;
 			if(listTmBalances != null && listTmBalances.size() > 0) {
@@ -130,11 +133,9 @@ public class TMRequestService {
 			for (TMRequest tmRequest : listTmRequest) {
 				//tmBalance = listTmBalance.get(0);
 				tmRequest.setStatus(TMRequest.REJECT);
-				tmRequest.setNeedSync(false);
+				tmRequest.setNeedSync(true);
 				save(tmRequest);
-				//List<TMBalance> listTmBalance = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), tmRequest.getCategoryType().toLowerCase(), tmRequest.getType().toLowerCase()); 
 				List<TMBalance> listTmBalance = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(),  tmRequest.getType().toLowerCase()); 
-				System.out.println("Balance Size " + listTmBalance.size());
 				TMBalance tmBalance = null;
 				if(listTmBalance != null && listTmBalance.size() > 0){
 					for (TMBalance tmBalanceLoop : listTmBalance) {
@@ -152,15 +153,10 @@ public class TMRequestService {
 					Double balanceEnd = tmBalance.getBalanceEnd() + tmRequest.getAmount();
 					Double balanceUsed = tmBalance.getBalanceUsed() - tmRequest.getAmount();
 					if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().equals("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") )) {
+						tmBalance.setBalanceUsed(balanceUsed);						
+					} else if(tmBalance.getBalanceType() != null && (tmBalance.getBalanceType().toLowerCase().equals("one time (2 years)") || tmBalance.getBalanceType().toLowerCase().equals("one time (1 years)") || tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)")) ){
+						//tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
-						//tmBalance.setLastClaimDate(null);
-						
-					} else if(tmBalance.getBalanceType() != null && tmBalance.getBalanceType().toLowerCase().equals("one time")){
-						tmBalance.setBalanceEnd(balanceEnd);
-						tmBalance.setBalanceUsed(balanceUsed);
-						
-						
-						// tmBalance.setLastClaimDate(null);
 					}else {
 						tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
@@ -178,6 +174,11 @@ public class TMRequestService {
 		}
 		
 	}
-
+	
+	
 	
 }
+	
+
+	
+

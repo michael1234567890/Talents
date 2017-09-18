@@ -2,6 +2,7 @@ package com.phincon.talents.app.dao;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,14 +22,29 @@ public interface DataApprovalRepository extends PagingAndSortingRepository<DataA
 	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company")
 	 List<Long> countNeedApproval(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company);
 	 
+	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company AND u.module=:module")
+	 List<Long> countNeedApprovalAndModule(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company, @Param("module") String module);
+	 
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company AND u.module=:module")
-	 List<DataApproval> findNeedApprovalAndModule(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company, @Param("module") String module);
+	 List<DataApproval> findNeedApprovalAndModule(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company, @Param("module") String module,Pageable pageable);
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.empRequest=:employee ORDER BY modifiedDate DESC")
-	 List<DataApproval> findByEmpRequest(@Param("employee") Long employee);
+	 List<DataApproval> findByEmpRequest(@Param("employee") Long employee,Pageable pageable);
+	 
+	 @Query("SELECT count(u.id) FROM DataApproval u WHERE u.empRequest=:employee ORDER BY modifiedDate DESC")
+	 List<Long> countByEmpRequest(@Param("employee") Long employee);
+	 
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.empRequest=:employee AND u.module=:module ORDER BY modifiedDate DESC")
-	 List<DataApproval> findByEmpRequestAndModule(@Param("employee") Long employee, @Param("module") String module);
+	 List<DataApproval> findByEmpRequestAndModule(@Param("employee") Long employee, @Param("module") String module,Pageable pageable);
+	 
+	 @Query("SELECT count(u.id) FROM DataApproval u WHERE u.empRequest=:employee AND u.module=:module ORDER BY modifiedDate DESC")
+	 List<Long> countByEmpRequestAndModule(@Param("employee") Long employee, @Param("module") String module);
+	 
+	 
+	 
+	 @Query
+	 List<DataApproval> findByCompanyAndObjectNameAndObjectRef(Long compay,String objectName, Long objectRef);
 	 	
 }

@@ -182,8 +182,6 @@ public class LeaveController {
 		leaveRequestService.save(leaveRequest);
 		leave.setLeaveRequest(leaveRequest);
 		leaveService.save(leave);
-		
-		
 		// Decrease entitlemet
 		Double noOfDays = objEntitlement.getNoOfDays() - days;
 		Double daysUsed = objEntitlement.getDaysUsed() + days;

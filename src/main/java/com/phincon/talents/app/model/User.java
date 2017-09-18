@@ -89,6 +89,12 @@ public class User extends AbstractEntity {
 	@Column(name = "last_login_time")
 	private Date lastLoginTime;
 	
+	@Column(name = "is_leader")
+	private Boolean isLeader;
+	
+	@Column(name = "is_admin")
+	private Boolean isAdmin;
+	
 
 	@Transient
 	private Employee employeeTransient;
@@ -262,6 +268,24 @@ public class User extends AbstractEntity {
 
 	public void setLastLoginTime(Date lastLoginTime) {
 		this.lastLoginTime = lastLoginTime;
+	}
+	
+	
+
+	public Boolean getIsLeader() {
+		return isLeader;
+	}
+
+	public void setIsLeader(Boolean isLeader) {
+		this.isLeader = isLeader;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 
 	@Override

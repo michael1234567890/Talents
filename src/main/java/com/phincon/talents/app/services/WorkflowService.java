@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.phincon.talents.app.dao.ApprovalGroupRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.WorkflowRepository;
+import com.phincon.talents.app.dto.AssignEmailDTO;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.ApprovalGroup;
 import com.phincon.talents.app.model.hr.Employee;
@@ -57,15 +58,16 @@ public class WorkflowService {
 	@Transactional
 	public String findAssignApproval(String codeApproval, Long employee,
 			Long company) {
+		AssignEmailDTO assignEmailDTO = new AssignEmailDTO();
 		String assignApproval = null;
+		String emailAssignApproval;
 		if (codeApproval.equals(Workflow.DEFAULT)) {
-
-			System.out.println(" findAssignApproval Employee ID " + employee);
 			// get direct report
 			Employee objEmployee = vwEmpAssignmentService
 					.findReportTo(employee);
 			if (objEmployee != null)
 				assignApproval = "#" + objEmployee.getId() + "#";
+			emailAssignApproval = objEmployee.getOfficeMail();
 		} else {
 			// get group of employee for approve
 			List<ApprovalGroup> listApprovalGroup = approvalGroupRepository

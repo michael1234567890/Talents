@@ -118,6 +118,8 @@ public class ProfileController {
 		ProfileDTO profile = new ProfileDTO();
 		profile.setFirstName(user.getFirstName());
 		profile.setLastName(user.getLastName());
+		profile.setIsAdmin(user.getIsAdmin());
+		profile.setIsLeader(user.getIsLeader());
 
 		if (user.getEmployee() != null) {
 			Employee employee = employeeService

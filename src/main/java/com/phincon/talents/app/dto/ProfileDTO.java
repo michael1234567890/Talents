@@ -14,6 +14,9 @@ public class ProfileDTO {
 	private String companyName;
 	private String name;
 	private String email;
+	private String mobilePhone;
+	private Boolean isAdmin;
+	private Boolean isLeader;
 	private Long needApproval;
 	private Employee employeeTransient;
 	private Company company;
@@ -110,6 +113,30 @@ public class ProfileDTO {
 
 	public void setNeedApproval(Long needApproval) {
 		this.needApproval = needApproval;
+	}
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+
+	public Boolean getIsLeader() {
+		return isLeader;
+	}
+
+	public void setIsLeader(Boolean isLeader) {
+		this.isLeader = isLeader;
+	}
+
+	public String getMobilePhone() {
+		return mobilePhone;
+	}
+
+	public void setMobilePhone(String mobilePhone) {
+		this.mobilePhone = mobilePhone;
 	}
 
 	

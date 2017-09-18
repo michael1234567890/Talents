@@ -87,8 +87,6 @@ public class PayrollController {
 			throw new RuntimeException("Invalid value of payroll type.");
 		}
 		
-		System.out.println("month " + month);
-		System.out.println("employment " + employment.getId());
 		
 		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderService
 				.findByMonthAndEmployee(request.getPayrollType(), month, employment.getId(), user.getEmployee());

@@ -14,6 +14,7 @@ import com.phincon.talents.app.model.AbstractEntity;
 @Table(name = "hr_tm_balance")
 public class TMBalance extends AbstractEntity {
 
+	public final static String MEDICAL = "Medical";
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "start_date")

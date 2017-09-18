@@ -3,6 +3,7 @@ package com.phincon.talents.app.services;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +15,11 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.phincon.talents.app.dao.EmployeeRepository;
+import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
 import com.phincon.talents.app.dao.TMBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestHeaderRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
@@ -29,6 +32,7 @@ import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.model.hr.Employment;
+import com.phincon.talents.app.model.hr.PayrollElementHeader;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
@@ -55,12 +59,20 @@ public class TMRequestHeaderService {
 	DataApprovalService dataApprovalService;
 
 	@Autowired
+	RunningNumberService runningNumberService;
+
+	
+
+	@Autowired
 	TMRequestService tmRequestService;
 
 	@Autowired
 	TMBalanceService tmBalanceService;
-	
-	private Double BATAS_SPD_AMOUNT = Double.valueOf("2000000"); 
+
+	@Autowired
+	PayrollElementHeaderRepository payrollElementHeaderRepository;
+
+	private Double BATAS_SPD_AMOUNT = Double.valueOf("2000000");
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@Transactional
@@ -78,13 +90,18 @@ public class TMRequestHeaderService {
 
 	@Transactional
 	public TMRequestHeader findByIdWithDetail(Long id, Long employeeId) {
-		TMRequestHeader obj = tmRequestHeaderRepository.findByEmployeeAndId(
-				employeeId, id);
-		if(obj.getRefRequestHeader() != null){
-			TMRequestHeader refRequestHeader = tmRequestHeaderRepository.findOne(obj.getRefRequestHeader());
+		TMRequestHeader obj = null;
+		if (employeeId == null)
+			obj = tmRequestHeaderRepository.findOne(id);
+		else
+			obj = tmRequestHeaderRepository.findByEmployeeAndId(employeeId, id);
+
+		if (obj.getRefRequestHeader() != null) {
+			TMRequestHeader refRequestHeader = tmRequestHeaderRepository
+					.findOne(obj.getRefRequestHeader());
 			obj.setRefRequestHeaderObj(refRequestHeader);
 		}
-		
+
 		List<TMRequest> details = tmRequestRepository.findByTmRequestHeader(id);
 		obj.setDetails(details);
 		return obj;
@@ -140,7 +157,7 @@ public class TMRequestHeaderService {
 		if (request.getDetails() == null || request.getDetails().size() == 0) {
 			throw new RuntimeException("Your request can't be Empty.");
 		}
-		
+
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
 		processSubmitedClaim(request, listBalance, user);
 		return request;
@@ -151,19 +168,27 @@ public class TMRequestHeaderService {
 			List<TMBalance> listBalance, User user) {
 		Date startDate = request.getStartDate();
 		Date endDate = request.getEndDate();
-		if(!request.getCategoryType().toLowerCase().equals("perjalanan dinas") && !request.getCategoryType().toLowerCase().equals("spd advance")){
+
+		if (!request.getCategoryType().toLowerCase().equals("perjalanan dinas")
+				&& !request.getCategoryType().toLowerCase()
+						.equals("spd advance")) {
 			endDate = null;
 		}
-		
-		validationInputBenefitProcess(request,user);
+
+		validationInputBenefitProcess(request, user);
 		List<BenefitDetailDTO> listBenefitDetailDTOs = new ArrayList<BenefitDetailDTO>();
 		clearBenefitDetail(request);
 		Double totalHeaderAmount = Double.valueOf("0");
 		Double totalHeaderAmountSubmit = Double.valueOf("0");
-		if( request.getDetails() != null &&  request.getDetails().size() >0){
+		if (request.getDetails() != null && request.getDetails().size() > 0) {
 			for (BenefitDetailDTO benefitDetail : request.getDetails()) {
+
+				if (benefitDetail.getType().toLowerCase().equals("cuti besar")) {
+					throw new RuntimeException("This feature is not available.");
+				}
+
 				Long qty = benefitDetail.getQty();
-				if (qty == null || qty ==0) {
+				if (qty == null || qty == 0) {
 					qty = 1L;
 					if (startDate != null && endDate != null)
 						qty = Utils.diffDay(startDate, endDate) + 1L;
@@ -173,145 +198,147 @@ public class TMRequestHeaderService {
 				Double totalClaim = benefitDetail.getAmount();
 				Double totalClaimBalance = totalClaim;
 				benefitDetail.setTotalClaim(totalClaim);
-				
+
 				TMBalance tmBalance = tmBalanceService.getByModuleTypeFromList(
-						listBalance, request.getModule(), benefitDetail.getType());
-				
+						listBalance, request.getModule(),
+						benefitDetail.getType());
+
 				boolean passed = true;
 				// Sumbangan Perabot
-				if(benefitDetail.getType().toLowerCase().equals("sumbangan perabot")){
-					sumbanganPerabotValidation(benefitDetail,listBalance,  user, totalClaim);
+				if (benefitDetail.getType().toLowerCase()
+						.equals("sumbangan perabot")) {
+					sumbanganPerabotValidation(benefitDetail, listBalance,
+							user, totalClaim);
 					totalClaim = benefitDetail.getTotalClaim();
 					totalClaimBalance = totalClaim;
 					passed = false;
 				}
-				
-				if(benefitDetail.getType().toLowerCase().equals("cuti besar")){
-					if(tmBalance != null) {
+
+				if (benefitDetail.getType().toLowerCase().equals("cuti besar")) {
+					if (tmBalance != null) {
 						totalClaim = tmBalance.getBalanceEnd();
 						benefitDetail.setAmount(totalClaim);
 						benefitDetail.setTotalClaim(totalClaim);
 						totalClaimBalance = totalClaim;
 					}
-					
+
 					passed = false;
 				}
-				
-				if(benefitDetail.getType().toLowerCase().equals("taxi") || benefitDetail.getType().toLowerCase().equals("transport") || benefitDetail.getType().toLowerCase().equals("rental mobil") || benefitDetail.getType().toLowerCase().equals("laundry") || benefitDetail.getType().toLowerCase().equals("tol parkir bensin") || benefitDetail.getType().toLowerCase().equals("other")){
+
+				if (benefitDetail.getType().toLowerCase().equals("taxi")
+						|| benefitDetail.getType().toLowerCase()
+								.equals("transport")
+						|| benefitDetail.getType().toLowerCase()
+								.equals("rental mobil")
+						|| benefitDetail.getType().toLowerCase()
+								.equals("laundry")
+						|| benefitDetail.getType().toLowerCase()
+								.equals("tol parkir bensin")
+						|| benefitDetail.getType().toLowerCase()
+								.equals("other")) {
 					passed = false;
 					totalClaimBalance = totalClaim;
 				}
-				
-				
-				if (tmBalance != null && !tmBalance.getBalanceType().toLowerCase()
+
+				if (tmBalance != null
+						&& !tmBalance.getBalanceType().toLowerCase()
 								.equals("one time (transaction)") && passed) {
-					
-					System.out.println(tmBalance.getType() + " : "
-							+ tmBalance.getBalanceEnd());
-					
-					if(benefitDetail.getType().toLowerCase().equals("medical"))
-						benefitDetail.setTotalSubmitedClaim(tmBalance.getBalanceUsed());
+
+					if (benefitDetail.getType().toLowerCase().equals("medical"))
+						benefitDetail.setTotalSubmitedClaim(tmBalance
+								.getBalanceUsed());
 					else
 						benefitDetail.setTotalSubmitedClaim(0D);
-					
-					totalClaimBalance = qty.doubleValue() * tmBalance.getBalanceEnd();
-					benefitDetail.setLastClaimDate(tmBalance.getLastClaimDate());
-					System.out.println("Qty: " + qty );
-					System.out.println("Total Claim : " + totalClaim );
-					System.out.println("total Claim Balance : " + totalClaimBalance );
-					
-					
+
+					totalClaimBalance = qty.doubleValue()
+							* tmBalance.getBalanceEnd();
+					benefitDetail
+							.setLastClaimDate(tmBalance.getLastClaimDate());
+
 					if (totalClaimBalance < totalClaim)
 						benefitDetail.setTotalCurrentClaim(totalClaimBalance);
 					else
 						benefitDetail.setTotalCurrentClaim(totalClaim);
-					
+
 					totalClaimBalance = benefitDetail.getTotalCurrentClaim();
 				} else {
 					benefitDetail.setTotalCurrentClaim(totalClaim);
 				}
-				
-				
-				
+
 				listBenefitDetailDTOs.add(benefitDetail);
 				totalHeaderAmountSubmit += totalClaim;
 				totalHeaderAmount += totalClaimBalance;
-				
+
 			}
 			request.setTotal(totalHeaderAmount);
 			request.setTotalSubmit(totalHeaderAmountSubmit);
 			request.setDetails(listBenefitDetailDTOs);
 		}
-		
-		
+
 		if (listBenefitDetailDTOs.size() > 0)
-			
-		
-		request.setVerified(true);
+
+			request.setVerified(true);
 	}
 
-	private void validationInputBenefitProcess(BenefitDTO request,User user) {
-		boolean validationBeforeStartDate = true;
+	private void validationInputBenefitProcess(BenefitDTO request, User user) {
+		boolean validationBeforeEndDate = true;
 		boolean validationNextStartDate = false;
-		if(request.getCategoryType().toLowerCase().equals("spd advance")) {
-			validationBeforeStartDate = false;
+		if (request.getCategoryType().toLowerCase().equals("spd advance")) {
+			validationBeforeEndDate = false;
 			validationNextStartDate = true;
 		}
-		
-		if(request.getCategoryType().toLowerCase().equals("perjalanan dinas") || request.getCategoryType().toLowerCase().equals("spd advance")){
-			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(), user.getEmployee(), request.getModule(), request.getCategoryType(), request.getStartDate());
-			if(listHeaderRequest != null && listHeaderRequest.size() > 0){
+
+		if (request.getCategoryType().toLowerCase().equals("perjalanan dinas")
+				|| request.getCategoryType().toLowerCase()
+						.equals("spd advance")) {
+			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository
+					.findBetweenStartEndDate(user.getCompany(),
+							user.getEmployee(), request.getModule(),
+							request.getCategoryType(), request.getStartDate());
+			
+			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
 				throw new RuntimeException(
 						"You are not allowed request in the range date.");
 			}
-			
+
 			if (Utils.comparingDate(request.getEndDate(),
 					request.getStartDate(), "<")) {
 				throw new RuntimeException(
 						"The End date must be greater than The start date.");
 			}
 		}
-		
-		if(validationBeforeStartDate) {
-			if(Utils.diffDay(request.getStartDate(), new Date()) < 0) {
+
+		if (validationBeforeEndDate) {
+			//Long diffEndDate = Utils.diffDay(request.getEndDate(), new Date());
+			int diffEndDate = Utils.diffDayInt(request.getEndDate(), new Date());
+			if (diffEndDate < 0) {
 				throw new RuntimeException(
 						"Your transaction Date must be less than Today.");
 			}
 		}
-		
-		if(validationNextStartDate) {
-			if(Utils.diffDay(request.getStartDate(), new Date()) > -1) {
+
+		if (validationNextStartDate) {
+			// Long diffStartDate = Utils.diffDay(request.getStartDate(), new Date());
+			int diffStartDate = Utils.diffDayInt(request.getStartDate(), new Date());
+			if (diffStartDate > 0) {
 				throw new RuntimeException(
 						"Your Start Date must be earlier than Today.");
 			}
 		}
-		
-		if(request.getCategoryType().toLowerCase().equals("kacamata") || request.getCategoryType().toLowerCase().equals("medical")) {
-			if(Utils.diffDay(request.getStartDate(), new Date()) > 30) {
+
+		if (request.getCategoryType().toLowerCase().equals("kacamata")
+				|| request.getCategoryType().toLowerCase().equals("medical")) {
+			if (Utils.diffDay(request.getStartDate(), new Date()) > 30) {
 				throw new RuntimeException(
 						"Your transaction Date must be less than 30 days.");
 			}
 		}
-		
+
 	}
 
-	@Transactional
-	private List<TMBalance> getListBalance(BenefitDTO request, User user,
-			Employment employment) {
-		List<TMBalance> resultBalance = tmBalanceRepository
-				.findBalanceByModuleEmployment(user.getCompany(),
-						employment.getId(), request.getModule());
-
-		/*
-		 * List<TMBalance> resultBalance = tmBalanceRepository
-		 * .findBalanceCategoryTypeByEmployment(user.getCompany(),
-		 * employment.getId(), request.getModule(), request.getCategoryType());
-		 */
-
-		Date today = new Date();
-		// get all type in categoryTYpe with module BN
+	private List<TMBalance> listBalance(List<TMBalance> resultBalance,
+			Date today) {
 		List<TMBalance> listBalance = new ArrayList<TMBalance>();
-
 		for (TMBalance tmBalance : resultBalance) {
 			if (tmBalance.getStartDate() != null
 					&& tmBalance.getEndDate() != null) {
@@ -337,6 +364,29 @@ public class TMRequestHeaderService {
 	}
 
 	@Transactional
+	private List<TMBalance> getListBalance(BenefitDTO request, User user,
+			Employment employment) {
+		List<TMBalance> resultBalance = tmBalanceRepository
+				.findBalanceByModuleEmployment(user.getCompany(),
+						employment.getId(), request.getModule());
+		Date today = new Date();
+		// get all type in categoryTYpe with module BN
+		List<TMBalance> listBalance = listBalance(resultBalance, today);
+		return listBalance;
+	}
+
+	@Transactional
+	private List<TMBalance> getListBalanceByCategory(BenefitDTO benefitDTO,
+			User user, Employment employment, String category) {
+		List<TMBalance> resultBalance = tmBalanceRepository
+				.findBalanceCategoryTypeByEmployment(user.getCompany(),
+						employment.getId(), benefitDTO.getModule(), category);
+		Date today = new Date();
+		List<TMBalance> listBalance = listBalance(resultBalance, today);
+		return listBalance;
+	}
+
+	@Transactional
 	public void createBenefit(BenefitDTO request, User user,
 			Employment employment, Employment requester) {
 
@@ -349,9 +399,8 @@ public class TMRequestHeaderService {
 		}
 
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
-		processSubmitedClaim(request,listBalance,user);
+		processSubmitedClaim(request, listBalance, user);
 
-	
 		// move listBalance into MapBalance
 		Map<String, Double> mapBalance = new HashMap<String, Double>();
 		for (TMBalance tmBalance : listBalance) {
@@ -359,7 +408,8 @@ public class TMRequestHeaderService {
 					tmBalance.getBalanceEnd());
 		}
 
-		validationBenefitAmount(request, mapBalance, listBalance, user, employment);
+		validationBenefitAmount(request, mapBalance, listBalance, user,
+				employment);
 
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
 		tmRequestHeader.setCompany(user.getCompany());
@@ -377,12 +427,28 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setDestination(request.getDestination());
 		tmRequestHeader.setRemark(request.getRemark());
 		tmRequestHeader.setNeedReport(false);
-		tmRequestHeader.setTotalAmount(request.getTotal());
-		tmRequestHeader.setTotalAmountSubmit(request.getTotalSubmit());
+		Double totalAmount = request.getTotal();
+		Double totalAmountSubmit = request.getTotalSubmit();
+		// if category Medical Overlimit get from min (balance valid Medical,
+		// base salary)
+		if (request.getCategoryType() != null
+				&& request.getCategoryType().toLowerCase()
+						.equals("medical overlimit")) {
+			totalAmount = getAmountMedicalOverlimit(request, user, employment);
+			totalAmountSubmit = totalAmount;
+		}
+
+		tmRequestHeader.setTotalAmount(totalAmount);
+		tmRequestHeader.setTotalAmountSubmit(totalAmountSubmit);
+
 		tmRequestHeader.setPulangKampung(request.getPulangKampung());
 		tmRequestHeader.setStartDate(request.getStartDate());
 		tmRequestHeader.setEndDate(request.getEndDate());
 		tmRequestHeader.setSpdType(request.getSpdType());
+		String reqNo = runningNumberService.getLastNumber(user.getCompany(),
+				new Date(), "BN", employment.getName());
+		tmRequestHeader.setReqNo(reqNo);
+
 		if (request.getCategoryType() != null
 				&& request.getCategoryType().toLowerCase()
 						.equals("spd advance")) {
@@ -392,30 +458,41 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setStatus(TMRequestHeader.APPROVED);
 		Workflow workflow = null;
 		String taskName = request.getWorkflow();
-		
-		if((tmRequestHeader.getCategoryType().toLowerCase().equals("perjalanan dinas")) && tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT){
-			taskName = Workflow.SUBMIT_BENEFIT2_5;
+		if (tmRequestHeader.getCategoryType().toLowerCase()
+				.equals("perjalanan dinas")) {
+			tmRequestHeader.setSpdType(request.getSpdType());
+			if (request.getSpdType() != null
+					&& (request.getSpdType().toLowerCase()
+							.equals("pulang kampung") || request.getSpdType()
+							.toLowerCase().equals("mutasi"))) {
+				if (tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT)
+					taskName = Workflow.SUBMITBENEFIT2_1_5;
+				else
+					taskName = Workflow.SUBMITBENEFIT2_1;
+			} else {
+				if (tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT)
+					taskName = Workflow.SUBMIT_BENEFIT2_5;
+			}
+			request.setWorkflow(taskName);
 		}
-		
+
 		workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
 				user.getCompany(), true);
-		
+
 		if (workflow != null) {
 			tmRequestHeader.setStatus(TMRequestHeader.PENDING);
 		}
 
-		if(request.getLinkRefHeader() != null){
+		if (request.getLinkRefHeader() != null) {
 			tmRequestHeader.setRefRequestHeader(request.getLinkRefHeader());
 		}
-			
+
 		tmRequestHeaderRepository.save(tmRequestHeader);
 
 		if (request.getLinkRefHeader() != null) {
 			tmRequestHeaderRepository.updateByNeedReportAndId(false,
 					request.getLinkRefHeader());
 		}
-
-		
 
 		for (BenefitDetailDTO details : request.getDetails()) {
 			// create new TM Request
@@ -436,14 +513,27 @@ public class TMRequestHeaderService {
 					diffDays += 1;
 					totalDay = diffDays.doubleValue();
 				}
-
 				tmRequest.setTotalDay(totalDay);
 			}
+
+			if (tmRequestHeader.getCategoryType().toLowerCase()
+					.equals("perjalanan dinas")) {
+				tmRequest.setSpdType(tmRequestHeader.getSpdType());
+			}
+
 			tmRequest.setOrigin(request.getOrigin());
 			tmRequest.setDestination(request.getDestination());
-			
+
 			tmRequest.setAmountSubmit(details.getTotalClaim());
 			tmRequest.setAmount(details.getTotalCurrentClaim());
+
+			if (tmRequestHeader.getCategoryType().toLowerCase()
+					.equals("medical overlimit")) {
+				tmRequest.setAmountSubmit(tmRequestHeader
+						.getTotalAmountSubmit());
+				tmRequest.setAmount(tmRequestHeader.getTotalAmount());
+			}
+
 			tmRequest.setType(details.getType());
 			tmRequest.setCategoryType(request.getCategoryType());
 			tmRequest.setCategoryTypeExtId(request.getCategoryTypeExtId());
@@ -463,6 +553,7 @@ public class TMRequestHeaderService {
 			tmRequest.setRemark(request.getRemark());
 			tmRequest.setStatus(TMRequest.APPROVED);
 			tmRequest.setQty(details.getQty());
+			tmRequest.setReqNo(reqNo);
 			if (workflow != null) {
 				tmRequest.setNeedSync(false);
 				tmRequest.setStatus(TMRequest.REQUEST);
@@ -485,7 +576,7 @@ public class TMRequestHeaderService {
 			}
 
 		}
-		
+
 		actionForBalance(listBalance, mapBenefitDetail, user);
 		if (workflow != null) {
 			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
@@ -500,10 +591,40 @@ public class TMRequestHeaderService {
 				dataApprovalDTO.setAttachments(request.getAttachments());
 			}
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
+			
+		}
+	}
+
+	
+	private Double getAmountMedicalOverlimit(BenefitDTO benefitDTO, User user,
+			Employment employment) {
+
+		Double baseSalary = 0.0d;
+
+		// get Base Salary
+		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderRepository
+				.findByLatestMonthAndEmployment(employment.getId(),
+						new PageRequest(0, 1));
+		if (listElementHeaders != null && listElementHeaders.size() > 0) {
+			PayrollElementHeader payrollHeader = listElementHeaders.get(0);
+			baseSalary = payrollHeader.getBaseSalary();
 		}
 
+		// get Balance Limit Medical
+		Double limitMedical = 0.0d;
+		List<TMBalance> listBalance = getListBalanceByCategory(benefitDTO,
+				user, employment, TMBalance.MEDICAL);
+		if (listBalance != null && listBalance.size() > 0) {
+			TMBalance balance = listBalance.get(0);
+			limitMedical = balance.getBalanceLimit();
+		}
+
+		Double amountMedicalOverlimit = limitMedical;
+		if (baseSalary != 0.0d && baseSalary < limitMedical)
+			amountMedicalOverlimit = baseSalary;
+
+		return amountMedicalOverlimit;
 	}
-	
 
 	private void actionForBalance(List<TMBalance> listBalance,
 			Map<String, Double> mapBenefitDetail, User user) {
@@ -512,14 +633,19 @@ public class TMRequestHeaderService {
 				Double decrease = Double.valueOf("0");
 				decrease = mapBenefitDetail.get(tmBalance.getType()
 						.toLowerCase());
-				
+
 				if (tmBalance.getBalanceType() != null
-						&& ( (tmBalance.getBalanceType().toLowerCase()
-							.equals("daily") || tmBalance.getBalanceType().toLowerCase()
-							.equals("one time (transaction)") || tmBalance.getBalanceType().toLowerCase()
-							.equals("one time (2 years)")|| tmBalance.getBalanceType().toLowerCase()
-							.equals("one time (5 years)")) )){
-					
+						&& ((tmBalance.getBalanceType().toLowerCase()
+								.equals("daily")
+								|| tmBalance.getBalanceType().toLowerCase()
+										.equals("one time (transaction)")
+								|| tmBalance.getBalanceType().toLowerCase()
+										.equals("one time (2 years)")
+								|| tmBalance.getBalanceType().toLowerCase()
+										.equals("one time (5 years)") || tmBalance
+								.getBalanceType().toLowerCase()
+								.equals("one time (1 years)")))) {
+
 					tmBalance.setBalanceUsed(decrease);
 				} else {
 					Double balanceEnd = tmBalance.getBalanceEnd() - decrease;
@@ -548,7 +674,7 @@ public class TMRequestHeaderService {
 		Double total = Double.valueOf("0");
 		if (details != null && details.size() > 0) {
 			for (BenefitDetailDTO benefitDetailDTO : details) {
-				if(benefitDetailDTO.getAmount() != null)
+				if (benefitDetailDTO.getAmount() != null)
 					total += benefitDetailDTO.getAmount();
 			}
 		}
@@ -561,28 +687,26 @@ public class TMRequestHeaderService {
 
 		if (obj.getDetails() != null && obj.getDetails().size() > 0) {
 			for (BenefitDetailDTO details : obj.getDetails()) {
-				
+
 				validationBalanceType(obj, details, listBalance,
 						employment.getId(), user.getCompany());
 
 				Double detailAmount = Double.valueOf("0");
 				if (details.getTotalCurrentClaim() != null)
 					detailAmount = details.getTotalCurrentClaim();
-				
-				System.out.println("Map Balance Type " + details.getType());
-				System.out.println(mapBalance.get(details.getType()
-						.toLowerCase()));
-				System.out.println("Current Claim " + detailAmount);
-				
+
 				boolean passed = true;
-				
-				if(obj.getCategoryType().toLowerCase().equals("perjalanan dinas") || obj.getCategoryType().toLowerCase().equals("spd advance") ){
+
+				if (obj.getCategoryType().toLowerCase()
+						.equals("perjalanan dinas")
+						|| obj.getCategoryType().toLowerCase()
+								.equals("spd advance")) {
 					passed = false;
 				}
-				
-				
+
 				if (mapBalance.get(details.getType().toLowerCase()) != null
-						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount && passed) {
+						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount
+						&& passed) {
 					throw new RuntimeException("Your Balance "
 							+ details.getType() + " is not enought.");
 				}
@@ -606,12 +730,10 @@ public class TMRequestHeaderService {
 
 		// update every tmrequest with header id = request id
 		if (isHaveMedicalOverlimit) {
-			System.out.println("Medical Overlimit Approval");
 			Double amount = approvalWorkflow.getAmount();
 			tmRequestService.approveMedicalOverlimit(headerId, listTmRequest,
 					amount);
 		} else {
-			System.out.println("Non Medical Overlimit Approval");
 			tmRequestService.ApproveWithHeaderId(headerId, listTmRequest);
 		}
 
@@ -620,7 +742,6 @@ public class TMRequestHeaderService {
 	public void sumbanganPerabotValidation(BenefitDetailDTO detail,
 			List<TMBalance> listBalance, User user, Double totalClaim) {
 		Employee employee = employeeRepository.findOne(user.getEmployee());
-		System.out.println("Type 3 : " + detail.getType().toLowerCase());
 		if (detail.getType().toLowerCase().equals("sumbangan perabot")) {
 			TMBalance balance = getBalanceByCategoryAndType(listBalance,
 					"sumbangan perabot");
@@ -639,27 +760,25 @@ public class TMRequestHeaderService {
 							+ "' Your marital status is same with before.");
 				}
 			}
-			
-			if(totalClaim != null) {
-				if(employee.getMaritalStatus().toLowerCase().equals("single") || employee.getMaritalStatus().toLowerCase().equals("divorce"))
+
+			if (totalClaim != null) {
+				if (employee.getMaritalStatus().toLowerCase().equals("single")
+						|| employee.getMaritalStatus().toLowerCase()
+								.equals("divorce"))
 					totalClaim = TMRequest.CLAIM_PERABOT_SINGLE;
-				else 
+				else
 					totalClaim = balance.getBalanceEnd();
-				
-				System.out.println("Balance End : " + balance.getBalanceEnd());
-				if(balance.getBalanceEnd() <= Double.valueOf(0D))
+
+				if (balance.getBalanceEnd() <= Double.valueOf(0D))
 					totalClaim = 0D;
-				
-				if(totalClaim < Double.valueOf(0D))
+
+				if (totalClaim < Double.valueOf(0D))
 					totalClaim = 0D;
-				
+
 				detail.setTotalClaim(totalClaim);
 				detail.setTotalCurrentClaim(totalClaim);
 				detail.setTotalSubmitedClaim(balance.getBalanceUsed());
-				System.out.println("totalClaim : " + totalClaim);
 			}
-			
-			
 
 		}
 	}
@@ -680,10 +799,7 @@ public class TMRequestHeaderService {
 			if (balance.getBalanceType() != null
 					&& balance.getBalanceType().toLowerCase()
 							.contains("one time")) {
-				System.out.println("Balance ID " + balance.getId());
-				System.out.println("Last Claim Date "
-						+ balance.getLastClaimDate());
-
+				
 				if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (2 years)")) {
@@ -694,15 +810,35 @@ public class TMRequestHeaderService {
 						String strNextApply = "";
 						Date nextApply = null;
 						try {
-							nextApply = Utils.addDay(balance.getLastClaimDate(), 730);
+							nextApply = Utils.addDay(
+									balance.getLastClaimDate(), 730);
 							strNextApply = Utils.convertDateToString(nextApply);
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new RuntimeException(
-								"You have already applied '"
-										+ type
-										+ "'. You can apply again in "+strNextApply+".");
+						throw new RuntimeException("You have already applied '"
+								+ type + "'. You can apply again in "
+								+ strNextApply + ".");
+					}
+				} else if (balance.getBalanceType() != null
+						&& balance.getBalanceType().toLowerCase()
+								.equals("one time (1 years)")) {
+					// check last claim date
+					if (balance.getLastClaimDate() != null
+							&& (Utils.diffDay(balance.getLastClaimDate(),
+									new Date()) < 365)) {
+						String strNextApply = "";
+						Date nextApply = null;
+						try {
+							nextApply = Utils.addDay(
+									balance.getLastClaimDate(), 365);
+							strNextApply = Utils.convertDateToString(nextApply);
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+						throw new RuntimeException("You have already applied '"
+								+ type + "'. You can apply again in "
+								+ strNextApply + ".");
 					}
 				} else if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
@@ -713,15 +849,15 @@ public class TMRequestHeaderService {
 						String strNextApply = "";
 						Date nextApply = null;
 						try {
-							nextApply = Utils.addDay(balance.getLastClaimDate(), 1825);
+							nextApply = Utils.addDay(
+									balance.getLastClaimDate(), 1825);
 							strNextApply = Utils.convertDateToString(nextApply);
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new RuntimeException(
-								"You have already applied '"
-										+ type
-										+ "'. You can apply again in "+strNextApply+".");
+						throw new RuntimeException("You have already applied '"
+								+ type + "'. You can apply again in "
+								+ strNextApply + ".");
 					}
 				} else if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
@@ -734,36 +870,21 @@ public class TMRequestHeaderService {
 
 				if (balance.getType().toLowerCase().contains("lensa")) {
 					if (isLensaHaveClaimDate(listBalance)) {
-						throw new RuntimeException(
-								"You have already applied '" + type
-										+ "'. This type Only one time Apply.");
+						throw new RuntimeException("You have already applied '"
+								+ type + "'. This type Only one time Apply.");
 
 					}
 				}
 
 			}
 
-//			if (balance.getBalanceType() != null
-//					&& balance.getBalanceType().toLowerCase().contains("daily")) {
-//				// Ignore if any record in request with same day transaction
-//				// date
-//				List<TMRequest> listRequestDaily = tmRequestRepository
-//						.findTMRequestByStartDate(companyId, employmentId,
-//								header.getModule(), header.getCategoryType(),
-//								tmRequest.getType(), header.getStartDate());
-//				if (listRequestDaily != null && listRequestDaily.size() > 0) {
-//					throw new RuntimeException(
-//							"Error : You have already applied. This type '"
-//									+ tmRequest.getType()
-//									+ "' Only one time per Daily.");
-//				}
-//			}
 		}
 	}
 
 	public boolean isLensaHaveClaimDate(List<TMBalance> listBalance) {
 		for (TMBalance tmBalance : listBalance) {
-			if (tmBalance.getType().toLowerCase().contains("lensa") && tmBalance.getLastClaimDate() != null) {
+			if (tmBalance.getType().toLowerCase().contains("lensa")
+					&& tmBalance.getLastClaimDate() != null) {
 				return true;
 			}
 		}
@@ -790,15 +911,206 @@ public class TMRequestHeaderService {
 
 	}
 
-	public void processingBeforeApproved(DataApproval dataApproval,ApprovalWorkflowDTO approvalWorkflowDTO) {
-		TMRequestHeader objRequestHeader = tmRequestHeaderRepository.findOne(dataApproval.getObjectRef());
-		if(objRequestHeader != null) {
-			String categoryType = objRequestHeader.getCategoryType().toLowerCase();
-			if(categoryType.equals("medical overlimit")) {
+	public void processingBeforeApproved(DataApproval dataApproval,
+			ApprovalWorkflowDTO approvalWorkflowDTO) {
+		TMRequestHeader objRequestHeader = tmRequestHeaderRepository
+				.findOne(dataApproval.getObjectRef());
+		if (objRequestHeader != null) {
+			String categoryType = objRequestHeader.getCategoryType()
+					.toLowerCase();
+			if (categoryType.equals("medical overlimit")) {
 				Double amount = approvalWorkflowDTO.getAmount();
-				tmRequestRepository.updateAmountByHeaderId(amount, objRequestHeader.getId());
-				tmRequestHeaderRepository.updateTotalAmountById(amount, objRequestHeader.getId());
+				tmRequestRepository.updateAmountByHeaderId(amount,
+						objRequestHeader.getId());
+				tmRequestHeaderRepository.updateTotalAmountById(amount,
+						objRequestHeader.getId());
 			}
 		}
+	}
+	
+	
+
+	@Transactional
+	public void createTimeAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
+		
+		TMBalance balance = getBalance(request, user, employment);
+		Double totalDay = getTotalDays(request.getStartDate(), request.getEndDate());
+		request.setTotal(totalDay);
+		
+		// 1. Validation
+		validationRequest(request, balance,  user, employment);
+		
+		TMRequestHeader tmRequestHeader = new TMRequestHeader();
+		tmRequestHeader.setCompany(user.getCompany());
+		tmRequestHeader.setCreatedBy(user.getUsername());
+		tmRequestHeader.setModifiedBy(user.getUsername());
+		tmRequestHeader.setModifiedDate(new Date());
+		tmRequestHeader.setCreatedDate(new Date());
+		tmRequestHeader.setEmployee(user.getEmployee());
+		tmRequestHeader.setRequestDate(new Date());
+		tmRequestHeader.setRequester(user.getEmployee());
+		tmRequestHeader.setModule(request.getModule());
+		tmRequestHeader.setCategoryType(request.getCategoryType());
+		tmRequestHeader.setCategoryTypeExtId(request.getCategoryTypeExtId());
+		tmRequestHeader.setOrigin(request.getOrigin());
+		tmRequestHeader.setDestination(request.getDestination());
+		tmRequestHeader.setRemark(request.getRemark());
+		tmRequestHeader.setNeedReport(false);
+		Double totalAmount = totalDay;
+		tmRequestHeader.setTotalAmount(totalAmount);
+		//Double totalAmountSubmit = request.getTotalSubmit();
+		//tmRequestHeader.setTotalAmountSubmit(totalAmountSubmit);
+		tmRequestHeader.setStartDate(request.getStartDate());
+		tmRequestHeader.setEndDate(request.getEndDate());
+		String reqNo = runningNumberService.getLastNumber(user.getCompany(),
+				new Date(), TMRequestHeader.PREFIX_ATTENDANCE, employment.getName());
+		tmRequestHeader.setReqNo(reqNo);
+		tmRequestHeader.setStatus(TMRequestHeader.APPROVED);
+		Workflow workflow = null;
+		String taskName = request.getWorkflow();
+		workflow = workflowService.findByCodeAndCompanyAndActive(taskName,
+				user.getCompany(), true);
+
+		if (workflow != null) {
+			tmRequestHeader.setStatus(TMRequestHeader.PENDING);
+		}
+
+		tmRequestHeaderRepository.save(tmRequestHeader);
+		
+		
+			// 2. Mapping
+			TMRequest tmRequest = new TMRequest();
+			tmRequest.setCompany(user.getCompany());
+			tmRequest.setCreatedBy(user.getUsername());
+			tmRequest.setModifiedBy(user.getUsername());
+			tmRequest.setCreatedDate(new Date());
+			tmRequest.setRequestDate(new Date());
+			tmRequest.setRequesterEmployment(requester.getId());
+			tmRequest.setStartTimeBreak(request.getStartTimeBreak());
+			tmRequest.setRequesterEmploymentExtId(requester.getExtId());
+			tmRequest.setEmploymentExtId(employment.getExtId());
+			tmRequest.setEndTimeBreak(request.getEndTimeBreak());
+			tmRequest.setRemark(request.getRemark());
+			tmRequest.setModule(request.getModule());
+			tmRequest.setCategoryType(request.getCategoryType());
+			tmRequest.setCategoryTypeExtId(request.getCategoryTypeExtId());
+			tmRequest.setType(request.getType());
+			tmRequest.setStatus(TMRequest.APPROVED);
+			tmRequest.setStartDate(request.getStartDate());
+			tmRequest.setEndDate(request.getEndDate());
+			tmRequest.setTotalDay(totalDay);
+			tmRequest.setTmRequestHeader(tmRequestHeader.getId());
+			tmRequest.setReqNo(reqNo);
+			if(workflow != null){
+				tmRequest.setStatus(TMRequest.REQUEST);
+			}
+			
+			tmRequestRepository.save(tmRequest);
+		
+		// 3. Balance
+		if(balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
+			Double balanceEnd = balance.getBalanceEnd() - totalDay;
+			Double balanceUsed = balance.getBalanceUsed() + totalDay;
+			balance.setBalanceEnd(balanceEnd);
+			balance.setBalanceUsed(balanceUsed);
+			tmBalanceRepository.save(balance);
+		}
+		
+		
+		// 4. Workflow
+		if(workflow != null){
+			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
+			dataApprovalDTO.setObjectName(TMRequestHeader.class.getSimpleName());
+			dataApprovalDTO.setDescription(workflow.getDescription());
+			dataApprovalDTO.setIdRef(tmRequest.getId());
+			dataApprovalDTO.setTask(request.getWorkflow());
+			dataApprovalDTO.setModule(workflow.getModule());
+			dataApprovalService.save(dataApprovalDTO, user, workflow);
+		}
+	
+	}
+	
+	private void validationRequest(BenefitDTO request, TMBalance balance,
+			User user, Employment employment) {
+		if(balance == null){
+			throw new RuntimeException("Your balance is not found.");
+		}
+			
+		if(request.getStartDate() != null && request.getEndDate() != null){
+			if(Utils.comparingDate(request.getEndDate(), request.getStartDate(), "<")){
+				throw new RuntimeException("The End date must be greater than The start date.");
+			}
+		}
+		if(request.getTotal() > balance.getBalanceEnd()) {
+			throw new RuntimeException("Your balance is not enought.");
+		}
+	}
+
+
+
+
+	public Double getTotalDays(Date startDate, Date endDate){
+		Double totalDay = Double.valueOf(0);
+		Double holiday = Double.valueOf(0);
+		Calendar startCal = Calendar.getInstance();
+		Calendar endCal = Calendar.getInstance();
+		startCal.setTime(startDate);
+		endCal.setTime(endDate);
+		
+		//startDate and endDate are the same
+		if(startCal.getTimeInMillis() == endCal.getTimeInMillis())
+			return Double.valueOf(1);
+		
+//		String[] stringDate = {"2017-08-17", "2017-12-25"};
+		
+		Date[] holidays = {
+			Utils.convertStringToDate("2017-08-17"),
+			Utils.convertStringToDate("2017-08-18"),
+			Utils.convertStringToDate("2017-12-25"),
+			Utils.convertStringToDate("2018-01-01")
+		};
+				
+		
+		do{
+			/*
+			 * disabled reference only holidays and weekend
+			 */
+			if(startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
+					++totalDay;
+			
+			for(Date dates : holidays){
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dates);
+				
+				System.out.println("startCal : " +startCal.get(Calendar.DATE) +(startCal.get(Calendar.MONTH)+1));
+				System.out.println("dates : " +cal.get(Calendar.MONTH) +(cal.get(Calendar.MONTH)+1));
+				System.out.println("holiday : " +holiday);
+				System.out.println("========================================");
+				
+				if(startCal.get(Calendar.DATE) == cal.get(Calendar.DATE) && startCal.get(Calendar.MONTH) == cal.get(Calendar.MONTH) && startCal.get(Calendar.YEAR) == cal.get(Calendar.YEAR))
+					++holiday;
+			
+			}
+			
+//			if(!isOffDay(startCal, arrPanduanDTO))
+//				totalDay++;
+//			
+			startCal.add(Calendar.DAY_OF_MONTH, 1); // startCal.add(Calendar.DATE, 1);
+			
+		}while(startCal.getTimeInMillis() <= endCal.getTimeInMillis());	
+		totalDay = totalDay - holiday;
+		return totalDay;
+	}
+	
+	
+	@Transactional
+	private TMBalance getBalance(BenefitDTO request, User user,
+			Employment employment) {
+		Date today = new Date();
+		TMBalance balance =null;
+		List<TMBalance> resultBalance = tmBalanceRepository.findBalanceTypeByEmployment(user.getCompany(),employment.getId(),request.getModule(),request.getCategoryType(),request.getType(),today);
+		if(resultBalance!= null && resultBalance.size() > 0)
+			balance = resultBalance.get(0);
+		return balance;
 	}
 }

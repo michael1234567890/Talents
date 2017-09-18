@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.phincon.talents.app.dao.AssignmentRepository;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.UserRepository;
+import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.ResetPasswordDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.dto.UserInfoDTO;
@@ -29,6 +31,7 @@ import com.phincon.talents.app.model.Company;
 import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employee;
+import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.services.CompanyService;
 import com.phincon.talents.app.services.EmployeeService;
 import com.phincon.talents.app.services.UserSecurityService;
@@ -48,6 +51,9 @@ public class PublicRestApiController {
 
 	@Autowired
 	private CompanySettingsRepository companySettingsRepository;
+	
+	@Autowired
+	VwEmpAssignmentRepository assignmentRepository;
 
 	@Autowired
 	private EmployeeService employeeService;
@@ -116,6 +122,7 @@ public class PublicRestApiController {
 			throw new RuntimeException(
 					"Error : Employee and Company code does not match");
 		}
+		
 		// check email already register or not
 		User checkUser = userService.findByEmail(userInfo.getEmail());
 		if (checkUser != null) {
@@ -123,7 +130,15 @@ public class PublicRestApiController {
 			throw new RuntimeException(
 					"Error : This email is already registered please choose another one");
 		}
-
+		
+		userInfo.setLeader(false);
+		List<VwEmpAssignment> employeeAssignment = assignmentRepository.findByDirectEmployee(
+				employee.getId());
+		
+		if(employeeAssignment != null && employeeAssignment.size() > 0)
+			userInfo.setLeader(true);
+		
+		userInfo.setAdmin(false);
 		userInfo.setEmployeeId(employee.getId());
 		userInfo.setFirstName(employee.getFirstName());
 		userInfo.setLastName(employee.getLastName());
@@ -193,8 +208,6 @@ public class PublicRestApiController {
 		email.setSubject(subject);
 		email.setText(body);
 		email.setTo(user.getEmail());
-		System.out.println("From " + env.getProperty("support.email"));
-		System.out.println("To " + user.getEmail());
 		email.setFrom(env.getProperty("support.email"));
 		return email;
 	}

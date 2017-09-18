@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -19,9 +20,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sun.misc.BASE64Decoder;
+
 
 public class Utils {
 	public static String INPUT_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -32,9 +37,7 @@ public class Utils {
 	public static String UPLOAD_ROOT_PATH = "D:/upload/";
 	public static String UPLOAD_IMAGE_TYPE = "jpg";
 	public static int TIMEBETWEENPROCESS = 100;
-	
-	
-	
+
 	public static void sendEmail() {
 
 	}
@@ -49,8 +52,8 @@ public class Utils {
 		}
 		return oldDate;
 	}
-	
-	public static String convertDateToString(Date date){
+
+	public static String convertDateToString(Date date) {
 		DateFormat fmt = new SimpleDateFormat(INPUT_DATE_FORMAT_ID);
 		String text = fmt.format(date);
 		return text;
@@ -74,7 +77,7 @@ public class Utils {
 
 	public static String convertImageToBase64(String path) {
 
-		String pathupload = GlobalValue.PATH_UPLOAD;		
+		String pathupload = GlobalValue.PATH_UPLOAD;
 		String fullpath = pathupload + path;
 		File file = new File(fullpath);
 		try {
@@ -94,9 +97,6 @@ public class Utils {
 		}
 		return null;
 	}
-	
-	
-	
 
 	public static BufferedImage decodeToImage(String imageString) {
 
@@ -169,14 +169,15 @@ public class Utils {
 						.get(Calendar.DAY_OF_YEAR);
 		return sameDay;
 	}
-	
+
 	public static int diffMonth(Date startDate, Date endDate) {
 		Calendar startCal = Calendar.getInstance();
 		Calendar endCal = Calendar.getInstance();
 		startCal.setTime(startDate);
 		endCal.setTime(endDate);
 		int diffYear = endCal.get(Calendar.YEAR) - startCal.get(Calendar.YEAR);
-		int diffMonth = diffYear * 12 + endCal.get(Calendar.MONTH) - startCal.get(Calendar.MONTH);
+		int diffMonth = diffYear * 12 + endCal.get(Calendar.MONTH)
+				- startCal.get(Calendar.MONTH);
 		return diffMonth;
 	}
 
@@ -185,16 +186,26 @@ public class Utils {
 		Calendar cal2 = Calendar.getInstance();
 		cal1.setTime(date1);
 		cal2.setTime(date2);
-		long milliseconds1 = cal1.getTimeInMillis();
-		long milliseconds2 = cal2.getTimeInMillis();
+		long milliseconds1 = cal1.getTime().getTime();//cal1.getTimeInMillis();
+		long milliseconds2 = cal2.getTime().getTime();//cal2.getTimeInMillis();
 		long diff = milliseconds2 - milliseconds1;
 		long diffDays = diff / (24 * 60 * 60 * 1000);
+		
 		return diffDays;
 	}
 	
-	public static Date addDay(Date dt,int amount) throws ParseException{
-		Calendar c = Calendar.getInstance(); 
-		c.setTime(dt); 
+	public static int diffDayInt(Date startDate, Date endDate) {
+		DateTime startDate1 = new DateTime(startDate.getYear(), startDate.getMonth(), startDate.getDay(), 0, 0, 0, 0);
+	    DateTime endDate1 = new DateTime(endDate.getYear(), endDate.getMonth(), endDate.getDay(), 0, 0, 0, 0);
+
+		Days d = Days.daysBetween(startDate1, endDate1);
+		int days = d.getDays();
+		return days;
+	}
+
+	public static Date addDay(Date dt, int amount) throws ParseException {
+		Calendar c = Calendar.getInstance();
+		c.setTime(dt);
 		c.add(Calendar.DATE, amount);
 		dt = c.getTime();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -222,14 +233,35 @@ public class Utils {
 		}
 		return false;
 	}
-	
-	public static String getUrlAttachment(String http, HttpServletRequest request,String path){
-		String url=null;
-		if(request != null){
-			url = http +  request.getServerName() + ":"
-					+ request.getServerPort() + "/public/getImage?path="+path;
+
+	public static String getUrlAttachment(String http,
+			HttpServletRequest request, String path) {
+		String url = null;
+		if (request != null) {
+			url = http + request.getServerName() + ":"
+					+ request.getServerPort() + "/public/getImage?path=" + path;
 		}
 		return url;
+	}
+
+	public static Map<String, Object> stringToMap(String json) {
+		// String jsonStr = "{\"name\":\"Nataraj\", \"job\":\"Programmer\"}";
+        Map<String,Object> resultMap = new HashMap<String,Object>();
+        ObjectMapper mapperObj = new ObjectMapper();  
+        try {
+            resultMap = mapperObj.readValue(json, 
+                            new TypeReference<HashMap<String,Object>>(){});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		return resultMap;
+	}
+	
+	public static String changeTagar(String tagarString){
+    	String empId1 = tagarString.replaceAll("##", ",");
+    	String empId2 = empId1.replaceAll("#", "");
+    	return empId2;
+    	
 	}
 
 }

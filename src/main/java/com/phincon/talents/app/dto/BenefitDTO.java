@@ -23,6 +23,10 @@ public class BenefitDTO {
 	private boolean isVerified = false;
 	private Boolean pulangKampung;
 	private String spdType;
+	private String type;
+	private Date startTimeBreak;
+	private Date endTimeBreak;
+	private Long employee;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -188,6 +192,39 @@ public class BenefitDTO {
 
 	public void setTotalSubmit(Double totalSubmit) {
 		this.totalSubmit = totalSubmit;
+	}
+
+	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Date getStartTimeBreak() {
+		return startTimeBreak;
+	}
+
+	public void setStartTimeBreak(Date startTimeBreak) {
+		this.startTimeBreak = startTimeBreak;
+	}
+
+	public Date getEndTimeBreak() {
+		return endTimeBreak;
+	}
+
+	public void setEndTimeBreak(Date endTimeBreak) {
+		this.endTimeBreak = endTimeBreak;
+	}
+	
+	public Long getEmployee() {
+		return employee;
+	}
+
+	public void setEmployee(Long employee) {
+		this.employee = employee;
 	}
 
 	@Override

@@ -2,9 +2,12 @@ package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -30,11 +33,15 @@ import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.FamilyService;
 import com.phincon.talents.app.services.WorkflowService;
 import com.phincon.talents.app.utils.CustomMessage;
+import com.phincon.talents.app.utils.LoadResult;
 import com.phincon.talents.app.utils.Utils;
 
 @RestController
 @RequestMapping("api")
 public class WorkflowController {
+	private final int PAGE_START = 0;
+	private final int SIZE = 25;
+
 	@Autowired
 	UserRepository userRepository;
 
@@ -83,51 +90,117 @@ public class WorkflowController {
 
 	@RequestMapping(value = "/user/workflow/myrequest", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> myRequest(
+	public ResponseEntity<LoadResult<List<DataApproval>>> myRequest(
 			@RequestParam(value = "module", required = false) String module,
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "size", required = false) Integer size,
 			OAuth2Authentication authentication, HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		LoadResult<List<DataApproval>> loadResult = new LoadResult<List<DataApproval>>();
+
+		int pageData = PAGE_START;
+		int sizeData = SIZE;
+
+		if (size != null)
+			sizeData = size;
+
+		if (page != null)
+			pageData = page;
+
+		PageRequest pageRequest = new PageRequest(pageData, sizeData);
+		loadResult.setPage(pageData);
+		loadResult.setSize(sizeData);
 
 		List<DataApproval> listDataApproval = null;
+		Long totalRecord = 0L;
+		List<Long> listTotalRecord = null;
 
 		if (module == null) {
 			listDataApproval = dataApprovalService.findByEmployee(
-					user.getEmployee(), request);
+					user.getEmployee(), request,pageRequest);
+			listTotalRecord = dataApprovalRepository.countByEmpRequest(user.getEmployee());
+			
 		} else {
 			listDataApproval = dataApprovalService.findByEmployeeAndModule(
-					user.getEmployee(), module, request);
+					user.getEmployee(), module, request,pageRequest);
+			listTotalRecord = dataApprovalRepository
+					.countByEmpRequestAndModule(user.getEmployee(), module);
+		}
+		
+		if (listTotalRecord != null && listTotalRecord.size() > 0) {
+			for (Long objects : listTotalRecord) {
+				totalRecord = objects;
+			}
 		}
 
-		return new ResponseEntity<List<DataApproval>>(listDataApproval,
+		loadResult.setData(listDataApproval);
+		loadResult.setTotalRecord(totalRecord);
+
+		return new ResponseEntity<LoadResult<List<DataApproval>>>(loadResult,
 				HttpStatus.OK);
 
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/user/workflow/needapproval", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<DataApproval>> listDataApproval(
+	public ResponseEntity<LoadResult> listDataApproval(
 			@RequestParam(value = "module", required = false) String module,
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "size", required = false) Integer size,
 			OAuth2Authentication authentication, HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 
+		LoadResult loadResult = new LoadResult<List<DataApproval>>();
+
+		int pageData = PAGE_START;
+		int sizeData = SIZE;
+
+		if (size != null)
+			sizeData = size;
+
+		if (page != null)
+			pageData = page;
+
+		PageRequest pageRequest = new PageRequest(pageData, sizeData);
+		loadResult.setPage(pageData);
+		loadResult.setSize(sizeData);
+
 		// get workflow record with task name
 		String strEmployee = "#" + user.getEmployee() + "#";
 		List<DataApproval> listDataApproval = null;
-		if (module == null)
+		Long totalRecord = 0L;
+		List<Long> listTotalRecord = null;
+		if (module == null) {
 			listDataApproval = dataApprovalService.findNeedApproval(
 					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),
-					null, request);
-		else
-			listDataApproval = dataApprovalService.findNeedApproval(
-					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),
-					module, request);
+					null, pageRequest, request);
+			listTotalRecord = dataApprovalRepository.countNeedApproval(
+					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany());
 
-		return new ResponseEntity<List<DataApproval>>(listDataApproval,
-				HttpStatus.OK);
+		} else {
+			listDataApproval = dataApprovalService.findNeedApproval(
+					strEmployee, DataApproval.NOT_COMPLETED, user.getCompany(),
+					module, pageRequest, request);
+			listTotalRecord = dataApprovalRepository
+					.countNeedApprovalAndModule(strEmployee,
+							DataApproval.NOT_COMPLETED, user.getCompany(),
+							module);
+		}
+
+		if (listTotalRecord != null && listTotalRecord.size() > 0) {
+			for (Long objects : listTotalRecord) {
+				totalRecord = objects;
+			}
+		}
+
+		loadResult.setData(listDataApproval);
+		loadResult.setTotalRecord(totalRecord);
+		return new ResponseEntity<LoadResult>(loadResult, HttpStatus.OK);
 
 	}
 
@@ -228,7 +301,11 @@ public class WorkflowController {
 			dataApprovalService.cancelRequest(request, user);
 			message = "Request has been cancelled";
 		} else {
-			dataApprovalService.approval(request, user);
+			boolean isBypass = false;
+			if ((user.getIsAdmin() != null && user.getIsAdmin())
+					|| (user.getIsLeader() != null && user.getIsLeader()))
+				isBypass = true;
+			dataApprovalService.approval(request, user, isBypass);
 		}
 
 		if (request.getStatus().equals(DataApproval.REJECTED))

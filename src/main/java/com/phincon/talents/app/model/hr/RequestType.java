@@ -46,6 +46,9 @@ public class RequestType extends AbstractEntity {
 	@Column(name = "request_cat_type_id")
 	private Long requestCategoryType;
 	
+	@Column(name = "active")
+	private Boolean active;
+	
 	public String getModule() {
 		return module;
 	}
@@ -117,6 +120,15 @@ public class RequestType extends AbstractEntity {
 	public void setRequestCategoryType(Long requestCategoryType) {
 		this.requestCategoryType = requestCategoryType;
 	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+	
 	
 	
 	

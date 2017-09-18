@@ -26,6 +26,10 @@ public class PayrollElementHeader extends AbstractEntity {
 	@Column(name = "pkp")
 	private Double pkp;
 	
+	@Column(name = "base_salary")
+	private Double baseSalary;
+	
+	
 	@Column(name = "name", length = 100)
 	private String name;
 
@@ -596,6 +600,16 @@ public class PayrollElementHeader extends AbstractEntity {
 
 	public void setBankBranch(String bankBranch) {
 		this.bankBranch = bankBranch;
+	}
+	
+	
+
+	public Double getBaseSalary() {
+		return baseSalary;
+	}
+
+	public void setBaseSalary(Double baseSalary) {
+		this.baseSalary = baseSalary;
 	}
 
 	@Override

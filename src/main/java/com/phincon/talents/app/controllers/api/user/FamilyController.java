@@ -72,6 +72,7 @@ public class FamilyController {
 		family.setNeedSync(true);
 		family.setCompany(user.getCompany());
 		family.setEmployeeExtId(user.getEmployeeExtId());
+		family.setAliveStatus(request.getAliveStatus());
 		String taskName = Workflow.SUBMIT_FAMILY;
 		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
 				taskName, user.getCompany(), true);
@@ -127,6 +128,7 @@ public class FamilyController {
 		family.setOccupation(request.getOccupation());
 		family.setMaritalStatus(request.getMaritalStatus());
 		family.setModifiedDate(new Date());
+		family.setAliveStatus(request.getAliveStatus());
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
 		Workflow  workflow = null;
 		//if(!family.getStatus().equals(Family.PENDING)) {

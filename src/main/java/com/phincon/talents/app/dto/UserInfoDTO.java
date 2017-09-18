@@ -10,6 +10,8 @@ public class UserInfoDTO {
 	private String firstName;
 	private String lastName;
 	private String fullName;
+	private boolean isLeader;
+	private boolean isAdmin;
 	
 	private String employeeExtId;
 	private Long employeeId;
@@ -113,6 +115,26 @@ public class UserInfoDTO {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+
+	public boolean isLeader() {
+		return isLeader;
+	}
+
+
+	public void setLeader(boolean isLeader) {
+		this.isLeader = isLeader;
+	}
+
+
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
 	
 	

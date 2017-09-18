@@ -78,6 +78,8 @@ public class UserService   {
 		user.setCompany(userDto.getCompany());
 		user.setEmployeeExtId(userDto.getEmployeeExtId());
 		user.setFullName(userDto.getFullName());
+		user.setIsAdmin(userDto.isAdmin());
+		user.setIsLeader(userDto.isLeader());
 		userRepository.save(user);
 	}
 	

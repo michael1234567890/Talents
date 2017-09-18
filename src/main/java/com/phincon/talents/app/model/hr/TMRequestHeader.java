@@ -10,7 +10,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.springframework.dao.DataAccessException;
+
 import com.phincon.talents.app.model.AbstractEntity;
+import com.phincon.talents.app.model.DataApproval;
 
 @Entity
 @Table(name = "hr_tm_request_header")
@@ -19,6 +22,8 @@ public class TMRequestHeader extends AbstractEntity {
 	public final static String PENDING = "pending";
 	public final static String APPROVED = "approved";
 	public final static String REJECTED = "rejected";
+	public final static String PREFIX_ATTENDANCE="AT";
+	public final static String PREFIX_BENEFIT="BN";
 	
 	
 	@Temporal(TemporalType.DATE)
@@ -115,6 +120,18 @@ public class TMRequestHeader extends AbstractEntity {
 	@Transient
 	private TMRequestHeader refRequestHeaderObj;
 	
+	@Transient
+	private DataApproval dataApproval;
+	
+	
+
+	public DataApproval getDataApproval() {
+		return dataApproval;
+	}
+
+	public void setDataApproval(DataApproval dataApproval) {
+		this.dataApproval = dataApproval;
+	}
 
 	@Column(name = "spd_type",length=100)
 	private String spdType;
@@ -305,12 +322,4 @@ public class TMRequestHeader extends AbstractEntity {
 
 	
 	
-	
-
-	
-	
-	
-	
-	
-
 }

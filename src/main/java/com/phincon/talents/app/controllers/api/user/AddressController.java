@@ -102,6 +102,8 @@ public class AddressController {
 		address.setResidence(request.getResidence());
 		address.setZipCode(request.getZipCode());
 		address.setStayStatus(request.getStayStatus());
+		address.setDistrict(request.getDistrict());
+		address.setSubdistrict(request.getSubdistrict());
 		address.setCreatedDate(new Date());
 		address.setEmployeeExtId(user.getEmployeeExtId());
 		address.setModifiedDate(new Date());
@@ -158,6 +160,8 @@ public class AddressController {
 		address.setZipCode(request.getZipCode());
 		address.setStayStatus(request.getStayStatus());
 		address.setModifiedDate(new Date());
+		address.setDistrict(request.getDistrict());
+		address.setSubdistrict(request.getSubdistrict());
 		
 		address.setModifiedBy(authentication.getUserAuthentication().getName());
 		
