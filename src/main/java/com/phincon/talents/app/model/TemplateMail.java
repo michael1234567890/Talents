@@ -20,6 +20,9 @@ public class TemplateMail {
 
 	@Column(length = 1000)
 	private String content;
+	
+	@Column(length = 255)
+	private String subject;
 
 	@Column(length = 25)
 	private String code;
@@ -69,5 +72,15 @@ public class TemplateMail {
 	public void setCode(String code) {
 		this.code = code;
 	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	
+	
 
 }

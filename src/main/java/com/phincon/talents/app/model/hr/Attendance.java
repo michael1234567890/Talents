@@ -4,9 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -74,6 +71,9 @@ public class Attendance extends AbstractEntity {
 	
 	@Column(name = "latitude_punch_out", length=30)
 	private String latitudePunchOut;
+	
+	@Column(name="activity" , length=255)
+	private String activity;
 
 	public Date getPunchInUtcTime() {
 		return punchInUtcTime;
@@ -205,6 +205,15 @@ public class Attendance extends AbstractEntity {
 		this.today = today;
 	}
 
+	public String getActivity() {
+		return activity;
+	}
+
+	public void setActivity(String activity) {
+		this.activity = activity;
+	}
+
+	
 
 	
 

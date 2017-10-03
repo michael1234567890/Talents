@@ -97,8 +97,28 @@ public class TMRequestController {
 				"Your request submitted successfully", false), HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/user/tmrequestheader/verificationleave", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<BenefitDTO> verificationAttendance(
+			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		List<Employment> listEmployment = employmentRepository
+				.findByEmployee(user.getEmployee());
+		if (listEmployment == null || listEmployment.size() == 0)
+			throw new RuntimeException(
+					"Your Employment ID is not Found.");
+
+		Employment employment = listEmployment.get(0);
+		Employment requester = listEmployment.get(0);
+		tmRequestHeaderService.verificationAttendance(request, user, employment, requester);
+		return new ResponseEntity<BenefitDTO>(request, HttpStatus.OK);
+	}
 	
-	@RequestMapping(value = "/user/tmrequest/attendance", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/user/tmrequestheader/leave", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<CustomMessage> createAttendance(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
@@ -163,43 +183,67 @@ public class TMRequestController {
 		return new ResponseEntity<BenefitDTO>(request, HttpStatus.OK);
 	}
 
+	
+	@RequestMapping(value = "/user/tmrequest/category", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<List<RequestCategoryType>> getRequestCategory(@RequestParam(value = "module", required = false) String module,
+			OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+		module = module.toLowerCase();
+		List<RequestCategoryType> listCategorySelected = new ArrayList<RequestCategoryType>();
+		
+		if(module.equals("benefit")) {
+			// get grade and position
+			VwEmpAssignment assignment = assignmentService
+					.findAssignmentWithGradeByEmployee(user.getEmployee());
+
+			
+			if (assignment != null) {
+				// Load List RequestCategoryType By Company
+				List<RequestCategoryType> listCategory = requestCategoryTypeRepository
+						.findByCompanyAndModule(user.getCompany(),module);
+				// Load List RequestType by Company
+				List<RequestType> listRequestTypes = requestTypeRepository
+						.findByCompanyAndModuleAndActive(user.getCompany(),module,true);
+				for (RequestCategoryType requestCategoryType : listCategory) {
+					// find request type based on criteria and added to
+					int grade = 0;
+					if (assignment.getGradeNominal() != null)
+						grade = assignment.getGradeNominal();
+
+					addRequestTypeToCategory(requestCategoryType, listRequestTypes,
+							grade, assignment.getPositionName());
+					if (requestCategoryType.getListRequestType().size() > 0)
+						listCategorySelected.add(requestCategoryType);
+				}
+			}
+		}else if(module.equals("time management")) {
+			listCategorySelected =requestCategoryTypeRepository
+					.findByCompanyAndModule(user.getCompany(),module);
+		}
+		
+
+		return new ResponseEntity<List<RequestCategoryType>>(
+				listCategorySelected, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/user/tmrequest/type", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<RequestCategoryType>> getRequestType(
+	public ResponseEntity<List<RequestType>> getRequestType(@RequestParam(value = "module", required = true) String module,
 			OAuth2Authentication authentication) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 
-		// get grade and position
-		VwEmpAssignment assignment = assignmentService
-				.findAssignmentWithGradeByEmployee(user.getEmployee());
-
-		List<RequestCategoryType> listCategorySelected = new ArrayList<RequestCategoryType>();
-		if (assignment != null) {
-			// Load List RequestCategoryType By Company
-			List<RequestCategoryType> listCategory = requestCategoryTypeRepository
-					.findByCompany(user.getCompany());
-			// Load List RequestType by Company
-			List<RequestType> listRequestTypes = requestTypeRepository
-					.findByCompanyAndActive(user.getCompany(),true);
-			for (RequestCategoryType requestCategoryType : listCategory) {
-				// find request type based on criteria and added to
-				int grade = 0;
-				if (assignment.getGradeNominal() != null)
-					grade = assignment.getGradeNominal();
-
-				addRequestTypeToCategory(requestCategoryType, listRequestTypes,
-						grade, assignment.getPositionName());
-				if (requestCategoryType.getListRequestType().size() > 0)
-					listCategorySelected.add(requestCategoryType);
-
-			}
-		}
-
-		return new ResponseEntity<List<RequestCategoryType>>(
-				listCategorySelected, HttpStatus.OK);
+		List<RequestType> listRequestTypes = requestTypeRepository
+					.findByCompanyAndModuleAndActive(user.getCompany(),module,true);
+			
+		return new ResponseEntity<List<RequestType>>(
+				listRequestTypes, HttpStatus.OK);
 	}
+
 
 	private void addRequestTypeToCategory(
 			RequestCategoryType requestCategoryType,

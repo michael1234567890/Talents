@@ -74,7 +74,7 @@ private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/y
 					String email = employee.getOfficeMail();
 					String content = sendingEmail.getDataContent();
 					content = content.replace("{receiver}", receiver);
-					String subject = "Need Approval";
+					String subject = sendingEmail.getSubject();
 					mailSender.send(constructEmail(subject,content,email));
 				}
 				

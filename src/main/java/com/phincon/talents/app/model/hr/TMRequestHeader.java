@@ -24,7 +24,8 @@ public class TMRequestHeader extends AbstractEntity {
 	public final static String REJECTED = "rejected";
 	public final static String PREFIX_ATTENDANCE="AT";
 	public final static String PREFIX_BENEFIT="BN";
-	
+	public final static String MOD_TIME_MANAGEMENT="Time Management";
+	public final static String MOD_BENEFIT="Benefit";
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "request_date")

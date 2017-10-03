@@ -1,6 +1,7 @@
 package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +23,7 @@ import com.phincon.talents.app.model.RecordType;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.TMBalance;
+import com.phincon.talents.app.model.hr.TMRequestHeader;
 
 @RestController
 @RequestMapping("api")
@@ -62,7 +65,6 @@ public class TMBalanceController {
 		if(listEmployment == null && listEmployment.size() == 0)
 			throw new RuntimeException("Your Employment ID is not Found.");
 		Employment employment = listEmployment.get(0);
-		
 		List<Object[]> listCategoryType = tmBalanceRepository.findListCategoryName(user.getCompany(), employment.getId(),request.getModule());
 		List<RecordType> listRecordType = new ArrayList<RecordType>();
 		if(listCategoryType != null && listCategoryType.size() > 0) {
@@ -72,6 +74,32 @@ public class TMBalanceController {
 			}
 		}
 		return new ResponseEntity<List<RecordType>>(listRecordType, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/user/tmbalance/currenttype", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<TMBalance> getBalance(
+			@RequestParam(value = "module", required = true) String module,@RequestParam(value = "category", required = true) String category,@RequestParam(value = "type", required = true) String type,
+			OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+		List<Employment> listEmployment = employmentRepository
+				.findByEmployee(user.getEmployee());
+		if (listEmployment == null || listEmployment.size() == 0)
+			throw new RuntimeException(
+					"Your Employment ID is not Found.");
+
+		Employment employment = listEmployment.get(0);
+		
+		List<TMBalance> listBalance = tmBalanceRepository.findBalanceTypeByEmployment(user.getCompany(), employment.getId(), module, category, type, new Date());
+		if (listBalance == null || listBalance.size() == 0)
+			throw new RuntimeException(
+					"Your Balance is not Found.");
+
+		TMBalance tmBalance = listBalance.get(0);
+		return new ResponseEntity<TMBalance>(tmBalance,
+				HttpStatus.OK);
 	}
 
 }

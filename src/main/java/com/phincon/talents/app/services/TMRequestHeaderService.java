@@ -2,6 +2,7 @@ package com.phincon.talents.app.services;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,12 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.dao.EmployeePayrollRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
+import com.phincon.talents.app.dao.EmploymentRepository;
+import com.phincon.talents.app.dao.GroupRepository;
+import com.phincon.talents.app.dao.PatternRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
+import com.phincon.talents.app.dao.ShiftRepository;
 import com.phincon.talents.app.dao.TMBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestHeaderRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
+import com.phincon.talents.app.dto.AttendanceRefDTO;
 import com.phincon.talents.app.dto.BenefitDTO;
 import com.phincon.talents.app.dto.BenefitDetailDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
@@ -31,8 +38,12 @@ import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Employee;
+import com.phincon.talents.app.model.hr.EmployeePayroll;
 import com.phincon.talents.app.model.hr.Employment;
+import com.phincon.talents.app.model.hr.Group;
+import com.phincon.talents.app.model.hr.Pattern;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
+import com.phincon.talents.app.model.hr.Shift;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
@@ -41,6 +52,8 @@ import com.phincon.talents.app.utils.Utils;
 @Service
 public class TMRequestHeaderService {
 
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
 	@Autowired
 	TMRequestHeaderRepository tmRequestHeaderRepository;
 	@Autowired
@@ -61,8 +74,22 @@ public class TMRequestHeaderService {
 	@Autowired
 	RunningNumberService runningNumberService;
 
+	@Autowired
+	PatternRepository patternRepository;
 	
+	@Autowired
+	GroupRepository groupAttendanceRepository;
+	
+	@Autowired
+	ShiftRepository shiftRepository;
 
+	@Autowired
+	EmployeePayrollRepository employeePayrollRepository;
+	
+	@Autowired
+	EmploymentRepository employmentRepository;
+	
+	
 	@Autowired
 	TMRequestService tmRequestService;
 
@@ -929,16 +956,32 @@ public class TMRequestHeaderService {
 	}
 	
 	
+	@Transactional
+	public void verificationAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
+	    TMBalance balance = getBalance(request, user, employment);
+		Double totalDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
+		request.setTotal(totalDay);
+		validationAttendanceRequest(request, balance,  user, employment);
+		boolean verified = false;
+		if(totalDay > 0)
+			verified = true;
+		
+		request.setVerified(verified);
+		request.setTotalBalance(balance.getBalanceEnd());
+		
+	}
+	
 
 	@Transactional
 	public void createTimeAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
 		
 		TMBalance balance = getBalance(request, user, employment);
-		Double totalDay = getTotalDays(request.getStartDate(), request.getEndDate());
-		request.setTotal(totalDay);
-		
+		Double totalWorkDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
+		Double totalDay = Double.valueOf(""+Utils.diffDayInt(request.getStartDate(), request.getEndDate()));
+		request.setTotal(totalWorkDay);
+		validationAttendanceRequest(request, balance,  user, employment);
 		// 1. Validation
-		validationRequest(request, balance,  user, employment);
+		
 		
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
 		tmRequestHeader.setCompany(user.getCompany());
@@ -949,14 +992,15 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setEmployee(user.getEmployee());
 		tmRequestHeader.setRequestDate(new Date());
 		tmRequestHeader.setRequester(user.getEmployee());
-		tmRequestHeader.setModule(request.getModule());
+		tmRequestHeader.setModule(TMRequestHeader.MOD_TIME_MANAGEMENT);
 		tmRequestHeader.setCategoryType(request.getCategoryType());
 		tmRequestHeader.setCategoryTypeExtId(request.getCategoryTypeExtId());
 		tmRequestHeader.setOrigin(request.getOrigin());
 		tmRequestHeader.setDestination(request.getDestination());
 		tmRequestHeader.setRemark(request.getRemark());
 		tmRequestHeader.setNeedReport(false);
-		Double totalAmount = totalDay;
+		
+		Double totalAmount = totalWorkDay;
 		tmRequestHeader.setTotalAmount(totalAmount);
 		//Double totalAmountSubmit = request.getTotalSubmit();
 		//tmRequestHeader.setTotalAmountSubmit(totalAmountSubmit);
@@ -991,26 +1035,31 @@ public class TMRequestHeaderService {
 			tmRequest.setEmploymentExtId(employment.getExtId());
 			tmRequest.setEndTimeBreak(request.getEndTimeBreak());
 			tmRequest.setRemark(request.getRemark());
-			tmRequest.setModule(request.getModule());
+			tmRequest.setModule(TMRequestHeader.MOD_TIME_MANAGEMENT);
 			tmRequest.setCategoryType(request.getCategoryType());
 			tmRequest.setCategoryTypeExtId(request.getCategoryTypeExtId());
 			tmRequest.setType(request.getType());
 			tmRequest.setStatus(TMRequest.APPROVED);
 			tmRequest.setStartDate(request.getStartDate());
+			tmRequest.setEmployment(employment.getId());
+			tmRequest.setEmploymentExtId(employment.getExtId());
 			tmRequest.setEndDate(request.getEndDate());
 			tmRequest.setTotalDay(totalDay);
 			tmRequest.setTmRequestHeader(tmRequestHeader.getId());
 			tmRequest.setReqNo(reqNo);
+			tmRequest.setNeedSync(true);
+			tmRequest.setTotalWorkDay(totalWorkDay);
 			if(workflow != null){
-				tmRequest.setStatus(TMRequest.REQUEST);
+				tmRequest.setStatus(TMRequest.PENDING);
+				tmRequest.setNeedSync(false);
 			}
 			
 			tmRequestRepository.save(tmRequest);
 		
 		// 3. Balance
 		if(balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
-			Double balanceEnd = balance.getBalanceEnd() - totalDay;
-			Double balanceUsed = balance.getBalanceUsed() + totalDay;
+			Double balanceEnd = balance.getBalanceEnd() - totalWorkDay;
+			Double balanceUsed = balance.getBalanceUsed() + totalWorkDay;
 			balance.setBalanceEnd(balanceEnd);
 			balance.setBalanceUsed(balanceUsed);
 			tmBalanceRepository.save(balance);
@@ -1030,7 +1079,7 @@ public class TMRequestHeaderService {
 	
 	}
 	
-	private void validationRequest(BenefitDTO request, TMBalance balance,
+	private void validationAttendanceRequest(BenefitDTO request, TMBalance balance,
 			User user, Employment employment) {
 		if(balance == null){
 			throw new RuntimeException("Your balance is not found.");
@@ -1041,15 +1090,27 @@ public class TMRequestHeaderService {
 				throw new RuntimeException("The End date must be greater than The start date.");
 			}
 		}
+		
 		if(request.getTotal() > balance.getBalanceEnd()) {
 			throw new RuntimeException("Your balance is not enought.");
 		}
+		
+		List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(),
+						user.getEmployee(), TMRequestHeader.MOD_TIME_MANAGEMENT,
+						request.getCategoryType(), request.getStartDate());
+		
+		if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
+			throw new RuntimeException(
+					"You are not allowed request in the range date.");
+		}
+
+		
 	}
 
 
 
 
-	public Double getTotalDays(Date startDate, Date endDate){
+	public Double getTotalDaysAttendance(Date startDate, Date endDate, Employment employment){
 		Double totalDay = Double.valueOf(0);
 		Double holiday = Double.valueOf(0);
 		Calendar startCal = Calendar.getInstance();
@@ -1061,46 +1122,152 @@ public class TMRequestHeaderService {
 		if(startCal.getTimeInMillis() == endCal.getTimeInMillis())
 			return Double.valueOf(1);
 		
-//		String[] stringDate = {"2017-08-17", "2017-12-25"};
-		
 		Date[] holidays = {
 			Utils.convertStringToDate("2017-08-17"),
 			Utils.convertStringToDate("2017-08-18"),
 			Utils.convertStringToDate("2017-12-25"),
 			Utils.convertStringToDate("2018-01-01")
 		};
-				
+		
+		EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
+		if(employeePayroll == null) {
+			throw new RuntimeException(
+					"Employment Payroll is not Found.");
+		}
+		
+		Group groupAttendance = groupAttendanceRepository.findByExtId(employeePayroll.getAttendanceGroupCode());
+		List<Pattern> listPattern = patternRepository.findByLookupField(groupAttendance.getPatternCode());
+		List<AttendanceRefDTO> arrAttendanceRefDTO = getAttendanceRef(startDate, endDate,groupAttendance,listPattern);
+		List<Shift> listShift = shiftRepository.findByCompany(employment.getCompany());
 		
 		do{
+			
 			/*
 			 * disabled reference only holidays and weekend
 			 */
-			if(startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
+			
+			/*if(startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
 					++totalDay;
 			
 			for(Date dates : holidays){
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dates);
 				
-				System.out.println("startCal : " +startCal.get(Calendar.DATE) +(startCal.get(Calendar.MONTH)+1));
-				System.out.println("dates : " +cal.get(Calendar.MONTH) +(cal.get(Calendar.MONTH)+1));
-				System.out.println("holiday : " +holiday);
-				System.out.println("========================================");
-				
 				if(startCal.get(Calendar.DATE) == cal.get(Calendar.DATE) && startCal.get(Calendar.MONTH) == cal.get(Calendar.MONTH) && startCal.get(Calendar.YEAR) == cal.get(Calendar.YEAR))
 					++holiday;
 			
-			}
+			}*/
 			
-//			if(!isOffDay(startCal, arrPanduanDTO))
-//				totalDay++;
-//			
+			
+			
+			if(!isOffDay(startCal,arrAttendanceRefDTO,listPattern,listShift))
+				totalDay++;
+			
 			startCal.add(Calendar.DAY_OF_MONTH, 1); // startCal.add(Calendar.DATE, 1);
 			
 		}while(startCal.getTimeInMillis() <= endCal.getTimeInMillis());	
+		
 		totalDay = totalDay - holiday;
 		return totalDay;
 	}
+	
+private boolean isOffDay(Calendar startCal,List<AttendanceRefDTO> arrAttendanceRefDTO,List<Pattern> listPattern, List<Shift> listShift) {
+		
+		for(int i = 1; i < arrAttendanceRefDTO.size(); i++){
+			Date date = startCal.getTime();
+			String formattedPanduanDate = dateFormat.format(arrAttendanceRefDTO.get(i).getDate());
+			String formattedDate = dateFormat.format(date);
+			Pattern objPatternDTO = listPattern.get(arrAttendanceRefDTO.get(i).getSequencePattern() - 1);			
+			if(formattedPanduanDate.equals(formattedDate)){
+				Shift objShift = getShiftFromPattern(objPatternDTO.getShiftCode(), listShift);
+				if(objShift != null && objShift.getMasterCode() !=null && objShift.getMasterCode().toLowerCase().contains("off"))
+					return true;
+			}
+		}
+		
+		return false;
+}
+
+private Shift getShiftFromPattern(String shiftCode, List<Shift> listShift){
+	for (Shift shift : listShift) {
+		if(shift.getExtId().equals(shiftCode))
+			return shift;
+	}
+	return null;
+}
+
+private Pattern getPatternByPosition(int position, List<Pattern> listPattern){
+	for (Pattern pattern : listPattern) {
+		if(pattern.getPatternNo() == position)
+			return pattern;
+	}
+	return null;
+}
+
+public List<AttendanceRefDTO> getAttendanceRef(Date startDate, Date endDate, Group groupAttendance, List<Pattern> listPattern){
+	Calendar startCal = Calendar.getInstance();
+	Calendar endCal = Calendar.getInstance();
+	startCal.setTime(startDate);
+	endCal.setTime(endDate);
+	
+	
+	List<AttendanceRefDTO> arrAttendanceRef = new ArrayList<AttendanceRefDTO>();
+	AttendanceRefDTO initAttendanceRefDTO = new AttendanceRefDTO();
+	initAttendanceRefDTO.setDate(groupAttendance.getStartDate());
+	initAttendanceRefDTO.setSequenceDay(groupAttendance.getSequenceDayNo());
+	initAttendanceRefDTO.setSequencePattern(groupAttendance.getPatternNo());
+	
+	arrAttendanceRef.add(initAttendanceRefDTO);
+	
+	Calendar calPanduan = Calendar.getInstance();
+	calPanduan.setTime(arrAttendanceRef.get(0).getDate());
+	
+	
+	Date date = null;
+	int orderPattern = 0;
+	int sequenceDay = 0;
+	
+	for(int i = 1; i <= Utils.diffDay(arrAttendanceRef.get(0).getDate(), endDate); i++){
+		//date
+		calPanduan.setTime(arrAttendanceRef.get(i-1).getDate());
+		calPanduan.add(Calendar.DAY_OF_MONTH, 1);
+		date = calPanduan.getTime();
+		
+		//position
+		sequenceDay = arrAttendanceRef.get(i-1).getSequenceDay() + 1;
+		
+		//pattern / order
+		int sequencePattern = arrAttendanceRef.get(i-1).getSequencePattern() - 1;
+		Pattern objPattern = getPatternByPosition(arrAttendanceRef.get(i-1).getSequencePattern(),listPattern);
+		
+		//if(sequenceDay > listPattern.get(sequencePattern).getNoDays()){
+		if(sequenceDay > objPattern.getNoDays()){
+			orderPattern = arrAttendanceRef.get(i-1).getSequencePattern() + 1;
+			Pattern newObjPattern =  getPatternByPosition(arrAttendanceRef.get(i-1).getSequencePattern()+1,listPattern);
+			if(newObjPattern == null)
+				orderPattern =1;
+			else
+				orderPattern = newObjPattern.getPatternNo();
+			
+//			if(orderPattern > 6) // 6 dari mana ???
+//				orderPattern = 1;
+			sequenceDay = 1;
+		}else{
+			orderPattern = arrAttendanceRef.get(i-1).getSequencePattern();
+		}
+
+		AttendanceRefDTO attendanceRefDTO = new AttendanceRefDTO();
+		attendanceRefDTO.setDate(date);
+		attendanceRefDTO.setSequenceDay(sequenceDay);
+		attendanceRefDTO.setSequencePattern(orderPattern);
+		arrAttendanceRef.add(attendanceRefDTO);
+	}
+	
+	return arrAttendanceRef;
+}
+
+
+	
 	
 	
 	@Transactional

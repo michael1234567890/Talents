@@ -215,7 +215,6 @@ public class AddressController {
 		addressTemp.setResidence(address.getResidence());
 		addressTemp.setZipCode(address.getZipCode());
 		addressTemp.setStayStatus(address.getStayStatus());
-		
 		return addressTemp;
 	}
 

@@ -134,7 +134,6 @@ public class AddressService {
 	}
 
 	private AddressTemp copyAddressToTemp(Address address, AddressTemp addressTemp) {
-
 		addressTemp.setAddress(address.getAddress());
 		addressTemp.setAddressStatus(address.getAddressStatus());
 		addressTemp.setCity(address.getCity());

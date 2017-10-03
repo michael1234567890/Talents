@@ -19,6 +19,10 @@ public class SendingEmail {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+
+	@Column(length = 255)
+	private String subject;
 
 	@Column(length = 500)
 	private String dataContent;
@@ -105,6 +109,14 @@ public class SendingEmail {
 
 	public void setListEmpId(String listEmpId) {
 		this.listEmpId = listEmpId;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
 	
 	

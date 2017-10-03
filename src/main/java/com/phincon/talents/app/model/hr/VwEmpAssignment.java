@@ -24,6 +24,10 @@ public class VwEmpAssignment  {
 	@Column(name = "middle_name", length = 255)
 	private String middleName;
 	
+	@Column(name = "full_name", length = 255)
+	private String fullName;
+	
+	
 	@Column(name = "position_name", length = 255)
 	private String positionName;
 	
@@ -284,6 +288,14 @@ public class VwEmpAssignment  {
 
 	public void setGradeNominal(Integer gradeNominal) {
 		this.gradeNominal = gradeNominal;
+	}
+
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
 	}
 	
 	

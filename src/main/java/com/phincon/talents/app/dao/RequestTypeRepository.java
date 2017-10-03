@@ -17,6 +17,9 @@ public interface RequestTypeRepository extends PagingAndSortingRepository<Reques
 	
 	@Query("SELECT u FROM RequestType u WHERE u.company=:company AND u.active=:active")
 	List<RequestType> findByCompanyAndActive(@Param("company") Long company, @Param("active") boolean active);
+
+	@Query("SELECT u FROM RequestType u WHERE u.company=:company AND LOWER(u.module)=LOWER(:module) AND u.active=:active")
+	List<RequestType> findByCompanyAndModuleAndActive(@Param("company") Long company, @Param("module") String module,  @Param("active") boolean active);
 	
 	
 		

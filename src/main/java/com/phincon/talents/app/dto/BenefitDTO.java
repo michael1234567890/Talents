@@ -27,6 +27,7 @@ public class BenefitDTO {
 	private Date startTimeBreak;
 	private Date endTimeBreak;
 	private Long employee;
+	private Double totalBalance;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -225,6 +226,16 @@ public class BenefitDTO {
 
 	public void setEmployee(Long employee) {
 		this.employee = employee;
+	}
+	
+	
+
+	public Double getTotalBalance() {
+		return totalBalance;
+	}
+
+	public void setTotalBalance(Double totalBalance) {
+		this.totalBalance = totalBalance;
 	}
 
 	@Override

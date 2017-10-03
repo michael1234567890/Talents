@@ -52,6 +52,17 @@ public class Utils {
 		}
 		return oldDate;
 	}
+	
+	public static Date convertStringToDateTime(String strDate) {
+		DateFormat df = new SimpleDateFormat(INPUT_TIMESTAMP_FORMAT);
+		Date oldDate = null;
+		try {
+			oldDate = df.parse(strDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return oldDate;
+	}
 
 	public static String convertDateToString(Date date) {
 		DateFormat fmt = new SimpleDateFormat(INPUT_DATE_FORMAT_ID);
@@ -195,8 +206,8 @@ public class Utils {
 	}
 	
 	public static int diffDayInt(Date startDate, Date endDate) {
-		DateTime startDate1 = new DateTime(startDate.getYear(), startDate.getMonth(), startDate.getDay(), 0, 0, 0, 0);
-	    DateTime endDate1 = new DateTime(endDate.getYear(), endDate.getMonth(), endDate.getDay(), 0, 0, 0, 0);
+		DateTime startDate1 = new DateTime(startDate.getYear(), startDate.getMonth()+1, startDate.getDate(), 0, 0, 0, 0);
+	    DateTime endDate1 = new DateTime(endDate.getYear(), endDate.getMonth()+1, endDate.getDate(), 0, 0, 0, 0);
 
 		Days d = Days.daysBetween(startDate1, endDate1);
 		int days = d.getDays();

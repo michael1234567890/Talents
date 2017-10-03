@@ -1,5 +1,6 @@
 package com.phincon.talents.app.services;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.TemplateMailRepository;
 import com.phincon.talents.app.dao.UserRepository;
+import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.model.AttachmentDataApproval;
@@ -38,6 +40,7 @@ import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.model.hr.FamilyTemp;
 import com.phincon.talents.app.model.hr.LeaveRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
+import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.utils.Utils;
 
 /**
@@ -61,6 +64,9 @@ public class DataApprovalService {
 
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	VwEmpAssignmentRepository vwEmpAssignmentRepository;
 
 	@Autowired
 	FamilyTempService familyTempService;
@@ -599,7 +605,8 @@ public class DataApprovalService {
 		}
 
 		dataApprovalRepository.save(dataApproval);
-
+		
+		// prepare for create Email
 		String empIdString = null;
 		if (isSendToRequest)
 			empIdString = "" + dataApproval.getEmpRequest();
@@ -693,6 +700,14 @@ public class DataApprovalService {
 			else
 				templateCode = TemplateMail.APPBENEFIT;
 			
+			Long empId = dataApproval.getEmpRequest();
+			List<VwEmpAssignment> myAssignmentList = vwEmpAssignmentRepository.findByEmployee(
+					empId);
+			
+			VwEmpAssignment empRequestAssignment = null;
+			if(myAssignmentList != null && myAssignmentList.size() > 0)
+				empRequestAssignment = myAssignmentList.get(0);
+			
 			Long benefitId = dataApproval.getObjectRef();
 			TMRequestHeader obj = tmRequestHeaderService.findById(benefitId);
 			try {
@@ -707,14 +722,23 @@ public class DataApprovalService {
 					templateMail = listTemplateMail.get(0);
 					// Map<String, Object> mapData = Utils.stringToMap(data);
 					Map<String, Object> mapData = new HashMap<String, Object>();
+					
 					mapData.put("reqNo", obj.getReqNo());
 					mapData.put("category", obj.getCategoryType());
-					mapData.put("totalAmount", ""+obj.getTotalAmount());
+					DecimalFormat decimalFormat = new DecimalFormat("#.00");
+				    decimalFormat.setGroupingUsed(true);
+				    decimalFormat.setGroupingSize(3);
+
+					mapData.put("totalAmount", decimalFormat.format(obj.getTotalAmount()));
 					if(obj.getCategoryType().toLowerCase().equals("medical overlimit"))
 						mapData.put("totalAmount", "-");
 					
 					mapData.put("requestDate",""+obj.getRequestDate());
-					mapData.put("result", obj.getStatus());
+					if(empRequestAssignment != null ) {
+						mapData.put("empName",empRequestAssignment.getFullName());
+						mapData.put("empNo", empRequestAssignment.getEmployeeNo());
+					}
+					
 					String dataContent = templateMail.getContent();
 					for (Map.Entry<String, Object> entry : mapData.entrySet()) {
 						String key = entry.getKey();
@@ -722,6 +746,10 @@ public class DataApprovalService {
 						String findKey = "{" + key + "}";
 						dataContent = dataContent.replace(findKey, value);
 					}
+					
+					String subjectMail = templateMail.getSubject();
+					subjectMail = subjectMail.replace("{reqNo}",obj.getReqNo());
+					objEmail.setSubject(subjectMail);
 					objEmail.setDataContent(dataContent);
 					objEmail.setEmailTo(emailTo);
 					objEmail.setDate(new Date());
