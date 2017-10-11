@@ -48,7 +48,12 @@ public class RequestCategoryType extends AbstractEntity {
 	
 	@Column(name = "default_value")
 	private Double defaultValue;
+	
+	@Column(name="need_balance")
+	private Boolean needBalance;
 
+	@Column(name = "description", length = 100)
+	private String description;
 
 	
 	@Transient
@@ -141,6 +146,22 @@ public class RequestCategoryType extends AbstractEntity {
 
 	public void setDefaultValue(Double defaultValue) {
 		this.defaultValue = defaultValue;
+	}
+
+	public Boolean getNeedBalance() {
+		return needBalance;
+	}
+
+	public void setNeedBalance(Boolean needBalance) {
+		this.needBalance = needBalance;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	

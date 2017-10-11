@@ -1,8 +1,12 @@
 package com.phincon.talents.app.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+
 
 @Entity
 @Table(name = "company_settings")
@@ -40,6 +44,15 @@ public class CompanySettings extends AbstractEntity {
 
 	@Column(name="logo", length=255)
 	private String logo;
+	
+	@Temporal(javax.persistence.TemporalType.DATE)
+	@Column(name="period_start_date")
+	private Date periodStartDate;
+	
+	@Temporal(javax.persistence.TemporalType.DATE)
+	@Column(name="period_end_date")
+	private Date periodEndDate;
+	
 
 	public Long getCompany() {
 		return company;
@@ -95,6 +108,22 @@ public class CompanySettings extends AbstractEntity {
 
 	public void setLogo(String logo) {
 		this.logo = logo;
+	}
+
+	public Date getPeriodStartDate() {
+		return periodStartDate;
+	}
+
+	public void setPeriodStartDate(Date periodStartDate) {
+		this.periodStartDate = periodStartDate;
+	}
+
+	public Date getPeriodEndDate() {
+		return periodEndDate;
+	}
+
+	public void setPeriodEndDate(Date periodEndDate) {
+		this.periodEndDate = periodEndDate;
 	}
 	
 	

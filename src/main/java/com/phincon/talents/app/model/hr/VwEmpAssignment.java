@@ -33,6 +33,9 @@ public class VwEmpAssignment  {
 	
 	@Column(name = "organization_name", length = 255)
 	private String organizationName;
+	
+	@Column(name = "organization_id", length = 255)
+	private Long organization;
 
 	@Column(name = "last_name", length = 100)
 	private String lastName;
@@ -296,6 +299,14 @@ public class VwEmpAssignment  {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
+	}
+
+	public Long getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Long organization) {
+		this.organization = organization;
 	}
 	
 	

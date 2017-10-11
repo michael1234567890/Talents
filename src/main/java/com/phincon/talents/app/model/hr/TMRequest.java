@@ -66,6 +66,14 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "end_time_break")
 	private Date endTimeBreak;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "attendance_in_time")
+	private Date attendanceInTime;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "attendance_out_time")
+	private Date attendanceOutTime;
+	
 	@Column(name = "request_no", length=100)
 	private String reqNo;
 	
@@ -99,8 +107,6 @@ public class TMRequest extends AbstractEntity {
 	
 	@Column(name = "link_ref_no", length=50)
 	private String linkRefNo;
-
-
 	
 
 	@Column(name = "employment_id")
@@ -125,7 +131,15 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "company_id")
 	private Long company;
 	
-
+	/*
+	 * Overtime in and Out in minutes
+	 */
+	@Column(name = "overtime_in")
+	private Integer overtimeIn;
+	
+	@Column(name = "overtime_out")
+	private Integer overtimeOut;
+	
 	/*
 	 * subtituteToEmp, subtitute Reason for leave
 	 */
@@ -449,5 +463,41 @@ public class TMRequest extends AbstractEntity {
 		this.spdType = spdType;
 	}
 
+	public Date getAttendanceInTime() {
+		return attendanceInTime;
+	}
+
+	public void setAttendanceInTime(Date attendanceInTime) {
+		this.attendanceInTime = attendanceInTime;
+	}
+
+	public Date getAttendanceOutTime() {
+		return attendanceOutTime;
+	}
+
+	public void setAttendanceOutTime(Date attendanceOutTime) {
+		this.attendanceOutTime = attendanceOutTime;
+	}
+
+	public Integer getOvertimeIn() {
+		return overtimeIn;
+	}
+
+	public void setOvertimeIn(Integer overtimeIn) {
+		this.overtimeIn = overtimeIn;
+	}
+
+	public Integer getOvertimeOut() {
+		return overtimeOut;
+	}
+
+	public void setOvertimeOut(Integer overtimeOut) {
+		this.overtimeOut = overtimeOut;
+	}
+	
+	
+
+	
+	
 	
 }

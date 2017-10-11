@@ -10,8 +10,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import org.springframework.dao.DataAccessException;
-
 import com.phincon.talents.app.model.AbstractEntity;
 import com.phincon.talents.app.model.DataApproval;
 
@@ -113,6 +111,27 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "pulang_kampung")
 	private Boolean pulangKampung = false;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "attendance_in_time")
+	private Date attendanceInTime;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "attendance_out_time")
+	private Date attendanceOutTime;
+	
+	
+
+	/*
+	 * Overtime in and Out in minutes
+	 */
+	@Column(name = "overtime_in")
+	private Integer overtimeIn;
+	
+	@Column(name = "overtime_out")
+	private Integer overtimeOut;
+	
+	@Column(name = "subtitute_to_employment_id")
+	private Long substituteToEmployment;
 	
 	
 	@Transient
@@ -319,6 +338,46 @@ public class TMRequestHeader extends AbstractEntity {
 
 	public void setSpdType(String spdType) {
 		this.spdType = spdType;
+	}
+
+	public Date getAttendanceInTime() {
+		return attendanceInTime;
+	}
+
+	public void setAttendanceInTime(Date attendanceInTime) {
+		this.attendanceInTime = attendanceInTime;
+	}
+
+	public Date getAttendanceOutTime() {
+		return attendanceOutTime;
+	}
+
+	public void setAttendanceOutTime(Date attendanceOutTime) {
+		this.attendanceOutTime = attendanceOutTime;
+	}
+
+	public Integer getOvertimeIn() {
+		return overtimeIn;
+	}
+
+	public void setOvertimeIn(Integer overtimeIn) {
+		this.overtimeIn = overtimeIn;
+	}
+
+	public Integer getOvertimeOut() {
+		return overtimeOut;
+	}
+
+	public void setOvertimeOut(Integer overtimeOut) {
+		this.overtimeOut = overtimeOut;
+	}
+
+	public Long getSubstituteToEmployment() {
+		return substituteToEmployment;
+	}
+
+	public void setSubstituteToEmployment(Long substituteToEmployment) {
+		this.substituteToEmployment = substituteToEmployment;
 	}
 
 	
