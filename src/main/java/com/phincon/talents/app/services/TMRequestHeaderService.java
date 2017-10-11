@@ -23,8 +23,11 @@ import com.phincon.talents.app.dao.EmployeePayrollRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
 import com.phincon.talents.app.dao.GroupRepository;
+import com.phincon.talents.app.dao.HolidayRepository;
 import com.phincon.talents.app.dao.PatternRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
+import com.phincon.talents.app.dao.RequestCategoryTypeRepository;
+import com.phincon.talents.app.dao.RequestTypeRepository;
 import com.phincon.talents.app.dao.ShiftRepository;
 import com.phincon.talents.app.dao.TMBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestHeaderRepository;
@@ -35,6 +38,7 @@ import com.phincon.talents.app.dto.BenefitDTO;
 import com.phincon.talents.app.dto.BenefitDetailDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.model.DataApproval;
+import com.phincon.talents.app.model.Holiday;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Employee;
@@ -43,6 +47,8 @@ import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.Group;
 import com.phincon.talents.app.model.hr.Pattern;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
+import com.phincon.talents.app.model.hr.RequestCategoryType;
+import com.phincon.talents.app.model.hr.RequestType;
 import com.phincon.talents.app.model.hr.Shift;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
@@ -78,11 +84,20 @@ public class TMRequestHeaderService {
 	PatternRepository patternRepository;
 	
 	@Autowired
+	HolidayRepository holidayRepository;
+	
+	@Autowired
 	GroupRepository groupAttendanceRepository;
 	
 	@Autowired
 	ShiftRepository shiftRepository;
+	
+	@Autowired
+	RequestCategoryTypeRepository requestCategoryTypeRepository;
 
+	@Autowired
+	RequestTypeRepository RequestTypeRepository;
+	
 	@Autowired
 	EmployeePayrollRepository employeePayrollRepository;
 	
@@ -958,28 +973,44 @@ public class TMRequestHeaderService {
 	
 	@Transactional
 	public void verificationAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
-	    TMBalance balance = getBalance(request, user, employment);
+		
+		List<RequestType> listType = RequestTypeRepository.findByCompanyAndModuleAndCategoryAndType(user.getCompany(), request.getModule(), request.getCategoryType(), request.getType());
+	    RequestType requestType = null;
+	    if(listType != null && listType.size() > 0)
+	    	requestType = listType.get(0);
+	    if(requestType == null)
+	    	throw new RuntimeException("Your request type is not found");
+	    
+		TMBalance balance = getBalance(request, user, employment);
 		Double totalDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
 		request.setTotal(totalDay);
-		validationAttendanceRequest(request, balance,  user, employment);
+		validationAttendanceRequest(requestType, request, balance,  user, employment);
 		boolean verified = false;
 		if(totalDay > 0)
 			verified = true;
 		
 		request.setVerified(verified);
-		request.setTotalBalance(balance.getBalanceEnd());
+		if(requestType.getNeedBalance())
+			request.setTotalBalance(balance.getBalanceEnd());
 		
 	}
 	
 
 	@Transactional
 	public void createTimeAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
-		
+		List<RequestType> listType = RequestTypeRepository.findByCompanyAndModuleAndCategoryAndType(user.getCompany(), request.getModule(), request.getCategoryType(), request.getType());
+	    RequestType requestType = null;
+	    if(listType != null && listType.size() > 0)
+	    	requestType = listType.get(0);
+	    if(requestType == null)
+	    	throw new RuntimeException("Your request type is not found");
+	    
+	    
 		TMBalance balance = getBalance(request, user, employment);
 		Double totalWorkDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
 		Double totalDay = Double.valueOf(""+Utils.diffDayInt(request.getStartDate(), request.getEndDate()));
 		request.setTotal(totalWorkDay);
-		validationAttendanceRequest(request, balance,  user, employment);
+		validationAttendanceRequest(requestType,request, balance,  user, employment);
 		// 1. Validation
 		
 		
@@ -999,6 +1030,8 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setDestination(request.getDestination());
 		tmRequestHeader.setRemark(request.getRemark());
 		tmRequestHeader.setNeedReport(false);
+		tmRequestHeader.setAttendanceInTime(request.getAttendanceInTime());
+		tmRequestHeader.setAttendanceOutTime(request.getAttendanceOutTime());
 		
 		Double totalAmount = totalWorkDay;
 		tmRequestHeader.setTotalAmount(totalAmount);
@@ -1049,6 +1082,8 @@ public class TMRequestHeaderService {
 			tmRequest.setReqNo(reqNo);
 			tmRequest.setNeedSync(true);
 			tmRequest.setTotalWorkDay(totalWorkDay);
+			tmRequest.setAttendanceInTime(request.getAttendanceInTime());
+			tmRequest.setAttendanceOutTime(request.getAttendanceOutTime());
 			if(workflow != null){
 				tmRequest.setStatus(TMRequest.PENDING);
 				tmRequest.setNeedSync(false);
@@ -1057,7 +1092,7 @@ public class TMRequestHeaderService {
 			tmRequestRepository.save(tmRequest);
 		
 		// 3. Balance
-		if(balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
+		if(requestType.getNeedBalance() && balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
 			Double balanceEnd = balance.getBalanceEnd() - totalWorkDay;
 			Double balanceUsed = balance.getBalanceUsed() + totalWorkDay;
 			balance.setBalanceEnd(balanceEnd);
@@ -1079,9 +1114,9 @@ public class TMRequestHeaderService {
 	
 	}
 	
-	private void validationAttendanceRequest(BenefitDTO request, TMBalance balance,
+	private void validationAttendanceRequest(RequestType requestType, BenefitDTO request, TMBalance balance,
 			User user, Employment employment) {
-		if(balance == null){
+		if(requestType.getNeedBalance() && balance == null){
 			throw new RuntimeException("Your balance is not found.");
 		}
 			
@@ -1091,7 +1126,7 @@ public class TMRequestHeaderService {
 			}
 		}
 		
-		if(request.getTotal() > balance.getBalanceEnd()) {
+		if(requestType.getNeedBalance() &&  request.getTotal() > balance.getBalanceEnd()) {
 			throw new RuntimeException("Your balance is not enought.");
 		}
 		
@@ -1122,12 +1157,7 @@ public class TMRequestHeaderService {
 		if(startCal.getTimeInMillis() == endCal.getTimeInMillis())
 			return Double.valueOf(1);
 		
-		Date[] holidays = {
-			Utils.convertStringToDate("2017-08-17"),
-			Utils.convertStringToDate("2017-08-18"),
-			Utils.convertStringToDate("2017-12-25"),
-			Utils.convertStringToDate("2018-01-01")
-		};
+		List<Holiday> listHoliday = holidayRepository.findByCompany(employment.getCompany());
 		
 		EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
 		if(employeePayroll == null) {
@@ -1160,7 +1190,7 @@ public class TMRequestHeaderService {
 			
 			
 			
-			if(!isOffDay(startCal,arrAttendanceRefDTO,listPattern,listShift))
+			if(!isOffDay(startCal,arrAttendanceRefDTO,listPattern,listShift, listHoliday))
 				totalDay++;
 			
 			startCal.add(Calendar.DAY_OF_MONTH, 1); // startCal.add(Calendar.DATE, 1);
@@ -1171,21 +1201,45 @@ public class TMRequestHeaderService {
 		return totalDay;
 	}
 	
-private boolean isOffDay(Calendar startCal,List<AttendanceRefDTO> arrAttendanceRefDTO,List<Pattern> listPattern, List<Shift> listShift) {
+private boolean isOffDay(Calendar startCal,List<AttendanceRefDTO> arrAttendanceRefDTO,List<Pattern> listPattern, List<Shift> listShift, List<Holiday> listHoliday) {
 		
 		for(int i = 1; i < arrAttendanceRefDTO.size(); i++){
 			Date date = startCal.getTime();
 			String formattedPanduanDate = dateFormat.format(arrAttendanceRefDTO.get(i).getDate());
 			String formattedDate = dateFormat.format(date);
-			Pattern objPatternDTO = listPattern.get(arrAttendanceRefDTO.get(i).getSequencePattern() - 1);			
+			Pattern objPatternDTO = listPattern.get(arrAttendanceRefDTO.get(i).getSequencePattern() - 1);
+			
+			// check is Holiday
+			if(isHoliday(startCal, listHoliday))
+				return true;
+				
 			if(formattedPanduanDate.equals(formattedDate)){
 				Shift objShift = getShiftFromPattern(objPatternDTO.getShiftCode(), listShift);
+				
 				if(objShift != null && objShift.getMasterCode() !=null && objShift.getMasterCode().toLowerCase().contains("off"))
 					return true;
 			}
 		}
 		
 		return false;
+}
+
+private boolean isHoliday(Calendar currentDate,List<Holiday> listHoliday){
+	
+	if(listHoliday != null && listHoliday.size() > 0){
+		for (Holiday holiday : listHoliday) {
+			Calendar calHoliday = Calendar.getInstance();
+			calHoliday.setTime(holiday.getDate());
+			
+//			if(currentDate.get(Calendar.DATE) == calHoliday.get(Calendar.DATE) && currentDate.get(Calendar.MONTH) == calHoliday.get(Calendar.MONTH) && currentDate.get(Calendar.YEAR) == calHoliday.get(Calendar.YEAR))
+//				return true;
+			if (Utils.isSameDay(currentDate, calHoliday))
+				return true;
+		
+		}
+	}
+	
+	return false;
 }
 
 private Shift getShiftFromPattern(String shiftCode, List<Shift> listShift){
