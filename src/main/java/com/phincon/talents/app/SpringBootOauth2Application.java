@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableAsync
-@EnableScheduling
+//@EnableScheduling
 //@ComponentScan(basePackages = {"com.phincon.talents.app.async","com.phincon.talents.app.scheduling"})
 //@ComponentScan(basePackages = {"com.phincon.talents.app.async"})
 @Configuration
