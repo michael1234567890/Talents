@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+
 import com.phincon.talents.app.utils.Utils;
 
 public class BenefitDTO {
@@ -26,8 +28,14 @@ public class BenefitDTO {
 	private String type;
 	private Date startTimeBreak;
 	private Date endTimeBreak;
+	private Date attendanceInTime;
+	private Date attendanceOutTime;
+	
 	private Long employee;
 	private Double totalBalance;
+	private Integer overtimeIn;
+	private Integer overtimeOut;
+	private Long substituteToEmployment;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -238,6 +246,59 @@ public class BenefitDTO {
 		this.totalBalance = totalBalance;
 	}
 
+	
+	public Date getAttendanceInTime() {
+		return attendanceInTime;
+	}
+
+	public void setAttendanceInTime(String attendanceInTime) {
+		if (attendanceInTime != null && !attendanceInTime.equals(""))
+			this.attendanceInTime = Utils.convertStringToDateTime(attendanceInTime);
+		else
+			this.attendanceInTime = null;
+	}
+
+	public Date getAttendanceOutTime() {
+		return attendanceOutTime;
+	}
+	
+	
+
+	public Integer getOvertimeIn() {
+		return overtimeIn;
+	}
+
+	public void setOvertimeIn(Integer overtimeIn) {
+		this.overtimeIn = overtimeIn;
+	}
+
+	public Integer getOvertimeOut() {
+		return overtimeOut;
+	}
+
+	public void setOvertimeOut(Integer overtimeOut) {
+		this.overtimeOut = overtimeOut;
+	}
+	
+	
+
+	public Long getSubstituteToEmployment() {
+		return substituteToEmployment;
+	}
+
+	public void setSubstituteToEmployment(Long substituteToEmployment) {
+		this.substituteToEmployment = substituteToEmployment;
+	}
+
+	public void setAttendanceOutTime(String attendanceOutTime) {
+		if (attendanceOutTime != null && !attendanceOutTime.equals(""))
+			this.attendanceOutTime = Utils.convertStringToDateTime(attendanceOutTime);
+		else
+			this.attendanceOutTime = null;
+		
+	}
+	
+	
 	@Override
 	public String toString() {
 		return "BenefitDTO [total=" + total + ", module=" + module
