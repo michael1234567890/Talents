@@ -180,6 +180,13 @@ public class Utils {
 						.get(Calendar.DAY_OF_YEAR);
 		return sameDay;
 	}
+	
+	public static boolean isSameDay(Calendar cal1, Calendar cal2) {
+		if(cal1.get(Calendar.DATE) == cal2.get(Calendar.DATE) && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR))
+			return true;
+					
+		return false;
+	}
 
 	public static int diffMonth(Date startDate, Date endDate) {
 		Calendar startCal = Calendar.getInstance();
