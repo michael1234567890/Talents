@@ -1,6 +1,8 @@
 package com.phincon.talents.app.controllers.api.user;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
 import com.phincon.talents.app.dao.RequestCategoryTypeRepository;
@@ -24,6 +27,8 @@ import com.phincon.talents.app.dao.TMRequestHeaderRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.BenefitDTO;
+import com.phincon.talents.app.dto.TotalCategoryDTO;
+import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employment;
@@ -36,6 +41,7 @@ import com.phincon.talents.app.services.TMRequestHeaderService;
 import com.phincon.talents.app.services.TMRequestService;
 import com.phincon.talents.app.services.VwEmpAssignmentService;
 import com.phincon.talents.app.utils.CustomMessage;
+import com.phincon.talents.app.utils.Utils;
 
 @RestController
 @RequestMapping("api")
@@ -63,6 +69,9 @@ public class TMRequestController {
 	
 	@Autowired
 	DataApprovalRepository dataApprovalRepository;
+	
+	@Autowired
+	CompanySettingsRepository companySettingRepository;
 	
 	@Autowired
 	DataApprovalService dataApprovalService;
@@ -198,8 +207,6 @@ public class TMRequestController {
 			// get grade and position
 			VwEmpAssignment assignment = assignmentService
 					.findAssignmentWithGradeByEmployee(user.getEmployee());
-
-			
 			if (assignment != null) {
 				// Load List RequestCategoryType By Company
 				List<RequestCategoryType> listCategory = requestCategoryTypeRepository
@@ -214,17 +221,26 @@ public class TMRequestController {
 						grade = assignment.getGradeNominal();
 
 					addRequestTypeToCategory(requestCategoryType, listRequestTypes,
-							grade, assignment.getPositionName());
+							grade, assignment.getPositionName(),false);
 					if (requestCategoryType.getListRequestType().size() > 0)
 						listCategorySelected.add(requestCategoryType);
 				}
 			}
-		}else if(module.equals("time management")) {
-			listCategorySelected =requestCategoryTypeRepository
+		}else{
+			List<RequestCategoryType> listCategory =requestCategoryTypeRepository
 					.findByCompanyAndModule(user.getCompany(),module);
+			List<RequestType> listRequestTypes = requestTypeRepository
+					.findByCompanyAndModuleAndActive(user.getCompany(),module,true);
+			for (RequestCategoryType requestCategoryType : listCategory) {
+				// find request type based on criteria and added to
+				int grade = 0;
+				addRequestTypeToCategory(requestCategoryType, listRequestTypes,
+						grade, null,true);
+				if (requestCategoryType.getListRequestType().size() > 0)
+					listCategorySelected.add(requestCategoryType);
+			}
 		}
 		
-
 		return new ResponseEntity<List<RequestCategoryType>>(
 				listCategorySelected, HttpStatus.OK);
 	}
@@ -247,7 +263,7 @@ public class TMRequestController {
 
 	private void addRequestTypeToCategory(
 			RequestCategoryType requestCategoryType,
-			List<RequestType> listRequestTypes, Integer grade, String position) {
+			List<RequestType> listRequestTypes, Integer grade, String position, boolean autoAdded) {
 
 		List<RequestType> listRequestTypeSelected = new ArrayList<RequestType>();
 		for (RequestType requestType : listRequestTypes) {
@@ -273,6 +289,9 @@ public class TMRequestController {
 					}
 
 				}
+				
+				if(autoAdded)
+					added = true;
 
 				if (added)
 					listRequestTypeSelected.add(requestType);
@@ -302,6 +321,47 @@ public class TMRequestController {
 		}
 
 		return new ResponseEntity<List<TMRequestHeader>>(listRequest,
+				HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/user/tmrequest/totalamount", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<List<TotalCategoryDTO>> sumTotalAmount(
+			@RequestParam(value = "module", required = false) String module,@RequestParam(value = "fromdate", required = false) String fromDateStr,@RequestParam(value = "todate", required = false) String toDateStr,
+			OAuth2Authentication authentication) {
+		
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+		Date fromDate = null;Utils.convertStringToDate(fromDateStr);
+		Date toDate = null; Utils.convertStringToDate(toDateStr);
+		if(fromDateStr != null && toDateStr != null) {
+			fromDate = Utils.convertStringToDate(fromDateStr);
+			toDate = Utils.convertStringToDate(toDateStr);
+		}else {
+			List<CompanySettings> listCompanySettings = companySettingRepository.findByCompany(user.getCompany());
+			if(listCompanySettings == null || listCompanySettings.size()==0)
+				throw new RuntimeException(
+						"Company Setting is not found.");
+			CompanySettings companySettings = listCompanySettings.get(0);
+			fromDate = companySettings.getPeriodStartDate();
+			toDate = companySettings.getPeriodEndDate();
+			
+		}
+		
+		if(fromDate == null || toDate == null) {
+			throw new RuntimeException(
+					"Param fromdate and todate can't be empty.");
+
+		}
+		
+		List<TotalCategoryDTO> result = null;
+		if (module == null) {
+			result = tmRequestHeaderRepository.sumTotalAmountByCategoryAndRangeDate(user.getCompany(), user.getEmployee(),fromDate,toDate);
+		} else {
+			result = tmRequestHeaderRepository.sumTotalAmountByModuleAndCategoryAndRangeDate(user.getCompany(), user.getEmployee(), module, fromDate, toDate);
+		}
+
+		return new ResponseEntity<List<TotalCategoryDTO>>(result,
 				HttpStatus.OK);
 	}
 	
