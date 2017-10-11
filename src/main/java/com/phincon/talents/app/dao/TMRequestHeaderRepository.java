@@ -9,6 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.phincon.talents.app.dto.TotalCategoryDTO;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
 
@@ -87,5 +88,13 @@ public interface TMRequestHeaderRepository extends
 	@Query("UPDATE TMRequestHeader set totalAmount=:amount, totalAmountSubmit=:amount where id=:id")
 	void updateTotalAmountById(@Param("amount") Double amount,
 			@Param("id") Long id);
+	
+	@Query("select new com.phincon.talents.app.dto.TotalCategoryDTO(sum(u.totalAmount), u.module ,u.categoryType, u.company,u.employee) from TMRequestHeader u where u.company=:company AND u.employee=:employee AND LOWER(module)=LOWER(:module) AND u.startDate >= :fromDate AND u.startDate <= :toDate GROUP BY u.company,u.employee,u.module,u.categoryType")
+	List<TotalCategoryDTO> sumTotalAmountByModuleAndCategoryAndRangeDate(@Param("company") Long company , @Param("employee") Long employee, @Param("module") String module, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate );
+	
+	@Query("select new com.phincon.talents.app.dto.TotalCategoryDTO(sum(u.totalAmount), u.module ,u.categoryType, u.company,u.employee) from TMRequestHeader u where u.company=:company AND u.employee=:employee AND u.startDate >= :fromDate AND u.startDate <= :toDate GROUP BY u.company,u.employee,u.module,u.categoryType")
+	List<TotalCategoryDTO> sumTotalAmountByCategoryAndRangeDate(@Param("company") Long company , @Param("employee") Long employee, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate );
+	
+	
 
 }

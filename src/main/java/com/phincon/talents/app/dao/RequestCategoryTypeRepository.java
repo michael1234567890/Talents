@@ -18,5 +18,8 @@ public interface RequestCategoryTypeRepository extends PagingAndSortingRepositor
 	@Query("SELECT u FROM RequestCategoryType u WHERE u.company=:company AND LOWER(u.module)=LOWER(:module)")
 	List<RequestCategoryType> findByCompanyAndModule(@Param("company") Long company, @Param("module") String module);
 	
+	@Query("SELECT u FROM RequestCategoryType u WHERE u.company=:company AND LOWER(u.module)=LOWER(:module) AND LOWER(u.categoryType) = LOWER(:categoryType)")
+	List<RequestCategoryType> findByCompanyAndModuleAndCategoryType(@Param("company") Long company, @Param("module") String module,@Param("categoryType") String  categoryType);
+	
 	
 }

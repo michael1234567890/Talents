@@ -2,6 +2,7 @@ package com.phincon.talents.app.dao;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +22,18 @@ public interface VwEmpAssignmentRepository extends PagingAndSortingRepository<Vw
 	 @Query
 	 List<VwEmpAssignment> findByDirectEmployee(Long reportTo);
 	 
+	 @Query
+	 List<VwEmpAssignment> findByOrganizationAndCompany(Long organization,Long company,Pageable pageable);
+	 
+	 
+	 @Query("select p from VwEmpAssignment p where LOWER(p.division)=LOWER(:division) AND p.company=:company")
+	 List<VwEmpAssignment> findByDivisionAndCompany(@Param("division") String division,@Param("company") Long company,Pageable pageable);
+	 
+	 @Query("SELECT COUNT(u.id) FROM VwEmpAssignment u WHERE u.organization=:organization AND u.company=:company")
+	 List<Long> countByOrganizationAndCompany(@Param("organization") Long organization,@Param("company") Long company);
+	
+	 @Query("SELECT COUNT(u.id) FROM VwEmpAssignment u WHERE LOWER(u.division)=LOWER(:division) AND u.company=:company")
+	 List<Long> countByDivisionAndCompany(@Param("division") String division,@Param("company") Long company);
 	
 	
 }
