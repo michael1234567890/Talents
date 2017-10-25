@@ -1233,7 +1233,7 @@ public class TMRequestHeaderService {
 				jobTitle = vwEmpAssignment.getJobTitleName();
 			
 			// check
-			if(requestType.getJobTitle() != null && !requestType.getJobTitle().equals("") && jobTitle != null && requestType.getJobTitle().contains(jobTitle)) {
+			if(requestType.getJobTitle() != null && !requestType.getJobTitle().equals("") && jobTitle != null && requestType.getJobTitle().toLowerCase().contains(jobTitle.toLowerCase())) {
 				if(requestType.getMaxMinutesPerMonthJobtitle() != null && requestType.getMaxMinutesPerMonthJobtitle() != 0) {
 					System.out.println("pass getJobTitle");
 					// if total minutes per month > request.getMaxMinutesPerMonthJobtitle(). Show warning
