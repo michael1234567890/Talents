@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.persistence.Column;
 
+import com.phincon.talents.app.model.hr.RequestType;
 import com.phincon.talents.app.utils.Utils;
 
 public class BenefitDTO {
@@ -26,11 +27,12 @@ public class BenefitDTO {
 	private Boolean pulangKampung;
 	private String spdType;
 	private String type;
+	private String typeDesc;
 	private Date startTimeBreak;
 	private Date endTimeBreak;
 	private Date attendanceInTime;
 	private Date attendanceOutTime;
-	
+	private RequestType requestType;
 	private Long employee;
 	private Double totalBalance;
 	private Integer overtimeIn;
@@ -281,6 +283,15 @@ public class BenefitDTO {
 	}
 	
 	
+	
+
+	public String getTypeDesc() {
+		return typeDesc;
+	}
+
+	public void setTypeDesc(String typeDesc) {
+		this.typeDesc = typeDesc;
+	}
 
 	public Long getSubstituteToEmployment() {
 		return substituteToEmployment;
@@ -299,6 +310,15 @@ public class BenefitDTO {
 	}
 	
 	
+	
+	public RequestType getRequestType() {
+		return requestType;
+	}
+
+	public void setRequestType(RequestType requestType) {
+		this.requestType = requestType;
+	}
+
 	@Override
 	public String toString() {
 		return "BenefitDTO [total=" + total + ", module=" + module

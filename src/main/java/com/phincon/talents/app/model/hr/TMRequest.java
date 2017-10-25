@@ -89,6 +89,9 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "type", length=100)
 	private String type;
 	
+	@Column(name = "type_desc", length=255)
+	private String typeDesc;
+	
 	@Column(name = "remark", length=255)
 	private String remark;
 	
@@ -494,9 +497,17 @@ public class TMRequest extends AbstractEntity {
 	public void setOvertimeOut(Integer overtimeOut) {
 		this.overtimeOut = overtimeOut;
 	}
-	
-	
 
+	public String getTypeDesc() {
+		return typeDesc;
+	}
+
+	public void setTypeDesc(String typeDesc) {
+		this.typeDesc = typeDesc;
+	}
+	
+	
+	
 	
 	
 	

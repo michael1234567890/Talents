@@ -52,6 +52,27 @@ public class Attendance extends AbstractEntity {
 	
 	@Column(name = "employee_id")
 	private Long employee;
+	
+	@Column(name = "employment_id")
+	private Long employment;
+	
+	@Column(name = "card_no")
+	private String cardNo;
+	
+	@Column(name = "device_attendance")
+	private String deviceAttendance;
+	
+	@Column(name = "device_no")
+	private String deviceNo;
+	
+	@Column(name = "overtime_in")
+	private Integer overtimeIn;
+	
+	@Column(name = "overtime_out")
+	private Integer overtimeOut;
+	
+	@Column(name = "overtime_total")
+	private Integer overtimeTotal;
 
 
 	@Column(name = "company_id")
@@ -211,6 +232,62 @@ public class Attendance extends AbstractEntity {
 
 	public void setActivity(String activity) {
 		this.activity = activity;
+	}
+
+	public Long getEmployment() {
+		return employment;
+	}
+
+	public void setEmployment(Long employment) {
+		this.employment = employment;
+	}
+
+	public String getCardNo() {
+		return cardNo;
+	}
+
+	public void setCardNo(String cardNo) {
+		this.cardNo = cardNo;
+	}
+
+	public String getDeviceAttendance() {
+		return deviceAttendance;
+	}
+
+	public void setDeviceAttendance(String deviceAttendance) {
+		this.deviceAttendance = deviceAttendance;
+	}
+
+	public String getDeviceNo() {
+		return deviceNo;
+	}
+
+	public void setDeviceNo(String deviceNo) {
+		this.deviceNo = deviceNo;
+	}
+
+	public Integer getOvertimeIn() {
+		return overtimeIn;
+	}
+
+	public void setOvertimeIn(Integer overtimeIn) {
+		this.overtimeIn = overtimeIn;
+	}
+
+	public Integer getOvertimeOut() {
+		return overtimeOut;
+	}
+
+	public void setOvertimeOut(Integer overtimeOut) {
+		this.overtimeOut = overtimeOut;
+	}
+
+	public Integer getOvertimeTotal() {
+		return overtimeTotal;
+	}
+
+	public void setOvertimeTotal(Integer overtimeTotal) {
+		this.overtimeTotal = overtimeTotal;
 	}
 
 	

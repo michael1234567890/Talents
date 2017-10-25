@@ -27,9 +27,18 @@ public class RequestType extends AbstractEntity {
 
 	@Column(name = "grade")
 	private Integer grade;
+	
+	@Column(name = "grade_start")
+	private Integer gradeStart;
+	
+	@Column(name = "grade_end")
+	private Integer gradeEnd;
 
 	@Column(name = "position", length = 2000)
 	private String position;
+	
+	@Column(name = "job_title", length = 1000)
+	private String jobTitle;
 	
 	@Column(name = "type_label", length = 255)
 	private String typeLabel;
@@ -76,7 +85,17 @@ public class RequestType extends AbstractEntity {
 	@Column(name="limit_back_date")
 	private Integer limitBackDate; //day,  0 = unlimited
 	
+	@Column(name="gender", length=20)
+	private String gender; //day,  0 = unlimited
 	
+	@Column(name="flag_overtime")
+	private Boolean flagOvertime;
+	
+	@Column(name="default_max_minutes_per_month")
+	private Integer defaultMaxMinutesPerMonth; //day,  0 = unlimited
+	
+	@Column(name="max_minutes_per_month_jobtitle")
+	private Integer maxMinutesPerMonthJobtitle; //day,  0 = unlimited
 	
 	public String getModule() {
 		return module;
@@ -229,11 +248,63 @@ public class RequestType extends AbstractEntity {
 	public void setMaxNumOfDays(Integer maxNumOfDays) {
 		this.maxNumOfDays = maxNumOfDays;
 	}
-	
-	
-	
-	
-	
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getJobTitle() {
+		return jobTitle;
+	}
+
+	public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
+	}
+
+	public Integer getGradeEnd() {
+		return gradeEnd;
+	}
+
+	public void setGradeEnd(Integer gradeEnd) {
+		this.gradeEnd = gradeEnd;
+	}
+
+	public Integer getGradeStart() {
+		return gradeStart;
+	}
+
+	public void setGradeStart(Integer gradeStart) {
+		this.gradeStart = gradeStart;
+	}
+
+	public Boolean getFlagOvertime() {
+		return flagOvertime;
+	}
+
+	public void setFlagOvertime(Boolean flagOvertime) {
+		this.flagOvertime = flagOvertime;
+	}
+
+	public Integer getDefaultMaxMinutesPerMonth() {
+		return defaultMaxMinutesPerMonth;
+	}
+
+	public void setDefaultMaxMinutesPerMonth(Integer defaultMaxMinutesPerMonth) {
+		this.defaultMaxMinutesPerMonth = defaultMaxMinutesPerMonth;
+	}
+
+	public Integer getMaxMinutesPerMonthJobtitle() {
+		return maxMinutesPerMonthJobtitle;
+	}
+
+	public void setMaxMinutesPerMonthJobtitle(Integer maxMinutesPerMonthJobtitle) {
+		this.maxMinutesPerMonthJobtitle = maxMinutesPerMonthJobtitle;
+	}
+
 	
 
 }

@@ -1,6 +1,7 @@
 package com.phincon.talents.app.services;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,11 +33,13 @@ import com.phincon.talents.app.dao.ShiftRepository;
 import com.phincon.talents.app.dao.TMBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestHeaderRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
+import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
 import com.phincon.talents.app.dto.AttendanceRefDTO;
 import com.phincon.talents.app.dto.BenefitDTO;
 import com.phincon.talents.app.dto.BenefitDetailDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
+import com.phincon.talents.app.dto.TotalCategoryDTO;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.Holiday;
 import com.phincon.talents.app.model.User;
@@ -53,6 +56,7 @@ import com.phincon.talents.app.model.hr.Shift;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
+import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.utils.Utils;
 
 @Service
@@ -103,6 +107,9 @@ public class TMRequestHeaderService {
 	
 	@Autowired
 	EmploymentRepository employmentRepository;
+	
+	@Autowired 
+	VwEmpAssignmentRepository vwEmpAssignmentRepository;
 	
 	
 	@Autowired
@@ -990,6 +997,7 @@ public class TMRequestHeaderService {
 			verified = true;
 		
 		request.setVerified(verified);
+		request.setRequestType(requestType);
 		if(requestType.getNeedBalance())
 			request.setTotalBalance(balance.getBalanceEnd());
 		
@@ -998,10 +1006,21 @@ public class TMRequestHeaderService {
 
 	@Transactional
 	public void createTimeAttendance(BenefitDTO request, User user, Employment employment, Employment requester){
+		List<RequestCategoryType> listRequestCategory = requestCategoryTypeRepository.findByCompanyAndModuleAndCategoryType(user.getCompany(), request.getModule(),request.getCategoryType());
+		RequestCategoryType requestCategoryType = null;
+		if(listRequestCategory != null && listRequestCategory.size() > 0){
+			requestCategoryType = listRequestCategory.get(0);
+		}
+		
+		if(requestCategoryType == null)
+		    throw new RuntimeException("Your request Category is not found");
+		    
 		List<RequestType> listType = RequestTypeRepository.findByCompanyAndModuleAndCategoryAndType(user.getCompany(), request.getModule(), request.getCategoryType(), request.getType());
 	    RequestType requestType = null;
 	    if(listType != null && listType.size() > 0)
 	    	requestType = listType.get(0);
+	    
+	    
 	    if(requestType == null)
 	    	throw new RuntimeException("Your request type is not found");
 	    
@@ -1012,7 +1031,6 @@ public class TMRequestHeaderService {
 		request.setTotal(totalWorkDay);
 		validationAttendanceRequest(requestType,request, balance,  user, employment);
 		// 1. Validation
-		
 		
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
 		tmRequestHeader.setCompany(user.getCompany());
@@ -1032,7 +1050,9 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setNeedReport(false);
 		tmRequestHeader.setAttendanceInTime(request.getAttendanceInTime());
 		tmRequestHeader.setAttendanceOutTime(request.getAttendanceOutTime());
-		
+		tmRequestHeader.setOvertimeIn(request.getOvertimeIn());
+		tmRequestHeader.setOvertimeOut(request.getOvertimeOut());
+		tmRequestHeader.setCategoryTypeExtId(requestCategoryType.getCategoryTypeExtId());
 		Double totalAmount = totalWorkDay;
 		tmRequestHeader.setTotalAmount(totalAmount);
 		//Double totalAmountSubmit = request.getTotalSubmit();
@@ -1053,8 +1073,6 @@ public class TMRequestHeaderService {
 		}
 
 		tmRequestHeaderRepository.save(tmRequestHeader);
-		
-		
 			// 2. Mapping
 			TMRequest tmRequest = new TMRequest();
 			tmRequest.setCompany(user.getCompany());
@@ -1084,6 +1102,10 @@ public class TMRequestHeaderService {
 			tmRequest.setTotalWorkDay(totalWorkDay);
 			tmRequest.setAttendanceInTime(request.getAttendanceInTime());
 			tmRequest.setAttendanceOutTime(request.getAttendanceOutTime());
+			tmRequest.setOvertimeIn(request.getOvertimeIn());
+			tmRequest.setOvertimeOut(request.getOvertimeOut());
+			tmRequest.setTypeDesc(request.getTypeDesc());
+			tmRequest.setCategoryTypeExtId(requestCategoryType.getCategoryTypeExtId());
 			if(workflow != null){
 				tmRequest.setStatus(TMRequest.PENDING);
 				tmRequest.setNeedSync(false);
@@ -1116,19 +1138,130 @@ public class TMRequestHeaderService {
 	
 	private void validationAttendanceRequest(RequestType requestType, BenefitDTO request, TMBalance balance,
 			User user, Employment employment) {
-		if(requestType.getNeedBalance() && balance == null){
-			throw new RuntimeException("Your balance is not found.");
-		}
-			
+		List<VwEmpAssignment> listVwEmpAssignments = vwEmpAssignmentRepository.findByEmployee(user.getEmployee());
+		VwEmpAssignment vwEmpAssignment = null;
+		if(listVwEmpAssignments != null && listVwEmpAssignments.size() > 0) 
+			 vwEmpAssignment = listVwEmpAssignments.get(0);
+		
 		if(request.getStartDate() != null && request.getEndDate() != null){
 			if(Utils.comparingDate(request.getEndDate(), request.getStartDate(), "<")){
 				throw new RuntimeException("The End date must be greater than The start date.");
 			}
 		}
 		
+		// check can back date
+		if(requestType.getLimitBackDate() != null && requestType.getLimitBackDate() != 0) {
+			if(Utils.diffDayInt(request.getEndDate(), new Date()) > (requestType.getLimitBackDate()-1)) {
+				throw new RuntimeException("Start and End date must be "+requestType.getLimitBackDate()+" days before today.");
+			}
+		}else {
+			
+			if(Utils.diffDayInt(request.getEndDate(),new Date()) > 0) {
+				throw new RuntimeException("Start and End date must be earlier than today.");
+			}
+		}
+		
+		// check can future date
+		if(requestType.getLimitFutureDate() != null && requestType.getLimitFutureDate() != 0) {
+			if(Utils.diffDayInt(new Date(), request.getEndDate()) > (requestType.getLimitFutureDate()-1)) {
+				throw new RuntimeException("Start and End date must be "+requestType.getLimitFutureDate()+" days from today.");
+			}
+		}else {
+			// jika gak boleh future date periksa juga start date lebih dari hari ini gak 
+			// jika lebih dari hari ini kasih warning
+			if(Utils.diffDayInt(new Date(), request.getEndDate()) > 0) {
+				throw new RuntimeException("End date must be less than today.");
+			}
+		}
+		
+		// check max num of days
+		if(requestType.getMaxNumOfDays() != null && requestType.getMaxNumOfDays() != 0) {
+			if(request.getTotal() > requestType.getMaxNumOfDays())
+				throw new RuntimeException("Max request "+requestType.getMaxNumOfDays()+" days.");
+		}
+		
+		if(requestType.getFlagOvertime()!= null && requestType.getFlagOvertime()) {
+			EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
+			if(!employeePayroll.getFlagLembur()) {
+				throw new RuntimeException("You are not allowed to request Overtime");
+			}
+		}
+		
+		if(requestType.getGender() != null && !requestType.getGender().equals("")){
+			// get employee data
+			Employee employee = employeeRepository.findOne(user.getEmployee());
+			if(employee != null && !employee.getGender().toLowerCase().equals(requestType.getGender().toLowerCase())){
+				throw new RuntimeException("Your gender is not "+requestType.getGender()+".");
+			}
+		}
+		
+		if(requestType.getGradeStart() != null && requestType.getGradeEnd() != null) {
+			if(vwEmpAssignment != null) {
+				if(vwEmpAssignment.getGradeNominal() < requestType.getGradeStart() || vwEmpAssignment.getGradeNominal() > requestType.getGradeEnd()){
+					throw new RuntimeException(
+							"Your grade is not between "+requestType.getGradeStart()+" - " + requestType.getGradeEnd());
+				}
+			}
+			
+		}
+		
+		if(requestType.getDefaultMaxMinutesPerMonth() != null && requestType.getDefaultMaxMinutesPerMonth() != 0) {
+			// default max minutes per month for overtime 
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
+			Date date = new Date();
+			String month = dateFormat.format(date);
+			Long totalOvertimeIn = 0L;
+			Long totalOvertimeOut = 0L;
+			Long totalOvertime = 0L;
+			// get total minutes per month 
+			TotalCategoryDTO totalCategory = null;
+			
+			List<TotalCategoryDTO> listTotal = tmRequestRepository.sumTotalOvertimeInOutPerMonth(user.getCompany(), employment.getId(), month, request.getModule(), requestType.getType());
+			if(listTotal != null && listTotal.size() > 0){
+				totalCategory = listTotal.get(0);
+				if(totalCategory.getTotalOvertimeIn()!= null)
+					totalOvertimeIn = totalCategory.getTotalOvertimeIn();
+				
+				if(totalCategory.getTotalOvertimeOut() != null)
+					totalOvertimeOut = totalCategory.getTotalOvertimeOut();
+			}
+			
+			totalOvertime = totalOvertimeIn + totalOvertimeOut + request.getOvertimeIn() + request.getOvertimeOut();
+			
+			String jobTitle = null;
+			if(vwEmpAssignment != null)
+				jobTitle = vwEmpAssignment.getJobTitleName();
+			
+			// check
+			if(requestType.getJobTitle() != null && !requestType.getJobTitle().equals("") && jobTitle != null && requestType.getJobTitle().contains(jobTitle)) {
+				if(requestType.getMaxMinutesPerMonthJobtitle() != null && requestType.getMaxMinutesPerMonthJobtitle() != 0) {
+					System.out.println("pass getJobTitle");
+					// if total minutes per month > request.getMaxMinutesPerMonthJobtitle(). Show warning
+					if(totalOvertime > requestType.getMaxMinutesPerMonthJobtitle())
+						throw new RuntimeException("Your Overtime Total has exceeded the limit this month.");
+				}
+			}else {
+				System.out.println("not in pass getJobTitle");
+				if(totalOvertime > requestType.getDefaultMaxMinutesPerMonth())
+					throw new RuntimeException("Your Overtime Total has exceeded the limit this month.");
+			}
+			
+			System.out.println("type : " + requestType.getType() + ", month : " + month+", totalOvertime : "+ totalOvertime + ", totalOvertimeIn : " + totalOvertimeIn + ", totalOvertimeOut : " + totalOvertimeOut);
+			
+			// if total minutes per month > request.getDefaultMaxMinutesPerMonth(). Show warning
+			
+			
+		}
+		
+		if(requestType.getNeedBalance() && balance == null){
+			throw new RuntimeException("Your balance is not found.");
+		}
+		
+		
 		if(requestType.getNeedBalance() &&  request.getTotal() > balance.getBalanceEnd()) {
 			throw new RuntimeException("Your balance is not enought.");
 		}
+		
 		
 		List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(),
 						user.getEmployee(), TMRequestHeader.MOD_TIME_MANAGEMENT,
@@ -1172,23 +1305,6 @@ public class TMRequestHeaderService {
 		
 		do{
 			
-			/*
-			 * disabled reference only holidays and weekend
-			 */
-			
-			/*if(startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
-					++totalDay;
-			
-			for(Date dates : holidays){
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dates);
-				
-				if(startCal.get(Calendar.DATE) == cal.get(Calendar.DATE) && startCal.get(Calendar.MONTH) == cal.get(Calendar.MONTH) && startCal.get(Calendar.YEAR) == cal.get(Calendar.YEAR))
-					++holiday;
-			
-			}*/
-			
-			
 			
 			if(!isOffDay(startCal,arrAttendanceRefDTO,listPattern,listShift, listHoliday))
 				totalDay++;
@@ -1231,8 +1347,6 @@ private boolean isHoliday(Calendar currentDate,List<Holiday> listHoliday){
 			Calendar calHoliday = Calendar.getInstance();
 			calHoliday.setTime(holiday.getDate());
 			
-//			if(currentDate.get(Calendar.DATE) == calHoliday.get(Calendar.DATE) && currentDate.get(Calendar.MONTH) == calHoliday.get(Calendar.MONTH) && currentDate.get(Calendar.YEAR) == calHoliday.get(Calendar.YEAR))
-//				return true;
 			if (Utils.isSameDay(currentDate, calHoliday))
 				return true;
 		
