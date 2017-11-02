@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.phincon.talents.app.dao.PayrollElementDetailYearlyRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderYearlyRepository;
 import com.phincon.talents.app.model.hr.Employee;
+import com.phincon.talents.app.model.hr.PayrollElementDetailGroup;
 import com.phincon.talents.app.model.hr.PayrollElementDetailYearly;
 import com.phincon.talents.app.model.hr.PayrollElementHeaderYearly;
 
@@ -62,8 +63,40 @@ public class PayrollElementHeaderYearlyService {
 				PayrollElementHeaderYearly obj = payrollElementHeader;
 				Long headerId = obj.getId();
 				List<PayrollElementDetailYearly> payrollElemenDetailListIn = payrollElementDetailRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetailYearly.ELEMENT_TYPE_ALLOWANCE);
+				if(payrollElemenDetailListIn == null)
+					payrollElemenDetailListIn = new ArrayList<PayrollElementDetailYearly>();
+				
+				PayrollElementDetailYearly taxAllowance = new PayrollElementDetailYearly();
+				taxAllowance.setElementGroup("Tunjangan Pajak");
+				taxAllowance.setElementType("Allowance");
+				taxAllowance.setTotal(payrollElementHeader.getCurrentTaxAllowance());
+				
+				if(taxAllowance.getTotal()!= null && taxAllowance.getTotal() != 0D)
+					payrollElemenDetailListIn.add(taxAllowance);
+				
 				obj.setDetailIn(payrollElemenDetailListIn);
+				
 				List<PayrollElementDetailYearly> payrollElemenDetailListOut = payrollElementDetailRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetailYearly.ELEMENT_TYPE_DEDUCTION);
+				if(payrollElemenDetailListOut == null)
+					payrollElemenDetailListOut = new ArrayList<PayrollElementDetailYearly>();
+				
+				PayrollElementDetailYearly taxDeduction = new PayrollElementDetailYearly();
+				taxDeduction.setElementGroup("Potongan Pajak");
+				taxDeduction.setElementType("Deduction");
+				taxDeduction.setTotal(payrollElementHeader.getCurrentTaxAllowance() + payrollElementHeader.getCurrentTaxGross());
+				
+				if(taxDeduction.getTotal() != null && taxDeduction.getTotal()!=0D)
+					payrollElemenDetailListOut.add(taxDeduction);
+				
+				
+				PayrollElementDetailYearly taxPenalty = new PayrollElementDetailYearly();
+				taxPenalty.setElementGroup("Penalti Pajak");
+				taxPenalty.setElementType("Deduction");
+				taxPenalty.setTotal(payrollElementHeader.getCurrentTaxPenalty());
+				
+				if(taxPenalty.getTotal() != null && taxPenalty.getTotal()!=0D)
+					payrollElemenDetailListOut.add(taxPenalty);
+				
 				obj.setDetailOut(payrollElemenDetailListOut);
 				listElementHeadersResult.add(obj);
 				Employee employeeTransient = employeeService.findEmployeeWithAssignment(employee);

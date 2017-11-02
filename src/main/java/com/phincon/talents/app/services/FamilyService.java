@@ -3,6 +3,7 @@ package com.phincon.talents.app.services;
 import java.io.IOException;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.transaction.Transactional;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -138,6 +139,19 @@ public class FamilyService {
 		family.setGender(familyTemp.getGender());
 		family.setOccupation(familyTemp.getOccupation());
 		family.setMaritalStatus(familyTemp.getMaritalStatus());
+		
+		family.setNircNo(familyTemp.getNircNo());
+		family.setFamilyCardNo(familyTemp.getFamilyCardNo());
+		family.setDistrict(familyTemp.getDistrict());
+		family.setSubDistrict(familyTemp.getSubDistrict());
+		family.setRt(familyTemp.getRt());
+		family.setRw(familyTemp.getRw());
+		family.setNationality(familyTemp.getNationality());
+		family.setAssuranceName(familyTemp.getAssuranceName());
+		family.setPolisNo(familyTemp.getPolisNo());
+		family.setNpwpNo(familyTemp.getNpwpNo());
+		family.setPassportNo(familyTemp.getPassportNo());
+		family.setZipCode(familyTemp.getZipCode());
 		return family;
 	}
 	
@@ -156,6 +170,22 @@ public class FamilyService {
 		familyTemp.setGender(family.getGender());
 		familyTemp.setOccupation(family.getOccupation());
 		familyTemp.setMaritalStatus(family.getMaritalStatus());
+		
+		familyTemp.setNircNo(family.getNircNo());
+		familyTemp.setFamilyCardNo(family.getFamilyCardNo());
+		familyTemp.setDistrict(family.getDistrict());
+		familyTemp.setSubDistrict(family.getSubDistrict());
+		familyTemp.setRt(family.getRt());
+		familyTemp.setRw(family.getRw());
+		familyTemp.setNationality(family.getNationality());
+		familyTemp.setAssuranceName(family.getAssuranceName());
+		familyTemp.setPolisNo(family.getPolisNo());
+		familyTemp.setNpwpNo(family.getNpwpNo());
+		familyTemp.setPassportNo(family.getPassportNo());
+		familyTemp.setZipCode(family.getZipCode());
+		
+		familyTemp.setEmail(family.getEmail());
+		
 		return familyTemp;
 	}
 }

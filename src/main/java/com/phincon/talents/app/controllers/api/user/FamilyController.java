@@ -52,27 +52,13 @@ public class FamilyController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		Family family = new Family();
-		family.setAddress(request.getAddress());
-		family.setBirthPlace(request.getBirthPlace());
-		family.setBirthDate(request.getBirthDate());
-		family.setBloodType(request.getBloodType());
-		family.setAddress(request.getAddress());
-		// family.setrequest.getEmail()
-		family.setName(request.getName());
-		family.setPhone(request.getPhone());
-		family.setRelationship(request.getRelationship());
-		family.setEmployee(user.getEmployee());
-		family.setGender(request.getGender());
-		family.setOccupation(request.getOccupation());
-		family.setMaritalStatus(request.getMaritalStatus());
-		family.setCreatedDate(new Date());
-		family.setModifiedDate(new Date());
+		family = copyFromFamilyDTO(family, request);
 		family.setCreatedBy(authentication.getUserAuthentication().getName());
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
-		family.setNeedSync(true);
+		family.setEmployee(user.getEmployee());
 		family.setCompany(user.getCompany());
 		family.setEmployeeExtId(user.getEmployeeExtId());
-		family.setAliveStatus(request.getAliveStatus());
+		
 		String taskName = Workflow.SUBMIT_FAMILY;
 		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
 				taskName, user.getCompany(), true);
@@ -115,35 +101,23 @@ public class FamilyController {
 			throw new RuntimeException("Your ID family is not found.");
 		}
 		FamilyTemp familyTemp = copyFromFamily(family);
-		family.setAddress(request.getAddress());
-		family.setBirthPlace(request.getBirthPlace());
-		family.setBirthDate(request.getBirthDate());
-		family.setBloodType(request.getBloodType());
-		// family.setrequest.getEmail()
-		family.setName(request.getName());
-		family.setPhone(request.getPhone());
-		family.setRelationship(request.getRelationship());
-		family.setEmployee(user.getEmployee());
-		family.setGender(request.getGender());
-		family.setOccupation(request.getOccupation());
-		family.setMaritalStatus(request.getMaritalStatus());
-		family.setModifiedDate(new Date());
-		family.setAliveStatus(request.getAliveStatus());
+		family = copyFromFamilyDTO(family, request);
+		
 		family.setModifiedBy(authentication.getUserAuthentication().getName());
+		family.setModifiedDate(new Date());
+		
 		Workflow  workflow = null;
-		//if(!family.getStatus().equals(Family.PENDING)) {
-			String taskName = Workflow.CHANGE_FAMILY;
-			workflow = workflowService.findByCodeAndCompanyAndActive(
+		String taskName = Workflow.CHANGE_FAMILY;
+		workflow = workflowService.findByCodeAndCompanyAndActive(
 					taskName, user.getCompany(), true);
-			if (workflow != null) {
+		if (workflow != null) {
 				familyTempService.save(familyTemp);
 				family.setFamilyTemp(familyTemp.getId());
 				family.setStatus(Family.PENDING);
 				family.setNeedSync(false);
-			}else {
-				family.setNeedSync(true);
-			}
-		//}
+		}else {
+			family.setNeedSync(true);
+		}
 		
 		
 		// cek activity need approval
@@ -189,6 +163,21 @@ public class FamilyController {
 		return new ResponseEntity<Iterable<Family>>(listFamily, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/user/family/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Family> getDetailFamily(@PathVariable("id") Long id,
+			OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}		
+		Family family = familyService.findById(id);
+		return new ResponseEntity<Family>(family, HttpStatus.OK);
+	}
+	
+	
 	private FamilyTemp copyFromFamily(Family family) {
 		FamilyTemp familyTemp = new FamilyTemp();
 		familyTemp.setAddress(family.getAddress());
@@ -204,6 +193,38 @@ public class FamilyController {
 		familyTemp.setOccupation(family.getOccupation());
 		familyTemp.setMaritalStatus(family.getMaritalStatus());
 		return familyTemp;
+	}
+	
+	private Family copyFromFamilyDTO(Family family, FamilyDTO request) {
+		family.setAddress(request.getAddress());
+		family.setBirthPlace(request.getBirthPlace());
+		family.setBirthDate(request.getBirthDate());
+		family.setBloodType(request.getBloodType());
+		family.setAddress(request.getAddress());
+		// family.setrequest.getEmail()
+		family.setName(request.getName());
+		family.setPhone(request.getPhone());
+		family.setRelationship(request.getRelationship());
+		family.setGender(request.getGender());
+		family.setOccupation(request.getOccupation());
+		family.setMaritalStatus(request.getMaritalStatus());
+		family.setCreatedDate(new Date());
+		family.setModifiedDate(new Date());
+		family.setAliveStatus(request.getAliveStatus());
+		family.setNircNo(request.getNircNo());
+		family.setFamilyCardNo(request.getFamilyCardNo());
+		family.setDistrict(request.getDistrict());
+		family.setSubDistrict(request.getSubDistrict());
+		family.setRt(request.getRt());
+		family.setRw(request.getRw());
+		family.setEmail(request.getEmail());
+		family.setNationality(request.getNationality());
+		//family.setAssuranceName(request.getAssuranceName());
+		//family.setPolisNo(request.getPolisNo());
+		family.setNpwpNo(request.getNpwpNo());
+		//family.setPassportNo(request.getPassportNo());
+		family.setZipCode(request.getZipCode());
+		return family;
 	}
 
 }

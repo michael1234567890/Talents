@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+
 public class FamilyDTO {
 	private Long id;
 	private String name;
@@ -19,6 +21,18 @@ public class FamilyDTO {
 	private String maritalStatus;
 	private String aliveStatus;
 	private List<Map<String,Object>> attachments;
+	private String nircNo;
+	private String familyCardNo;
+	private String district;
+	private String subDistrict;
+	private String rt;
+	private String rw;
+	private String nationality;
+	private String assuranceName;
+	private String polisNo;
+	private String npwpNo;
+	private String passportNo;
+	private String zipCode;
 	
 	
 	public Long getId() {
@@ -132,6 +146,103 @@ public class FamilyDTO {
 	public void setAliveStatus(String aliveStatus) {
 		this.aliveStatus = aliveStatus;
 	}
+
+	public String getNircNo() {
+		return nircNo;
+	}
+
+	public void setNircNo(String nircNo) {
+		this.nircNo = nircNo;
+	}
+
+	public String getFamilyCardNo() {
+		return familyCardNo;
+	}
+
+	public void setFamilyCardNo(String familyCardNo) {
+		this.familyCardNo = familyCardNo;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public String getSubDistrict() {
+		return subDistrict;
+	}
+
+	public void setSubDistrict(String subDistrict) {
+		this.subDistrict = subDistrict;
+	}
+
+	public String getRt() {
+		return rt;
+	}
+
+	public void setRt(String rt) {
+		this.rt = rt;
+	}
+
+	public String getRw() {
+		return rw;
+	}
+
+	public void setRw(String rw) {
+		this.rw = rw;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getAssuranceName() {
+		return assuranceName;
+	}
+
+	public void setAssuranceName(String assuranceName) {
+		this.assuranceName = assuranceName;
+	}
+
+	public String getPolisNo() {
+		return polisNo;
+	}
+
+	public void setPolisNo(String polisNo) {
+		this.polisNo = polisNo;
+	}
+
+	public String getNpwpNo() {
+		return npwpNo;
+	}
+
+	public void setNpwpNo(String npwpNo) {
+		this.npwpNo = npwpNo;
+	}
+
+	public String getPassportNo() {
+		return passportNo;
+	}
+
+	public void setPassportNo(String passportNo) {
+		this.passportNo = passportNo;
+	}
+
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+	
 	
 	
 	

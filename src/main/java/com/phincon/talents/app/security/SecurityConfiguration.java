@@ -40,6 +40,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			throws Exception {
 		auth.userDetailsService(customUserDetailsService()).passwordEncoder(
 				passwordEncoder());
+		/*auth.userDetailsService(customUserDetailsService());*/
+		
 	}
 
 	@Override

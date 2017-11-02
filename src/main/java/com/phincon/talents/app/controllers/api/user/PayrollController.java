@@ -59,7 +59,6 @@ public class PayrollController {
 			@RequestBody PayrollRequestDTO request,
 			OAuth2Authentication authentication) {
 
-		System.out.println(request.toString());
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		
@@ -121,6 +120,10 @@ public class PayrollController {
 	public ResponseEntity<List<PayrollElementHeaderYearly>> getPayrollYearly(
 			OAuth2Authentication authentication) {
 
+		// temporary
+		if(true)
+			throw new RuntimeException("This Feature Will Available Soon");
+		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		

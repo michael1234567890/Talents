@@ -126,7 +126,6 @@ public class AddressController {
 			dataApprovalDTO.setIdRef(address.getId());
 			dataApprovalDTO.setTask(Workflow.SUBMIT_ADDRESS);
 			dataApprovalDTO.setModule(workflow.getModule());
-			System.out.println("Controller Employee ID " + user.getEmployee());
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
 		
@@ -198,6 +197,19 @@ public class AddressController {
 
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Address has been Updated", false), HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/user/address/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Address> getDetailAddress(@PathVariable("id") Long id,
+			OAuth2Authentication authentication) {
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}		
+		Address address = addressService.findById(id);
+		return new ResponseEntity<Address>(address, HttpStatus.OK);
 	}
 	
 	

@@ -137,7 +137,7 @@ public class DataApprovalService {
 					dataApproval.setRef(objConvert);
 				}
 
-			} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT)) {
+			} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
 				TMRequestHeader tmRequestHeader = tmRequestHeaderService
 						.findByIdWithDetail(dataApproval.getObjectRef());
 
@@ -177,12 +177,12 @@ public class DataApprovalService {
 					Object objConvert = (Object) obj;
 					dataApproval.setRef(objConvert);
 				} else if (dataApproval.getTask().contains(
-						Workflow.SUBMIT_BENEFIT)) {
+						Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
 					TMRequestHeader obj = tmRequestHeaderService
 							.findById(dataApproval.getObjectRef());
 					Object objConvert = (Object) obj;
 					dataApproval.setRef(objConvert);
-				}
+				} 	
 
 				// User
 				User userEmployee = userRepository.findByEmployee(dataApproval
@@ -456,10 +456,14 @@ public class DataApprovalService {
 		if (request.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.requestMaritalStatus(dataApproval);
 		}
+		
+		if(request.getTask().contains(Workflow.SUBMIT_BENEFIT)) {
+			// Send Email
+			String empIdString = Utils.changeTagar(currentAssignApproval);
+			sendingEmail(user.getCompany(), "RESULTAPPBENEFIT",null,null, empIdString, dataApproval);
+		}
 
-		// Send Email
-		String empIdString = Utils.changeTagar(currentAssignApproval);
-		sendingEmail(user.getCompany(), "RESULTAPPBENEFIT",null,null, empIdString, dataApproval);
+		
 
 	}
 
@@ -635,7 +639,7 @@ public class DataApprovalService {
 			familyService.rejected(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
 			addressService.rejected(dataApproval);
-		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT)) {
+		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
 			tmRequestHeaderService.rejected(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
 			familyService.rejectedChange(dataApproval);
@@ -658,7 +662,7 @@ public class DataApprovalService {
 			familyService.approvedChangeFamily(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
 			addressService.approvedChangeAddress(dataApproval);
-		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT)) {
+		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
 			tmRequestHeaderService.approved(dataApproval, approvalWorkflow);
 
 		}

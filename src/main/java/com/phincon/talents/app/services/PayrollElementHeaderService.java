@@ -70,8 +70,39 @@ public class PayrollElementHeaderService {
 				PayrollElementHeader obj = payrollElementHeader;
 				Long headerId = obj.getId();
 				List<PayrollElementDetailGroup> payrollElemenDetailListIn = payrollElementDetailGroupRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetail.ELEMENT_TYPE_ALLOWANCE);
+				if(payrollElemenDetailListIn == null)
+					payrollElemenDetailListIn = new ArrayList<PayrollElementDetailGroup>();
+				
+				PayrollElementDetailGroup taxAllowance = new PayrollElementDetailGroup();
+				taxAllowance.setElementGroup("Tunjangan Pajak");
+				taxAllowance.setElementType("Allowance");
+				taxAllowance.setTotal(payrollElementHeader.getTaxAllowance());
+				
+				if(taxAllowance.getTotal()!= null && taxAllowance.getTotal() != 0D)
+					payrollElemenDetailListIn.add(taxAllowance);
+				
 				obj.setDetailIn(payrollElemenDetailListIn);
 				List<PayrollElementDetailGroup> payrollElemenDetailListOut = payrollElementDetailGroupRepository.findByPayrollElementHeaderAndElementType(headerId, PayrollElementDetail.ELEMENT_TYPE_DEDUCTION);
+				if(payrollElemenDetailListOut == null)
+					payrollElemenDetailListOut = new ArrayList<PayrollElementDetailGroup>();
+				
+				PayrollElementDetailGroup taxDeduction = new PayrollElementDetailGroup();
+				taxDeduction.setElementGroup("Potongan Pajak");
+				taxDeduction.setElementType("Deduction");
+				taxDeduction.setTotal(payrollElementHeader.getTaxGross() + payrollElementHeader.getTaxAllowance());
+				
+				if(taxDeduction.getTotal() != null && taxDeduction.getTotal()!=0D)
+					payrollElemenDetailListOut.add(taxDeduction);
+				
+				
+				PayrollElementDetailGroup taxPenalty = new PayrollElementDetailGroup();
+				taxPenalty.setElementGroup("Penalti Pajak");
+				taxPenalty.setElementType("Deduction");
+				taxPenalty.setTotal(payrollElementHeader.getTaxPenalty());
+				
+				if(taxPenalty.getTotal() != null && taxPenalty.getTotal()!=0D)
+					payrollElemenDetailListOut.add(taxPenalty);
+				
 				obj.setDetailOut(payrollElemenDetailListOut);
 				listElementHeadersResult.add(obj);
 				System.out.println("Employee ID " + employee);

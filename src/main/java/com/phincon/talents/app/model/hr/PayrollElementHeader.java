@@ -185,6 +185,12 @@ public class PayrollElementHeader extends AbstractEntity {
 	@Column(name = "bank_branch", length = 100)
 	private String bankBranch;
 	
+	@Column(name = "total_deduction_payslip")
+	private Double totalDeductionPayslip;
+	
+	@Column(name = "total_allowance_payslip")
+	private Double totalAllowancePayslip;
+	
 	@Transient
 	private List<PayrollElementDetailGroup> detailIn;
 	
@@ -603,6 +609,8 @@ public class PayrollElementHeader extends AbstractEntity {
 	}
 	
 	
+	
+	
 
 	public Double getBaseSalary() {
 		return baseSalary;
@@ -610,6 +618,47 @@ public class PayrollElementHeader extends AbstractEntity {
 
 	public void setBaseSalary(Double baseSalary) {
 		this.baseSalary = baseSalary;
+	}
+	
+
+	public Double getTotalDeductionPayslip() {
+		return totalDeductionPayslip;
+	}
+
+	public void setTotalDeductionPayslip(Double totalDeductionPayslip) {
+		this.totalDeductionPayslip = totalDeductionPayslip;
+	}
+
+	public Double getTotalAllowancePayslip() {
+		return totalAllowancePayslip;
+	}
+
+	public void setTotalAllowancePayslip(Double totalAllowancePayslip) {
+		this.totalAllowancePayslip = totalAllowancePayslip;
+	}
+	
+	@Column(name = "deduction_payslip")
+	private Double deductionPayslip;
+	
+	@Column(name = "allowance_payslip")
+	private Double allowancePayslip;
+
+
+	
+	public Double getDeductionPayslip() {
+		return deductionPayslip;
+	}
+
+	public void setDeductionPayslip(Double deductionPayslip) {
+		this.deductionPayslip = deductionPayslip;
+	}
+
+	public Double getAllowancePayslip() {
+		return allowancePayslip;
+	}
+
+	public void setAllowancePayslip(Double allowancePayslip) {
+		this.allowancePayslip = allowancePayslip;
 	}
 
 	@Override

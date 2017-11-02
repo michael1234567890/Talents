@@ -91,6 +91,47 @@ public class FamilyTemp extends AbstractEntity {
 
 	@Column(name = "employee_id")
 	private Long employee;
+	
+	
+	@Column(name = "nirc_no", length = 100)
+	private String nircNo;
+	
+	@Column(name = "family_card_no", length = 100)
+	private String familyCardNo;
+	
+	@Column(name = "district", length = 100)
+	private String district;
+	
+	@Column(name = "sub_district", length = 100)
+	private String subDistrict;
+	
+	@Column(name = "rt", length = 10)
+	private String rt;
+	
+	@Column(name = "rw", length = 10)
+	private String rw;
+	
+	@Column(name = "nationality", length = 50)
+	private String nationality;
+	
+	@Column(name = "assurance_name", length = 50)
+	private String assuranceName;
+	
+	@Column(name = "polis_no", length = 50)
+	private String polisNo;
+	
+	@Column(name = "npwp_no", length = 50)
+	private String npwpNo;
+	
+	@Column(name = "passport_no", length = 50)
+	private String passportNo;
+	
+	@Column(name = "zip_code", length = 50)
+	private String zipCode;
+	
+	@Column(name = "email", length = 50)
+	private String email;
+	
 
 	public String getAliveStatus() {
 		return aliveStatus;
@@ -258,6 +299,110 @@ public class FamilyTemp extends AbstractEntity {
 
 	public void setEmployeeExtId(String employeeExtId) {
 		this.employeeExtId = employeeExtId;
+	}
+
+	public String getNircNo() {
+		return nircNo;
+	}
+
+	public void setNircNo(String nircNo) {
+		this.nircNo = nircNo;
+	}
+
+	public String getFamilyCardNo() {
+		return familyCardNo;
+	}
+
+	public void setFamilyCardNo(String familyCardNo) {
+		this.familyCardNo = familyCardNo;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public String getSubDistrict() {
+		return subDistrict;
+	}
+
+	public void setSubDistrict(String subDistrict) {
+		this.subDistrict = subDistrict;
+	}
+
+	public String getRt() {
+		return rt;
+	}
+
+	public void setRt(String rt) {
+		this.rt = rt;
+	}
+
+	public String getRw() {
+		return rw;
+	}
+
+	public void setRw(String rw) {
+		this.rw = rw;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getAssuranceName() {
+		return assuranceName;
+	}
+
+	public void setAssuranceName(String assuranceName) {
+		this.assuranceName = assuranceName;
+	}
+
+	public String getPolisNo() {
+		return polisNo;
+	}
+
+	public void setPolisNo(String polisNo) {
+		this.polisNo = polisNo;
+	}
+
+	public String getNpwpNo() {
+		return npwpNo;
+	}
+
+	public void setNpwpNo(String npwpNo) {
+		this.npwpNo = npwpNo;
+	}
+
+	public String getPassportNo() {
+		return passportNo;
+	}
+
+	public void setPassportNo(String passportNo) {
+		this.passportNo = passportNo;
+	}
+
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 	

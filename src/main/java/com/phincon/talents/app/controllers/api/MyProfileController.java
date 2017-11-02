@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -188,14 +187,6 @@ public class MyProfileController {
 				listEmployee = assignmentService.findEmployee(myAssignment.getDirectEmployee());
 			}
 		}
-		
-		
-		
-		// klo gak ada , direct_emp_id siapa,
-		// siapa aja yg direct_employee_id nya sama
-		/*List<Employee> listEmployee = assignmentService.findEmployee(user
-				.getEmployee());*/
-		
 		List<Employee> lisEmployeesReturn = new ArrayList<Employee>();
 		if (listEmployee != null && listEmployee.size() > 0) {
 			for (Employee employee : listEmployee) {

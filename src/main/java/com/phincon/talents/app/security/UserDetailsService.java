@@ -69,6 +69,7 @@ public class UserDetailsService implements
 					authority.getName());
 			grantedAuthorities.add(grantedAuthority);
 		}
+		
 		return new org.springframework.security.core.userdetails.User(
 				userFromDatabase.getUsername(), userFromDatabase.getPassword(),
 				grantedAuthorities);

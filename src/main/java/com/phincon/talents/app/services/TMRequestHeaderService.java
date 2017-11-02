@@ -1128,7 +1128,7 @@ public class TMRequestHeaderService {
 			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
 			dataApprovalDTO.setObjectName(TMRequestHeader.class.getSimpleName());
 			dataApprovalDTO.setDescription(workflow.getDescription());
-			dataApprovalDTO.setIdRef(tmRequest.getId());
+			dataApprovalDTO.setIdRef(tmRequestHeader.getId());
 			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
@@ -1232,6 +1232,8 @@ public class TMRequestHeaderService {
 			if(vwEmpAssignment != null)
 				jobTitle = vwEmpAssignment.getJobTitleName();
 			
+			System.out.println("job title : "+ jobTitle + ", type : " + requestType.getType() + ", month : " + month+", totalOvertime : "+ totalOvertime + ", totalOvertimeIn : " + totalOvertimeIn + ", totalOvertimeOut : " + totalOvertimeOut);
+			
 			// check
 			if(requestType.getJobTitle() != null && !requestType.getJobTitle().equals("") && jobTitle != null && requestType.getJobTitle().toLowerCase().contains(jobTitle.toLowerCase())) {
 				if(requestType.getMaxMinutesPerMonthJobtitle() != null && requestType.getMaxMinutesPerMonthJobtitle() != 0) {
@@ -1246,7 +1248,6 @@ public class TMRequestHeaderService {
 					throw new RuntimeException("Your Overtime Total has exceeded the limit this month.");
 			}
 			
-			System.out.println("type : " + requestType.getType() + ", month : " + month+", totalOvertime : "+ totalOvertime + ", totalOvertimeIn : " + totalOvertimeIn + ", totalOvertimeOut : " + totalOvertimeOut);
 			
 			// if total minutes per month > request.getDefaultMaxMinutesPerMonth(). Show warning
 			

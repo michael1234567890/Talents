@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.phincon.talents.app.dao.AssignmentRepository;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;

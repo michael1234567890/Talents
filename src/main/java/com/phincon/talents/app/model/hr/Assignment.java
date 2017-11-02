@@ -93,6 +93,12 @@ public class Assignment extends AbstractEntity {
 	@Column(name = "employee_ext_id", length=100)
 	private String employeeExtId;
 	
+	
+	@Column(name="organization_id")
+	private Long organization;
+	
+	@Column(name="organization_ext_id")
+	private String organizationExtId;
 
 	public String getMode() {
 		return mode;
@@ -277,6 +283,24 @@ public class Assignment extends AbstractEntity {
 	public void setGradeExtId(String gradeExtId) {
 		this.gradeExtId = gradeExtId;
 	}
+
+	public Long getOrganization() {
+		return organization;
+	}
+
+	public void setOrganization(Long organization) {
+		this.organization = organization;
+	}
+
+	public String getOrganizationExtId() {
+		return organizationExtId;
+	}
+
+	public void setOrganizationExtId(String organizationExtId) {
+		this.organizationExtId = organizationExtId;
+	}
+	
+	
 	
 	
 
