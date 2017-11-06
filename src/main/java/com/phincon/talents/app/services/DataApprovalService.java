@@ -437,7 +437,6 @@ public class DataApprovalService {
 			// save attachment`
 			for (Map<String, Object> map : request.getAttachments()) {
 				String imageBase64 = (String) map.get("image");
-				System.out.println("image : " + (String) map.get("image"));
 				if (imageBase64 != null) {
 					String pathname = "workflow/"
 							+ RandomStringUtils.randomAlphanumeric(10) + "."

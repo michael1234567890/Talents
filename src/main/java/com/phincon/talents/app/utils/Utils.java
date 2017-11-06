@@ -263,7 +263,6 @@ public class Utils {
 	}
 
 	public static Map<String, Object> stringToMap(String json) {
-		// String jsonStr = "{\"name\":\"Nataraj\", \"job\":\"Programmer\"}";
         Map<String,Object> resultMap = new HashMap<String,Object>();
         ObjectMapper mapperObj = new ObjectMapper();  
         try {

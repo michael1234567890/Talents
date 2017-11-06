@@ -1131,6 +1131,10 @@ public class TMRequestHeaderService {
 			dataApprovalDTO.setIdRef(tmRequestHeader.getId());
 			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
+			if (request.getAttachments() != null
+					&& request.getAttachments().size() > 0) {
+				dataApprovalDTO.setAttachments(request.getAttachments());
+			}
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
 		}
 	
@@ -1147,6 +1151,14 @@ public class TMRequestHeaderService {
 			if(Utils.comparingDate(request.getEndDate(), request.getStartDate(), "<")){
 				throw new RuntimeException("The End date must be greater than The start date.");
 			}
+		}
+		
+		if(requestType.getCannotRequestToday()!= null && requestType.getCannotRequestToday()){
+			
+			if(Utils.diffDayInt(request.getStartDate(), new Date()) == 0) {
+				throw new RuntimeException("Date must be less than Today.");
+			}
+			
 		}
 		
 		// check can back date

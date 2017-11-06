@@ -111,8 +111,8 @@ public class TMRequestController {
 	public ResponseEntity<BenefitDTO> verificationAttendance(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
 
-		if(true)
-			throw new RuntimeException("This Feature Will Available Soon");
+//		if(true)
+//			throw new RuntimeException("This Feature Will Available Soon");
 		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());

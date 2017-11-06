@@ -97,6 +97,9 @@ public class RequestType extends AbstractEntity {
 	@Column(name="max_minutes_per_month_jobtitle")
 	private Integer maxMinutesPerMonthJobtitle; //day,  0 = unlimited
 	
+	@Column(name="cannot_request_today")
+	private Boolean cannotRequestToday;
+	
 	public String getModule() {
 		return module;
 	}
@@ -305,6 +308,15 @@ public class RequestType extends AbstractEntity {
 		this.maxMinutesPerMonthJobtitle = maxMinutesPerMonthJobtitle;
 	}
 
+	public Boolean getCannotRequestToday() {
+		return cannotRequestToday;
+	}
+
+	public void setCannotRequestToday(Boolean cannotRequestToday) {
+		this.cannotRequestToday = cannotRequestToday;
+	}
+
+	
 	
 
 }

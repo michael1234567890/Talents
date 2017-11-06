@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -17,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.dao.EmployeeDisablePayslipRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.PayrollRequestDTO;
 import com.phincon.talents.app.model.User;
+import com.phincon.talents.app.model.hr.EmployeeDisablePayslip;
 import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
 import com.phincon.talents.app.model.hr.PayrollElementHeaderYearly;
@@ -42,6 +43,9 @@ public class PayrollController {
 	
 	@Autowired
 	EmploymentRepository employmentRepository;
+	
+	@Autowired
+	EmployeeDisablePayslipRepository employeeDisablePayslipRepository;
 
 	@Autowired
 	PayrollElementHeaderRepository payrollElementHeaderRepository;
@@ -59,6 +63,10 @@ public class PayrollController {
 			@RequestBody PayrollRequestDTO request,
 			OAuth2Authentication authentication) {
 
+		// temporary
+				if(true)
+					throw new RuntimeException("This Feature Will Available Soon");
+				
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		
@@ -71,6 +79,13 @@ public class PayrollController {
 		String month = null;
 
 		Employment employment = listEmployment.get(0);
+		
+		// check is employee can not see payslip
+		List<EmployeeDisablePayslip> listEmpDisablePayslip = employeeDisablePayslipRepository.findByCompanyAndEmployeeNo(user.getCompany(), employment.getName());
+		if(listEmpDisablePayslip != null && listEmpDisablePayslip.size() > 0) {
+			throw new RuntimeException("You are not eligible to see payslip. Please contact HC-PCBM for more info.");
+		}
+		
 		if (request.getPayrollType() == null) {
 			throw new RuntimeException("Payroll type can not be empty.");
 		}
