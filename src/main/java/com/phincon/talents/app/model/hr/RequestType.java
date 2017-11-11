@@ -100,6 +100,11 @@ public class RequestType extends AbstractEntity {
 	@Column(name="cannot_request_today")
 	private Boolean cannotRequestToday;
 	
+	@Column(name="limit_day_of_month")
+	private Integer limitDayOfMonth; // batas tanggal submit transaksi per bulan ex: 5, untuk request date bulan kemarin hanya bs di masukan sampai tanggal 5 bulan ini 
+	
+	
+	
 	public String getModule() {
 		return module;
 	}
@@ -314,6 +319,14 @@ public class RequestType extends AbstractEntity {
 
 	public void setCannotRequestToday(Boolean cannotRequestToday) {
 		this.cannotRequestToday = cannotRequestToday;
+	}
+
+	public Integer getLimitDayOfMonth() {
+		return limitDayOfMonth;
+	}
+
+	public void setLimitDayOfMonth(Integer limitDayOfMonth) {
+		this.limitDayOfMonth = limitDayOfMonth;
 	}
 
 	

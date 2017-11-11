@@ -1,5 +1,6 @@
 package com.phincon.talents.app.services;
 
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -120,8 +121,10 @@ public class UserService   {
     		}
     	}
     	
-		// user.setPassword(userChangePassword.getNewPassword());
 		user.setPassword(passwordEncoder.encode(userChangePassword.getNewPassword()));
+		user.setModifiedDate(new Date());
+		user.setModifiedBy(user.getUsername());
+		user.setIsChangePassword(true);
 		userRepository.save(user);
 	}
 	

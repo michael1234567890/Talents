@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phincon.talents.app.dto.UserInfoDTO;
 import com.phincon.talents.app.model.User;
@@ -72,6 +73,14 @@ public class LoginController {
 		 securityService.autologin(userForm.getUsername(), userForm.getConfirmPassword());
 
 		return "redirect:/welcome";
+	}
+	
+	@RequestMapping(value = "/resetpassword", method = RequestMethod.GET)
+	public String resetPassword(Model model){
+		//System.out.println("User ID " + userid + " Token " + token);
+		model.addAttribute("token", "aabbccdd");
+		model.addAttribute("userId", "34");
+		return "change-password";
 	}
 
 }

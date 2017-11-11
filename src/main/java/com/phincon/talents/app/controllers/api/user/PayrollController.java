@@ -63,12 +63,16 @@ public class PayrollController {
 			@RequestBody PayrollRequestDTO request,
 			OAuth2Authentication authentication) {
 
+//		if(true)
+//			throw new RuntimeException("This Feature Will Available Soon");
+//		
 		// temporary
-				if(true)
-					throw new RuntimeException("This Feature Will Available Soon");
 				
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
+//		if(user.getCompany() == 1 && (user.getIsChangePassword() == null || !user.getIsChangePassword()))
+//			throw new RuntimeException("Please change your password to see your payslip.");
 		
 		// get employment ID with user
 		

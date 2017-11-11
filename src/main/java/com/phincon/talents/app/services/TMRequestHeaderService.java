@@ -1117,6 +1117,7 @@ public class TMRequestHeaderService {
 		if(requestType.getNeedBalance() && balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
 			Double balanceEnd = balance.getBalanceEnd() - totalWorkDay;
 			Double balanceUsed = balance.getBalanceUsed() + totalWorkDay;
+			balance.setLastClaimDate(new Date());
 			balance.setBalanceEnd(balanceEnd);
 			balance.setBalanceUsed(balanceUsed);
 			tmBalanceRepository.save(balance);
@@ -1153,12 +1154,20 @@ public class TMRequestHeaderService {
 			}
 		}
 		
+		
+		
 		if(requestType.getCannotRequestToday()!= null && requestType.getCannotRequestToday()){
 			
 			if(Utils.diffDayInt(request.getStartDate(), new Date()) == 0) {
 				throw new RuntimeException("Date must be less than Today.");
 			}
 			
+		}
+		
+		if(requestType.getLimitDayOfMonth()!= null ) {
+			if(!validateLimitRequestDate(request.getStartDate(), requestType.getLimitDayOfMonth())) {
+				throw new RuntimeException("Cannot Process Last Month Request Date");
+			}
 		}
 		
 		// check can back date
@@ -1194,8 +1203,13 @@ public class TMRequestHeaderService {
 		
 		if(requestType.getFlagOvertime()!= null && requestType.getFlagOvertime()) {
 			EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
-			if(!employeePayroll.getFlagLembur()) {
-				throw new RuntimeException("You are not allowed to request Overtime");
+			
+			if(employeePayroll == null)
+				throw new RuntimeException("Your data employee overtime is not completed. Please contact admin.");
+			
+			
+			if(employeePayroll.getFlagLembur() == null || !employeePayroll.getFlagLembur()) {
+				throw new RuntimeException("You are not allowed to request Overtime. Please contact admin.");
 			}
 		}
 		
@@ -1208,11 +1222,14 @@ public class TMRequestHeaderService {
 		}
 		
 		if(requestType.getGradeStart() != null && requestType.getGradeEnd() != null) {
-			if(vwEmpAssignment != null) {
+			if(vwEmpAssignment != null && vwEmpAssignment.getGradeNominal() != null) {
 				if(vwEmpAssignment.getGradeNominal() < requestType.getGradeStart() || vwEmpAssignment.getGradeNominal() > requestType.getGradeEnd()){
 					throw new RuntimeException(
 							"Your grade is not between "+requestType.getGradeStart()+" - " + requestType.getGradeEnd());
 				}
+			}else {
+				throw new RuntimeException(
+						"Your grade is empty. Can't process this request.");
 			}
 			
 		}
@@ -1270,6 +1287,14 @@ public class TMRequestHeaderService {
 			throw new RuntimeException("Your balance is not found.");
 		}
 		
+		if(requestType.getNeedBalance() && balance != null) {
+			if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
+				if(balance.getLastClaimDate() != null){
+					throw new RuntimeException("This request one time apply only.");
+				}
+			}
+		}
+		
 		
 		if(requestType.getNeedBalance() &&  request.getTotal() > balance.getBalanceEnd()) {
 			throw new RuntimeException("Your balance is not enought.");
@@ -1289,7 +1314,16 @@ public class TMRequestHeaderService {
 	}
 
 
-
+	private boolean validateLimitRequestDate(Date startDate, int dayOfMonth){
+		Calendar c = Calendar.getInstance();   // this takes current date
+	    c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+	    Date limit = c.getTime();
+	    Date today = new Date();
+		if(Utils.diffDayInt(today, limit) < 0 && Utils.diffDayInt(startDate, limit)+1 > 5){
+	    	return false;
+	    }
+		return true;
+	}
 
 	public Double getTotalDaysAttendance(Date startDate, Date endDate, Employment employment){
 		Double totalDay = Double.valueOf(0);
