@@ -31,6 +31,11 @@ public interface TMRequestHeaderRepository extends
 	@Query("UPDATE TMRequestHeader set status='" + TMRequestHeader.REJECTED
 			+ "' where id=:id")
 	void rejected(@Param("id") Long id);
+	
+	@Modifying
+	@Query("UPDATE TMRequestHeader set status='" + TMRequestHeader.CANCELLED
+			+ "' where id=:id")
+	void cancelled(@Param("id") Long id);
 
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employee ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndEmployee(
@@ -44,8 +49,6 @@ public interface TMRequestHeaderRepository extends
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.reqNo like %:reqNo% ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndRequestNoLike(
 			@Param("company") Long company, @Param("reqNo") String reqNo);
-
-	
 
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.employee=:employee AND u.id=:id")
 	TMRequestHeader findByEmployeeAndId(@Param("employee") Long employee,
@@ -77,7 +80,7 @@ public interface TMRequestHeaderRepository extends
 			@Param("company") Long company, @Param("employee") Long employee,
 			@Param("module") String module);
 
-	@Query("select p from TMRequestHeader p where p.company=:company AND p.requester=:requester AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND p.startDate <=:startDate AND p.endDate >=:startDate AND LOWER(p.status)!='rejected'")
+	@Query("select p from TMRequestHeader p where p.company=:company AND p.requester=:requester AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND p.startDate <=:startDate AND p.endDate >=:startDate AND LOWER(p.status)!='rejected' AND LOWER(p.status)!='cancelled'")
 	List<TMRequestHeader> findBetweenStartEndDate(
 			@Param("company") Long company, @Param("requester") Long requester,
 			@Param("module") String module,

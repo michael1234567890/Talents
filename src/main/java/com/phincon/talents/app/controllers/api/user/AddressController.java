@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AddressTempRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
@@ -143,7 +144,7 @@ public class AddressController {
 				.getUserAuthentication().getName());
 		Address address = addressService.findById(id);
 		if(address == null) {
-			throw new RuntimeException("Your ID Address is not found.");
+			throw new CustomException("Your ID Address is not found.");
 		}
 		AddressTemp addressTemp = copyFromAddress(address);
 		address.setAddress(request.getAddress());

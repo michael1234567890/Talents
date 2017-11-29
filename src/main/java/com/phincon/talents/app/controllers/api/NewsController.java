@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.NewsRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.NewsDTO;
@@ -101,15 +102,12 @@ public class NewsController {
 	public News find(@PathVariable Long id) {
 		News news = newsRepository.findOne(id);
 		if (news == null) {
-			throw new NotFound();
+			throw new CustomException("News not found");
 		} else {
 			return news;
 		}
 	}
 
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	static class NotFound extends RuntimeException {
 
-	}
 
 }

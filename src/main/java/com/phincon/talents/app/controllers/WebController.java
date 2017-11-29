@@ -7,7 +7,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.phincon.talents.app.dto.UserInfoDTO;
 import com.phincon.talents.app.model.User;
@@ -15,7 +14,7 @@ import com.phincon.talents.app.security.SecurityService;
 import com.phincon.talents.app.services.UserService;
 
 @Controller
-public class LoginController {
+public class WebController {
 
 	@Autowired
 	private UserService userService;
@@ -23,15 +22,7 @@ public class LoginController {
 	@Autowired
 	private SecurityService securityService;
 
-	/*
-	 * @Autowired private UserValidator userValidator;
-	 */
 
-	/*
-	@RequestMapping("/login")
-	public String index() {
-		return "login";
-	}*/
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Model model, String error, String logout, UserInfoDTO userInfo) {
@@ -49,15 +40,14 @@ public class LoginController {
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String loginProcess(@ModelAttribute UserInfoDTO userInfo) {
-		System.out.println(userInfo.getUsername());
 		return "redirect:/welcome"; 
 	}
 	
 	
 
-	@RequestMapping(value = { "/", "/welcome" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
 	public String welcome(Model model) {
-		return "blank";
+		return "index";
 	}
 
 	@RequestMapping(value = "/registration", method = RequestMethod.POST)

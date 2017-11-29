@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.neo4j.cypher.internal.compiler.v2_1.functions.Substring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
 import com.phincon.talents.app.dao.TimesheetRepository;
@@ -29,7 +30,6 @@ import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.TimesheetDTO;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
-import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.Timesheet;
 import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.EmployeeService;
@@ -107,7 +107,7 @@ public class TimesheetController {
 		
 		List<Timesheet> listTimesheet = timesheetRepository.findByIdAndEmployee(id,user.getEmployee());
 		if(listTimesheet == null) {
-			throw new RuntimeException("Timesheet with ID "+id+" is not found.");
+			throw new CustomException("Timesheet with ID "+id+" is not found.");
 		}
 		
 		Timesheet timesheet = null;
@@ -192,13 +192,13 @@ public class TimesheetController {
 		
 		if(type.equals("monthly")){
 			if(month == null)
-				throw new RuntimeException("Month can not be empty.");
+				throw new CustomException("Month can not be empty.");
 			
 			listTimesheet = timesheetRepository.findByEmployeeAndCompanyAndMonthPeriod(user.getEmployee(), user.getCompany(), month);
 			
 		} else if(type.equals("rangedate")){
 			if(startDate == null)
-				throw new RuntimeException("Start Date can not be empty.");
+				throw new CustomException("Start Date can not be empty.");
 			
 			if(endDate == null)
 				endDate = startDate;
@@ -206,7 +206,7 @@ public class TimesheetController {
 			listTimesheet = timesheetRepository.findByEmployeeAndCompanyAndToday(user.getEmployee(), user.getCompany(), startDate, endDate);
 			
 		} else {
-			throw new RuntimeException("Invalid value of type.");
+			throw new CustomException("Invalid value of type.");
 		}
 		
 		return new ResponseEntity<List<Timesheet>>(listTimesheet, HttpStatus.OK);

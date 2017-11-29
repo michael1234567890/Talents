@@ -1,5 +1,6 @@
 package com.phincon.talents.app.controllers.api;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,19 +21,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
+import com.phincon.talents.app.dao.PasswordResetTokenRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.ResetPasswordDTO;
-import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.dto.UserInfoDTO;
 import com.phincon.talents.app.model.Company;
 import com.phincon.talents.app.model.CompanySettings;
+import com.phincon.talents.app.model.PasswordResetToken;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.services.CompanyService;
 import com.phincon.talents.app.services.EmployeeService;
+import com.phincon.talents.app.services.PasswordResetTokenService;
 import com.phincon.talents.app.services.UserSecurityService;
 import com.phincon.talents.app.services.UserService;
 import com.phincon.talents.app.utils.CustomMessage;
@@ -47,6 +51,9 @@ public class PublicRestApiController {
 	
 	@Autowired
 	private UserSecurityService userSecurityService;
+	
+	@Autowired
+	private PasswordResetTokenService passwordResetTokenService;
 
 	@Autowired
 	private CompanySettingsRepository companySettingsRepository;
@@ -71,6 +78,10 @@ public class PublicRestApiController {
 
 	@Autowired
 	private MessageSource messages;
+	
+	@Autowired
+	private PasswordResetTokenRepository passwordTokenRepository;
+	
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	@ResponseBody
@@ -78,14 +89,14 @@ public class PublicRestApiController {
 			@RequestBody UserInfoDTO userInfo) {
 		// get request body
 		if (!userInfo.getPassword().equals(userInfo.getRepassword())) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Error : Password and Confirm Password is not same");
 		}
 
 		// cek company code is registered or not
 		Company company = companyService.findByCode(userInfo.getCompanyCode());
 		if (company == null) {
-			throw new RuntimeException("Error : company code is not registered");
+			throw new CustomException("Error : company code is not registered");
 		}
 
 		// Load company Settings
@@ -101,7 +112,7 @@ public class PublicRestApiController {
 				PasswordValidator passwordValidator = new PasswordValidator(
 						companySettings.getRegexPassword());
 				if (!passwordValidator.validate(userInfo.getPassword())) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"Error : Your password must contains "
 									+ companySettings
 											.getMsgErrorRegexPassword());
@@ -113,12 +124,12 @@ public class PublicRestApiController {
 		Employee employee = employeeService
 				.findByWorkEmail(userInfo.getEmail());
 		if (employee == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Error : Employee not registered with this email");
 		}
 
 		if (employee.getCompany() != company.getId()) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Error : Employee and Company code does not match");
 		}
 		
@@ -126,7 +137,7 @@ public class PublicRestApiController {
 		User checkUser = userService.findByEmail(userInfo.getEmail());
 		if (checkUser != null) {
 			// send message user already registered with this email
-			throw new RuntimeException(
+			throw new CustomException(
 					"Error : This email is already registered please choose another one");
 		}
 		
@@ -158,11 +169,19 @@ public class PublicRestApiController {
 		String email = (String) map.get("email");
 		User user = userRepository.findByUsernameCaseInsensitive(email);
 		if (user == null) {
-			throw new RuntimeException("This email " + email
+			throw new CustomException("This email " + email
 					+ " is not registed. Please try again");
 		}
+		
+		// check berapa kali hari ini reset password
+		List<PasswordResetToken> listPasswordResetToken = passwordTokenRepository.findByUserAndToday(user,new Date());
+		if(listPasswordResetToken != null && listPasswordResetToken.size() > 2) {
+			throw new CustomException("Reset password only 3 times per Day.");
+		}
+		
+		
 		String token = UUID.randomUUID().toString();
-		userService.createPasswordResetTokenForUser(user, token);
+		passwordResetTokenService.createPasswordResetTokenForUser(user, token);
 		mailSender.send(constructResetTokenEmail(getAppUrl(request), request.getLocale(), token, user));
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"An email has been sent to " + email
@@ -174,17 +193,17 @@ public class PublicRestApiController {
 	public ResponseEntity<CustomMessage> actionResetpassword(@RequestBody ResetPasswordDTO resetPassword) {
 	
 		if(resetPassword.getUserId() == null || resetPassword.getToken() == null) {
-			throw new RuntimeException("Param ID and Token is required");
-		}
-		User user = userSecurityService.getUserFromPasswordResetToken(resetPassword.getUserId(), resetPassword.getToken());
-		if (user == null) {
-			throw new RuntimeException("Your Token is invalid or expired");
+			throw new CustomException("Param ID and Token is required");
 		}
 		
-		UserChangePasswordDTO userChangePasswordDTO = new UserChangePasswordDTO();
-		userChangePasswordDTO.setNewPassword(resetPassword.getNewPassword());
-		userChangePasswordDTO.setConfirmPassword(resetPassword.getConfirmPassword());
-		userService.changePassword(userChangePasswordDTO, user, false);
+		PasswordResetToken passwordResetToken = passwordResetTokenService.findByTokenAndActive(resetPassword.getUserId(), resetPassword.getToken());
+		if (passwordResetToken == null) {
+			throw new CustomException("Your Token is invalid or expired");
+		}
+		
+	
+		
+		passwordResetTokenService.actionResetPassword(resetPassword,passwordResetToken);
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Your new password has been created.", false), HttpStatus.OK);
 	}
@@ -194,8 +213,8 @@ public class PublicRestApiController {
 	private SimpleMailMessage constructResetTokenEmail(
 			final String contextPath, final Locale locale, final String token,
 			final User user) {
-		final String url = env.getProperty("url.resetpassword")+"?id="
-				+ user.getId() + "&token=" + token;
+		final String url = env.getProperty("url.resetpassword")+"/"
+				+ user.getId() + "/" + token;
 		final String message = messages.getMessage("message.resetPassword",
 				null, locale);
 		return constructEmail("Reset Password", message + " \r\n" + url, user);

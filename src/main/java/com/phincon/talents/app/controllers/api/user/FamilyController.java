@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
@@ -98,7 +99,7 @@ public class FamilyController {
 				.getUserAuthentication().getName());
 		Family family = familyService.findById(id);
 		if(family == null) {
-			throw new RuntimeException("Your ID family is not found.");
+			throw new CustomException("Your ID family is not found.");
 		}
 		FamilyTemp familyTemp = copyFromFamily(family);
 		family = copyFromFamilyDTO(family, request);

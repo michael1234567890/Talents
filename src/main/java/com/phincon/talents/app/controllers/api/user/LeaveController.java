@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.LeaveDTO;
@@ -78,12 +79,12 @@ public class LeaveController {
 				.getUserAuthentication().getName());
 		List<Entitlement> listEntitlement = entitlementService.findByEmployeeAndLeaveType(user.getEmployee(), request.getLeaveType());
 		if(listEntitlement == null || listEntitlement.size() == 0) {
-			throw new RuntimeException("Your Leave type is not found.");
+			throw new CustomException("Your Leave type is not found.");
 		}
 		
 		Entitlement objEntitlement = listEntitlement.get(0);
 		if(objEntitlement.getNoOfDays() <= 0) {
-			throw new RuntimeException("Your No of Of days is empty.");
+			throw new CustomException("Your No of Of days is empty.");
 		}
 		
 		LeaveType leaveType = leaveTypeService.findById(request.getLeaveType());

@@ -13,11 +13,12 @@ import com.google.common.cache.LoadingCache;
 public class LoginAttemptService {
  
     private final int MAX_ATTEMPT = 10;
+    private final int MINUTES_EXPIRED_CACHE = 5;
     private LoadingCache<String, Integer> attemptsCache;
     public LoginAttemptService() {
         super();
         attemptsCache = CacheBuilder.newBuilder().
-          expireAfterWrite(1, TimeUnit.MINUTES).build(new CacheLoader<String, Integer>() {
+          expireAfterWrite(MINUTES_EXPIRED_CACHE, TimeUnit.MINUTES).build(new CacheLoader<String, Integer>() {
             public Integer load(String key) {
                 return 0;
             }

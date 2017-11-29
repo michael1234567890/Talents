@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.phincon.talents.app.async.SendingEmailService;
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AddressTempRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
@@ -192,9 +193,12 @@ public class DataApprovalService {
 				if (userEmployee != null
 						&& userEmployee.getPhotoProfile() != null
 						&& !userEmployee.getPhotoProfile().equals("")) {
+					
 					String http = env.getProperty("talents.protocol");
 					image = Utils.getUrlAttachment(http, request,
 							userEmployee.getPhotoProfile());
+					
+					
 				}
 
 				dataApproval.setEmployeeRequestPhotoProfile(image);
@@ -248,6 +252,8 @@ public class DataApprovalService {
 					String http = env.getProperty("talents.protocol");
 					image = Utils.getUrlAttachment(http, request,
 							userEmployee.getPhotoProfile());
+					
+					
 				}
 
 				dataApproval.setEmployeeRequestPhotoProfile(image);
@@ -310,7 +316,7 @@ public class DataApprovalService {
 		if (workflow.getOperation() != null
 				&& workflow.getOperation().equals(Workflow.OPERATION_EDIT)) {
 			if (request.getIdRef() == null) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Error : your ref id can be empty. your task "
 								+ request.getTask() + " is "
 								+ Workflow.OPERATION_EDIT);
@@ -319,7 +325,7 @@ public class DataApprovalService {
 
 		approvalLevelOne = workflowService.findAssignApproval(
 				workflow.getApprovalCodeLevelOne(), user.getEmployee(),
-				user.getCompany());
+				user.getCompany(), request.getTask());
 
 		if (workflow.getApprovalCodeLevelTwo() != null
 				&& (!workflow.getApprovalCodeLevelTwo().equals("") || !workflow
@@ -327,7 +333,7 @@ public class DataApprovalService {
 			approvalLevel = 2;
 			approvalLevelTwo = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelTwo(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getApprovalCodeLevelThree() != null
@@ -335,7 +341,7 @@ public class DataApprovalService {
 			approvalLevel = 3;
 			approvalLevelThree = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelThree(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getApprovalCodeLevelFour() != null
@@ -343,7 +349,7 @@ public class DataApprovalService {
 			approvalLevel = 4;
 			approvalLevelFour = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelFour(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getApprovalCodeLevelFive() != null
@@ -351,7 +357,7 @@ public class DataApprovalService {
 			approvalLevel = 5;
 			approvalLevelFive = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelFive(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getApprovalCodeLevelSix() != null
@@ -359,7 +365,7 @@ public class DataApprovalService {
 			approvalLevel = 6;
 			approvalLevelSix = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelSix(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getApprovalCodeLevelSeven() != null
@@ -367,7 +373,7 @@ public class DataApprovalService {
 			approvalLevel = 7;
 			approvalLevelSeven = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelSeven(), user.getEmployee(),
-					user.getCompany());
+					user.getCompany(), request.getTask());
 		}
 
 		if (workflow.getOperation() != null
@@ -380,7 +386,7 @@ public class DataApprovalService {
 			if (listDataApproval != null && listDataApproval.size() > 0) {
 				dataApproval = listDataApproval.get(0);
 				if (dataApproval.getCurrentApprovalLevel() > 0) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"Error : Your request is on progress. Please wait while we process your request");
 				}
 				dataApproval.setData(request.getData());
@@ -473,7 +479,7 @@ public class DataApprovalService {
 				Map<String, Object> paramsMap = Utils
 						.convertStrJsonToMap(request.getData());
 				if (paramsMap == null) {
-					throw new RuntimeException("Problem with convert Data");
+					throw new CustomException("Problem with convert Data");
 				}
 
 				String changeMaritalStatus = (String) paramsMap
@@ -482,25 +488,25 @@ public class DataApprovalService {
 				String currentMaritalStatus = employee.getMaritalStatus()
 						.toLowerCase();
 				if (changeMaritalStatus.equals(currentMaritalStatus)) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"Your new marital status is same  with the current one");
 				}
 
 				if (currentMaritalStatus.equals("single")
 						&& changeMaritalStatus.equals("divorce")) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"You can't change your status from Single to Divorce");
 				}
 
 				if (currentMaritalStatus.equals("married")
 						&& changeMaritalStatus.equals("single")) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"You can't change your status from Married to Single");
 				}
 
 				if (currentMaritalStatus.equals("divorce")
 						&& changeMaritalStatus.equals("single")) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"You can't change your status from Divorce to Single");
 				}
 
@@ -515,22 +521,24 @@ public class DataApprovalService {
 				.findOne(approvalWorkflow.getId());
 		boolean isSendToRequest = false;
 		if (dataApproval == null) {
-			throw new RuntimeException("Data Approval is not found");
+			throw new CustomException("Data Approval is not found");
 		}
 
 		if (dataApproval.getStatus().equals(DataApproval.COMPLETED)
 				&& !isBypass) {
-			throw new RuntimeException("This request is already Completed");
+			throw new CustomException("This request is already Completed");
 		}
 
 		String strEmployee = "#" + user.getEmployee() + "#";
 
 		// cek dulu user punya akses approval gak
-		if (!dataApproval.getCurrentAssignApproval().contains(strEmployee)
-				&& !isBypass) {
-			throw new RuntimeException(
-					"You don't have permission to approve this request");
+		if( !dataApproval.getEmpRequest().equals(user.getEmployee())){
+			if (!dataApproval.getCurrentAssignApproval().contains(strEmployee) && !isBypass  ) {
+				throw new CustomException(
+						"You don't have permission to approve this request");
+			}
 		}
+		
 
 		if (approvalWorkflow.getStatus().equals(DataApproval.APPROVED)) {
 
@@ -539,7 +547,7 @@ public class DataApprovalService {
 					.getCurrentApprovalLevel() + 1;
 
 			if (currentApprovalLevel > dataApproval.getApprovalLevel()) {
-				throw new RuntimeException("Current approval step is over");
+				throw new CustomException("Current approval step is over");
 			}
 			dataApproval.setCurrentApprovalLevel(currentApprovalLevel);
 			if (dataApproval.getApprovalLevel() == currentApprovalLevel) {
@@ -585,26 +593,39 @@ public class DataApprovalService {
 				}
 
 				processingBeforeApprovedObject(dataApproval, approvalWorkflow);
-
-				dataApproval
-						.setProcessingStatus(DataApproval.PROC_STATUS_WAITING);
+				dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_WAITING);
 				// Send Email
 
 			}
 
 		} else if (approvalWorkflow.getStatus().equals(DataApproval.REJECTED)) {
 			isSendToRequest = true;
+			
 			dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_REJECT);
 			dataApproval.setStatus(DataApproval.COMPLETED);
 			dataApproval.setReasonReject(approvalWorkflow.getReasonReject());
 			String fullName = user.getFirstName();
+			
 			if (user.getLastName() != null)
 				fullName += " " + user.getLastName();
+			
 			dataApproval.setRejectedBy(fullName);
-			callingRejectedMethod(dataApproval);
-		} else {
-			throw new RuntimeException(
-					"Error : Your action approval is undefined");
+			callingRejectCancel(dataApproval,DataApproval.REJECTED);
+		} else if (approvalWorkflow.getStatus().equals(DataApproval.CANCELLED)) {
+			isSendToRequest = true;
+			
+			dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_CANCEL);
+			dataApproval.setStatus(DataApproval.COMPLETED);
+			String fullName = user.getFirstName();
+			
+			if (user.getLastName() != null)
+				fullName += " " + user.getLastName();
+			
+			dataApproval.setRejectedBy(fullName);
+			callingRejectCancel(dataApproval,DataApproval.CANCELLED);
+		}else {
+			throw new CustomException(
+					"Your action approval is undefined");
 		}
 
 		dataApprovalRepository.save(dataApproval);
@@ -629,7 +650,7 @@ public class DataApprovalService {
 		}
 	}
 
-	private void callingRejectedMethod(DataApproval dataApproval) {
+	private void callingRejectCancel(DataApproval dataApproval, String status) {
 		if (dataApproval.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.rejectedChangeMaritalStatus(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
@@ -639,7 +660,7 @@ public class DataApprovalService {
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_ADDRESS)) {
 			addressService.rejected(dataApproval);
 		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
-			tmRequestHeaderService.rejected(dataApproval);
+			tmRequestHeaderService.rejectCancel(dataApproval,status);
 		} else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
 			familyService.rejectedChange(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
@@ -668,30 +689,7 @@ public class DataApprovalService {
 
 	}
 
-	public void cancelRequest(ApprovalWorkflowDTO approvalWorkflow, User user) {
-		DataApproval dataApproval = dataApprovalRepository
-				.findOne(approvalWorkflow.getId());
-		if (dataApproval == null) {
-			throw new RuntimeException("Data Approval is not found");
-		}
-
-		if (dataApproval.getStatus().equals(DataApproval.COMPLETED)) {
-			throw new RuntimeException(
-					"Error : This request is already Completed");
-		}
-
-		if (!dataApproval.getEmpRequest().equals(user.getEmployee())) {
-			throw new RuntimeException(
-					"Error : You dont have access this request");
-		}
-
-		dataApproval.setStatus(DataApproval.COMPLETED);
-		dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_CANCEL);
-
-		dataApprovalRepository.save(dataApproval);
-		callingRejectedMethod(dataApproval);
-
-	}
+	
 
 	private void sendingEmail(Long company, String templateCode, String data,
 			String emailTo, String listEmpId, DataApproval dataApproval) {

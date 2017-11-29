@@ -1,4 +1,4 @@
-package com.phincon.talents.app.controllers.api;
+package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,22 +20,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AttachmentCertificationRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
-import com.phincon.talents.app.dto.AddressDTO;
 import com.phincon.talents.app.dto.CertificationDTO;
-import com.phincon.talents.app.dto.DataApprovalDTO;
-import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.model.AttachmentCertification;
 import com.phincon.talents.app.model.User;
-import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.Certification;
 import com.phincon.talents.app.model.hr.Employee;
-import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.services.AddressService;
 import com.phincon.talents.app.services.CertificationService;
@@ -55,8 +51,6 @@ public class MyProfileController {
 	@Autowired
 	UserService userService;
 
-
-	
 	@Autowired
 	FamilyService familyService;
 
@@ -205,10 +199,10 @@ public class MyProfileController {
 				String image = null;
 				if(userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
 					
-					 // get foto
-					// image = Utils.convertImageToBase64(userEmployee.getPhotoProfile());
 					String http = env.getProperty("talents.protocol");
-					image = Utils.getUrlAttachment(http, request, userEmployee.getPhotoProfile());
+					image = Utils.getUrlAttachment(http, request,
+							userEmployee.getPhotoProfile());
+					
 				}
 				
 				employee.setPhotoProfile(image);
@@ -221,137 +215,7 @@ public class MyProfileController {
 				HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/myprofile/family", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Family>> listFamily(
-			OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-
-		if (user == null) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}
-
-		if (user.getEmployee() == null) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}
-
-		Iterable<Family> listFamily = familyService.findByEmployee(user
-				.getEmployee());
-
-		return new ResponseEntity<Iterable<Family>>(listFamily, HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/myprofile/family", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<CustomMessage> addFamily(
-			@RequestBody FamilyDTO request, OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-
-		Family family = new Family();
-		family.setAddress(request.getAddress());
-		family.setBirthPlace(request.getBirthPlace());
-		family.setBirthDate(request.getBirthDate());
-		family.setBloodType(request.getBloodType());
-		family.setAddress(request.getAddress());
-		// family.setrequest.getEmail()
-		family.setName(request.getName());
-		family.setPhone(request.getPhone());
-		family.setRelationship(request.getRelationship());
-		family.setEmployee(user.getEmployee());
-		family.setGender(request.getGender());
-		family.setOccupation(request.getOccupation());
-		family.setMaritalStatus(request.getMaritalStatus());
-		family.setCreatedDate(new Date());
-		family.setModifiedDate(new Date());
-		family.setCreatedBy(authentication.getUserAuthentication().getName());
-		family.setModifiedBy(authentication.getUserAuthentication().getName());
-		family.setCompany(user.getCompany());
-		family.setEmployeeExtId(user.getEmployeeExtId());
-
-		// check this company have regulation approval to SUBMITFAMILY
-		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
-				Workflow.SUBMIT_FAMILY, user.getCompany(), true);
-		if (workflow != null) {
-			family.setStatus(Family.PENDING);
-			family.setNeedSync(false);
-		} else {
-			family.setNeedSync(true);
-		}
-
-		familyService.save(family);
-		if (workflow != null) {
-			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
-			dataApprovalDTO.setIdRef(family.getId());
-			dataApprovalDTO.setTask(Workflow.SUBMIT_FAMILY);
-			if (request.getAttachments() != null
-					&& request.getAttachments().size() > 0) {
-				System.out.println("Attachment is not empty");
-				dataApprovalDTO.setAttachments(request.getAttachments());
-			}
-
-			dataApprovalService.save(dataApprovalDTO, user, workflow);
-		}
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Family has been Added successfully", false), HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/myprofile/address", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Address>> listAddress(
-			OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-
-		if (user == null) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}
-
-		if (user.getEmployee() == null) {
-			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}
-
-		Employee employee = employeeRepository.findOne(user.getEmployee());
-		Iterable<Address> listAddress = addressService.findByEmployee(employee
-				.getId());
-		return new ResponseEntity<Iterable<Address>>(listAddress, HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/myprofile/address", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<CustomMessage> addAddress(
-			@RequestBody AddressDTO request, OAuth2Authentication authentication) {
-
-		User user = userRepository.findByUsernameCaseInsensitive(authentication
-				.getUserAuthentication().getName());
-
-		Employee employee = employeeService.findEmployee(user.getEmployee());
-
-		Address address = new Address();
-		address.setAddress(request.getAddress());
-		address.setAddressStatus(request.getAddressStatus());
-		address.setCity(request.getCity());
-		address.setDistance(request.getDistrict());
-		address.setProvince(request.getProvince());
-		address.setCountry(request.getCountry());
-		address.setRt(request.getRt());
-		address.setRw(request.getRw());
-		address.setEmployee(employee.getId());
-		address.setPhone(request.getPhone());
-		address.setResidence(request.getResidence());
-		address.setZipCode(request.getZipCode());
-		address.setStayStatus(request.getStayStatus());
-		address.setCreatedDate(new Date());
-		address.setModifiedDate(new Date());
-		address.setCreatedBy(authentication.getUserAuthentication().getName());
-		address.setModifiedBy(authentication.getUserAuthentication().getName());
-		addressService.save(address);
-
-		return new ResponseEntity<CustomMessage>(new CustomMessage(
-				"Address has been Added successfully", false), HttpStatus.OK);
-	}
+	
 
 	@RequestMapping(value = "/myprofile/certification", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Certification>> certification(
@@ -474,11 +338,13 @@ public class MyProfileController {
 			@RequestBody UserChangePasswordDTO request,
 			OAuth2Authentication authentication) {
 
+		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		if(request.getConfirmPassword()==null ||request.getNewPassword() == null || request.getOldPassword() == null || request.getConfirmPassword().trim().isEmpty() || request.getNewPassword().trim().isEmpty() ||  request.getOldPassword().trim().isEmpty()) {
-			throw new RuntimeException("Required Field is not Empty.");
+			throw new CustomException("Required Field is not Empty.");
 		}
+		
 		
 		userService.changePassword(request, user,true);
 		return new ResponseEntity<CustomMessage>(new CustomMessage(

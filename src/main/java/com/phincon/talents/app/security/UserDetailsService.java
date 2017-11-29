@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.model.Role;
 import com.phincon.talents.app.model.User;
@@ -44,7 +45,7 @@ public class UserDetailsService implements
 
 		String ip = getClientIP();
 		if (loginAttemptService.isBlocked(ip)) {
-			throw new RuntimeException("Your account has been blocked !!!");
+			throw new CustomException("Your account has been blocked !!!");
 		}
 
 		User userFromDatabase;

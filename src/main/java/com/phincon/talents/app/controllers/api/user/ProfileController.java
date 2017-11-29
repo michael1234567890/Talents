@@ -1,9 +1,13 @@
 package com.phincon.talents.app.controllers.api.user;
 
+import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -13,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.CompanyReferenceRepository;
 import com.phincon.talents.app.dao.CompanyRepository;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
+import com.phincon.talents.app.dao.NewsRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.ProfileDTO;
 import com.phincon.talents.app.model.Company;
@@ -53,6 +59,12 @@ public class ProfileController {
 	
 	@Autowired
 	CompanySettingsRepository companySettingsRepository;
+	
+	@Autowired
+	NewsRepository newsRepository;
+	
+	@Autowired
+	private Environment env;
 
 	@RequestMapping(value = "/user/profile/changeprofile", method = RequestMethod.POST)
 	@ResponseBody
@@ -62,7 +74,7 @@ public class ProfileController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		if (request.getImage() == null) {
-			throw new RuntimeException("Image can't empty");
+			throw new CustomException("Image can't empty");
 		}
 		String pathname = "profile/" + RandomStringUtils.randomAlphanumeric(10)
 				+ "." + Utils.UPLOAD_IMAGE_TYPE;
@@ -76,7 +88,7 @@ public class ProfileController {
 	
 	@RequestMapping(value = "/user/info", method = RequestMethod.GET)
 	public ResponseEntity<ProfileDTO> myInfo(
-			OAuth2Authentication authentication) {
+			OAuth2Authentication authentication,HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -98,6 +110,15 @@ public class ProfileController {
 				employee.setAssignment(assignment);
 			profile.setEmployeeTransient(employee);
 		}
+		
+		String image = null;
+		if(user.getPhotoProfile() != null && !user.getPhotoProfile().equals("")) {
+			
+			String http = env.getProperty("talents.protocol");
+			image = Utils.getUrlAttachment(http, request,
+					user.getPhotoProfile());
+		}
+		profile.setImage(image);
 
 		
 
@@ -106,7 +127,7 @@ public class ProfileController {
 
 	@RequestMapping(value = "/user/profile", method = RequestMethod.GET)
 	public ResponseEntity<ProfileDTO> myprofile(
-			OAuth2Authentication authentication) {
+			OAuth2Authentication authentication,HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -120,6 +141,12 @@ public class ProfileController {
 		profile.setLastName(user.getLastName());
 		profile.setIsAdmin(user.getIsAdmin());
 		profile.setIsLeader(user.getIsLeader());
+		profile.setIsHr(user.getIsHr());
+		boolean isChangePassword = false;
+		if(user.getIsChangePassword()!= null)
+			isChangePassword = user.getIsChangePassword();
+		
+		profile.setIsChangePassword(isChangePassword);
 
 		if (user.getEmployee() != null) {
 			Employee employee = employeeService
@@ -154,6 +181,13 @@ public class ProfileController {
 				
 			}
 		}
+		
+		List<Long> listCountAnnouncement = newsRepository.countCurrentNews(user.getCompany(), new Date());
+		if(listCountAnnouncement != null && listCountAnnouncement.size() > 0) {
+			for (Long objects : listCountAnnouncement) {
+				profile.setCountAnnouncement(objects);
+			}
+		}
 	
 		Company company = companyRepository.findOne(user.getCompany());
 		profile.setCompany(company);
@@ -161,6 +195,11 @@ public class ProfileController {
 		if(user.getPhotoProfile() != null && !user.getPhotoProfile().equals("")) {
 			image = Utils
 					.convertImageToBase64(user.getPhotoProfile());
+			
+			/*String http = env.getProperty("talents.protocol");
+			image = Utils.getUrlAttachment(http, request,
+					user.getPhotoProfile());*/
+			
 		}
 		profile.setImage(image);
 

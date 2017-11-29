@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.PasswordResetTokenRepository;
@@ -17,7 +18,6 @@ import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.dto.UserInfoDTO;
 import com.phincon.talents.app.model.CompanySettings;
-import com.phincon.talents.app.model.PasswordResetToken;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.utils.PasswordValidator;
 
@@ -40,7 +40,7 @@ public class UserService   {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-
+	
 	@Autowired
 	private CompanySettingsRepository companySettingsRepository;
 	
@@ -95,17 +95,23 @@ public class UserService   {
 		if(checkValidOldPassword){
 			if (!passwordEncoder.matches(userChangePassword.getOldPassword(),
 	                user.getPassword())) {
-				throw new RuntimeException("Your Old Password is wrong.");
+				throw new CustomException("Your Old Password is wrong.");
 			}
 		}
 		
 		
 		if(!userChangePassword.getNewPassword().equals(userChangePassword.getConfirmPassword())) {
-			throw new RuntimeException("Your new password & Confirm Password does not match.");
+			throw new CustomException("Your new password & Confirm Password does not match.");
 		}
+		
 		if(user.getPassword().equals(userChangePassword.getNewPassword())) {
-			throw new RuntimeException("Your new password must be different");
+			throw new CustomException("Your new password must be different");
 		}
+		
+		if(userChangePassword.getNewPassword().contains("#")) {
+			throw new CustomException("Please don't use # character in your password.");
+		}
+		
 		
 		// Load company Settings
     	List<CompanySettings> listCompanySettings = companySettingsRepository.findByCompany(user.getCompany());
@@ -116,7 +122,7 @@ public class UserService   {
     		if(companySettings.getIsRegexPasswordActive() && companySettings.getRegexPassword() != null && !companySettings.getRegexPassword().equals("")) {
     			PasswordValidator passwordValidator = new PasswordValidator(companySettings.getRegexPassword());
     			if(!passwordValidator.validate(userChangePassword.getNewPassword())){
-    				throw new RuntimeException("Your new password must contains " + companySettings.getMsgErrorRegexPassword());
+    				throw new CustomException("Your new password must contains " + companySettings.getMsgErrorRegexPassword());
     			}
     		}
     	}
@@ -128,8 +134,5 @@ public class UserService   {
 		userRepository.save(user);
 	}
 	
-	public void createPasswordResetTokenForUser(User user, String token) {
-	    PasswordResetToken myToken = new PasswordResetToken(token, user);
-	    passwordTokenRepository.save(myToken);
-	}
+	
 }

@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
-import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Employee;
 
 @RestController
@@ -62,7 +62,7 @@ public class EmployeeRestApi {
 		
 		Employee detail = repository.findOne(id);
 		if (detail == null) {
-			throw new EmployeeNotFound();
+			throw new CustomException("Employee not found");
 		} else {
 			return detail;
 		}
@@ -86,8 +86,6 @@ public class EmployeeRestApi {
 		return repository.save(employee);
 	}
 
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	static class EmployeeNotFound extends RuntimeException {
-	}
+
 
 }

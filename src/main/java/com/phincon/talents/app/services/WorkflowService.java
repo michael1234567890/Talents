@@ -7,13 +7,16 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.ApprovalGroupRepository;
+import com.phincon.talents.app.dao.ApproverSpesificRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.WorkflowRepository;
-import com.phincon.talents.app.dto.AssignEmailDTO;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.ApprovalGroup;
+import com.phincon.talents.app.model.hr.ApproverSpesific;
 import com.phincon.talents.app.model.hr.Employee;
+import com.phincon.talents.app.model.hr.VwEmpAssignment;
 
 /**
  *
@@ -31,6 +34,9 @@ public class WorkflowService {
 	
 	@Autowired
 	ApprovalGroupRepository approvalGroupRepository;
+	
+	@Autowired
+	ApproverSpesificRepository approverSpesificRepository;
 
 	@Autowired
 	VwEmpAssignmentService vwEmpAssignmentService;
@@ -57,17 +63,23 @@ public class WorkflowService {
 
 	@Transactional
 	public String findAssignApproval(String codeApproval, Long employee,
-			Long company) {
-		AssignEmailDTO assignEmailDTO = new AssignEmailDTO();
+			Long company,String task) {
 		String assignApproval = null;
-		String emailAssignApproval;
+		
+		VwEmpAssignment vwEmpAssignment = vwEmpAssignmentService.findAssignmentByEmployee(employee);
+		if(vwEmpAssignment == null) {
+			throw new CustomException(
+					"Data Employee is not completed.");
+		}
+		
 		if (codeApproval.equals(Workflow.DEFAULT)) {
 			// get direct report
 			Employee objEmployee = vwEmpAssignmentService
 					.findReportTo(employee);
 			if (objEmployee != null)
 				assignApproval = "#" + objEmployee.getId() + "#";
-			emailAssignApproval = objEmployee.getOfficeMail();
+		} else if(codeApproval.equals(Workflow.WORK_LOCATION)){
+			assignApproval = getSpesificApprovalWorkLocation(company,task,vwEmpAssignment);
 		} else {
 			// get group of employee for approve
 			List<ApprovalGroup> listApprovalGroup = approvalGroupRepository
@@ -96,6 +108,27 @@ public class WorkflowService {
 			}
 		}
 		return assignApproval;
+	}
+
+	private String getSpesificApprovalWorkLocation(Long company, String task, VwEmpAssignment vwEmpAssignment) {
+		List <ApproverSpesific> listApproveSpesific = approverSpesificRepository.findByCompanyAndTaskAndWorkLocation(company, task, vwEmpAssignment.getWorkLocationName());
+		if(listApproveSpesific == null || listApproveSpesific.size() ==0 ) {
+			String defaultWorkflowGroupApproval = "#"+Workflow.DEFAULT_APPROVER+"#";
+			List<ApprovalGroup> listApprovalGroup = approvalGroupRepository
+					.findByCodeAndCompanyAndActive(defaultWorkflowGroupApproval, company, true);
+			if (listApprovalGroup != null && listApprovalGroup.size() > 0) {
+				ApprovalGroup approvalGroup = listApprovalGroup.get(0);
+				return approvalGroup.getMember();
+			}
+			
+		}else {
+			String approver = "";
+			for (ApproverSpesific approverSpesific : listApproveSpesific) {
+				approver += "#" +approverSpesific.getEmployee()+"#";
+			}
+			return approver;
+		}
+		return null;
 	}
 
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
@@ -77,7 +78,7 @@ public class WorkflowController {
 		Workflow workflow = workflowService.findByCodeAndCompanyAndActive(
 				taskName, user.getCompany(), true);
 		if (workflow == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your workflow activity is Not Registered.");
 		}
 		dataApprovalService.save(request, user, workflow);
@@ -293,23 +294,22 @@ public class WorkflowController {
 	public ResponseEntity<CustomMessage> actionApproval(
 			@RequestBody ApprovalWorkflowDTO request,
 			OAuth2Authentication authentication) {
-
+		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
 		String message = "Request has been approved";
-		if (request.getStatus().equals(DataApproval.CANCELLED)) {
-			dataApprovalService.cancelRequest(request, user);
-			message = "Request has been cancelled";
-		} else {
-			boolean isBypass = false;
-			if ((user.getIsAdmin() != null && user.getIsAdmin())
-					|| (user.getIsLeader() != null && user.getIsLeader()))
+		boolean isBypass = false;
+		
+		if ((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader() != null && user.getIsLeader()))
 				isBypass = true;
-			dataApprovalService.approval(request, user, isBypass);
-		}
-
+			
+		dataApprovalService.approval(request, user, isBypass);
+		
 		if (request.getStatus().equals(DataApproval.REJECTED))
 			message = "Request has been Rejected";
+		else if(request.getStatus().equals(DataApproval.CANCELLED))
+			message = "Request has been cancelled";
 
 		return new ResponseEntity<CustomMessage>(new CustomMessage(message,
 				false), HttpStatus.OK);

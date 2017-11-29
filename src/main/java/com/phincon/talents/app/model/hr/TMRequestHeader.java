@@ -20,6 +20,7 @@ public class TMRequestHeader extends AbstractEntity {
 	public final static String PENDING = "pending";
 	public final static String APPROVED = "approved";
 	public final static String REJECTED = "rejected";
+	public final static String CANCELLED = "cancelled";
 	public final static String PREFIX_ATTENDANCE="AT";
 	public final static String PREFIX_BENEFIT="BN";
 	public final static String MOD_TIME_MANAGEMENT="Time Management";

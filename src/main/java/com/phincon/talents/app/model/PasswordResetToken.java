@@ -3,6 +3,7 @@ package com.phincon.talents.app.model;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,12 +12,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "password_reset_token")
 public class PasswordResetToken {
 
-	private static final int EXPIRATION = 60 * 24;
+	// private static final int EXPIRATION = 30 * 24;
+	
+	private static final int EXPIRATION = 30;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,6 +34,12 @@ public class PasswordResetToken {
 	private User user;
 
 	private Date expiryDate;
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name="today")
+	private Date today;
+	
+	private Boolean active = true;
 
 	public PasswordResetToken() {
 		super();
@@ -40,12 +51,14 @@ public class PasswordResetToken {
 		this.expiryDate = calculateExpiryDate(EXPIRATION);
 	}
 
-	public PasswordResetToken(final String token, final User user) {
+	public PasswordResetToken(final String token, final User user, Integer expiredMinutes) {
 		super();
 		this.token = token;
 		this.user = user;
-		this.expiryDate = calculateExpiryDate(EXPIRATION);
+		this.expiryDate = calculateExpiryDate(expiredMinutes);
 	}
+	
+	
 
 	//
 	public Long getId() {
@@ -74,6 +87,24 @@ public class PasswordResetToken {
 
 	public void setExpiryDate(final Date expiryDate) {
 		this.expiryDate = expiryDate;
+	}
+	
+	public Date getToday() {
+		return today;
+	}
+
+	public void setToday(Date today) {
+		this.today = today;
+	}
+	
+	
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 
 	private Date calculateExpiryDate(final int expiryTimeInMinutes) {

@@ -1,7 +1,6 @@
 package com.phincon.talents.app.services;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -9,6 +8,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.TimesheetRepository;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.TimesheetDTO;
@@ -42,7 +42,7 @@ public class TimesheetService {
 		if(timesheetDTO.getId() != null) {
 			timesheet = timesheetRepository.findOne(timesheetDTO.getId());
 			if(timesheet == null) {
-				throw new RuntimeException("Your Timesheet ID is not found.");
+				throw new CustomException("Your Timesheet ID is not found.");
 			}
 			
 		}else {

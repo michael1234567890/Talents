@@ -16,21 +16,5 @@ public class UserSecurityService {
     @Autowired
     private PasswordResetTokenRepository passwordTokenRepository;
 
-    public User getUserFromPasswordResetToken(long id, String token) {
-        final PasswordResetToken passToken = passwordTokenRepository.findByToken(token);
-        if ((passToken == null) || (passToken.getUser()
-            .getId() != id)) {
-            return null;
-        }
-
-        final Calendar cal = Calendar.getInstance();
-        if ((passToken.getExpiryDate()
-            .getTime() - cal.getTime()
-            .getTime()) <= 0) {
-            return null;
-        }
-
-        return passToken.getUser();
-    }
-
+    
 }

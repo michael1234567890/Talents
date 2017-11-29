@@ -9,7 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.phincon.talents.app.dao.AssignmentRepository;
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.hr.Employee;
@@ -82,7 +82,7 @@ public class EmployeeService {
 		try {
 			paramsMap = mapper.readValue(strJson, Map.class);
 		} catch (Exception e) {
-			throw new RuntimeException("Error :  Problem with convert Data");
+			throw new CustomException("Error :  Problem with convert Data");
 		}
 
 		employeeRepository.updateMaritalStatus(employeeId,
@@ -97,7 +97,7 @@ public class EmployeeService {
 
 		Map<String, Object> paramsMap = Utils.convertStrJsonToMap(strJson);
 		if (paramsMap == null) {
-			throw new RuntimeException("Error :  Problem with convert Data");
+			throw new CustomException("Error :  Problem with convert Data");
 		}
 
 		employeeRepository.requestMaritalStatus(

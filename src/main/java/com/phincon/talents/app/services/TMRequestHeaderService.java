@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.EmployeePayrollRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
@@ -200,11 +201,11 @@ public class TMRequestHeaderService {
 	public BenefitDTO verificationBenefit(BenefitDTO request, User user,
 			Employment employment, Employment requester) {
 		if (request.getModule() == null || request.getCategoryType() == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Module and Category Type can't be Empty.");
 		}
 		if (request.getDetails() == null || request.getDetails().size() == 0) {
-			throw new RuntimeException("Your request can't be Empty.");
+			throw new CustomException("Your request can't be Empty.");
 		}
 
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
@@ -233,7 +234,7 @@ public class TMRequestHeaderService {
 			for (BenefitDetailDTO benefitDetail : request.getDetails()) {
 
 				if (benefitDetail.getType().toLowerCase().equals("cuti besar")) {
-					throw new RuntimeException("This feature is not available.");
+					throw new CustomException("This feature is not available.");
 				}
 
 				Long qty = benefitDetail.getQty();
@@ -346,13 +347,13 @@ public class TMRequestHeaderService {
 							request.getCategoryType(), request.getStartDate());
 			
 			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"You are not allowed request in the range date.");
 			}
 
 			if (Utils.comparingDate(request.getEndDate(),
 					request.getStartDate(), "<")) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"The End date must be greater than The start date.");
 			}
 		}
@@ -361,7 +362,7 @@ public class TMRequestHeaderService {
 			//Long diffEndDate = Utils.diffDay(request.getEndDate(), new Date());
 			int diffEndDate = Utils.diffDayInt(request.getEndDate(), new Date());
 			if (diffEndDate < 0) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Your transaction Date must be less than Today.");
 			}
 		}
@@ -370,7 +371,7 @@ public class TMRequestHeaderService {
 			// Long diffStartDate = Utils.diffDay(request.getStartDate(), new Date());
 			int diffStartDate = Utils.diffDayInt(request.getStartDate(), new Date());
 			if (diffStartDate > 0) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Your Start Date must be earlier than Today.");
 			}
 		}
@@ -378,7 +379,7 @@ public class TMRequestHeaderService {
 		if (request.getCategoryType().toLowerCase().equals("kacamata")
 				|| request.getCategoryType().toLowerCase().equals("medical")) {
 			if (Utils.diffDay(request.getStartDate(), new Date()) > 30) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Your transaction Date must be less than 30 days.");
 			}
 		}
@@ -440,11 +441,11 @@ public class TMRequestHeaderService {
 			Employment employment, Employment requester) {
 
 		if (request.getModule() == null || request.getCategoryType() == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Module and Category Type can't be Empty.");
 		}
 		if (request.getDetails() == null || request.getDetails().size() == 0) {
-			throw new RuntimeException("Your request can't be Empty.");
+			throw new CustomException("Your request can't be Empty.");
 		}
 
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
@@ -510,10 +511,7 @@ public class TMRequestHeaderService {
 		if (tmRequestHeader.getCategoryType().toLowerCase()
 				.equals("perjalanan dinas")) {
 			tmRequestHeader.setSpdType(request.getSpdType());
-			if (request.getSpdType() != null
-					&& (request.getSpdType().toLowerCase()
-							.equals("pulang kampung") || request.getSpdType()
-							.toLowerCase().equals("mutasi"))) {
+			if (request.getSpdType() != null && (request.getSpdType().toLowerCase().equals("pulang kampung") || request.getSpdType().toLowerCase().equals("mutasi"))) {
 				if (tmRequestHeader.getTotalAmount() > BATAS_SPD_AMOUNT)
 					taskName = Workflow.SUBMITBENEFIT2_1_5;
 				else
@@ -553,7 +551,7 @@ public class TMRequestHeaderService {
 				Double totalDay = Double.valueOf("1");
 				if (Utils.comparingDate(request.getEndDate(),
 						request.getStartDate(), "<")) {
-					throw new RuntimeException(
+					throw new CustomException(
 							"The End date must be greater than The start date.");
 				}
 				Long diffDays = Utils.diffDay(request.getStartDate(),
@@ -635,8 +633,7 @@ public class TMRequestHeaderService {
 			dataApprovalDTO.setIdRef(tmRequestHeader.getId());
 			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
-			if (request.getAttachments() != null
-					&& request.getAttachments().size() > 0) {
+			if (request.getAttachments() != null && request.getAttachments().size() > 0) {
 				dataApprovalDTO.setAttachments(request.getAttachments());
 			}
 			dataApprovalService.save(dataApprovalDTO, user, workflow);
@@ -651,9 +648,7 @@ public class TMRequestHeaderService {
 		Double baseSalary = 0.0d;
 
 		// get Base Salary
-		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderRepository
-				.findByLatestMonthAndEmployment(employment.getId(),
-						new PageRequest(0, 1));
+		List<PayrollElementHeader> listElementHeaders = payrollElementHeaderRepository.findByLatestMonthAndEmployment(employment.getId(),new PageRequest(0, 1));
 		if (listElementHeaders != null && listElementHeaders.size() > 0) {
 			PayrollElementHeader payrollHeader = listElementHeaders.get(0);
 			baseSalary = payrollHeader.getBaseSalary();
@@ -661,8 +656,7 @@ public class TMRequestHeaderService {
 
 		// get Balance Limit Medical
 		Double limitMedical = 0.0d;
-		List<TMBalance> listBalance = getListBalanceByCategory(benefitDTO,
-				user, employment, TMBalance.MEDICAL);
+		List<TMBalance> listBalance = getListBalanceByCategory(benefitDTO,user, employment, TMBalance.MEDICAL);
 		if (listBalance != null && listBalance.size() > 0) {
 			TMBalance balance = listBalance.get(0);
 			limitMedical = balance.getBalanceLimit();
@@ -756,7 +750,7 @@ public class TMRequestHeaderService {
 				if (mapBalance.get(details.getType().toLowerCase()) != null
 						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount
 						&& passed) {
-					throw new RuntimeException("Your Balance "
+					throw new CustomException("Your Balance "
 							+ details.getType() + " is not enought.");
 				}
 			}
@@ -796,7 +790,7 @@ public class TMRequestHeaderService {
 					"sumbangan perabot");
 			if (employee.getMaritalStatus() == null
 					|| employee.getMaritalStatus().equals("")) {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Your Marital Status is Unknown. Please contact your Admin");
 			}
 
@@ -804,7 +798,7 @@ public class TMRequestHeaderService {
 				// check marital status is same or not, it should be not
 				if (balance.getMaritalStatus().equals(
 						employee.getMaritalStatus())) {
-					throw new RuntimeException("You are not allowed apply '"
+					throw new CustomException("You are not allowed apply '"
 							+ detail.getType()
 							+ "' Your marital status is same with before.");
 				}
@@ -865,7 +859,7 @@ public class TMRequestHeaderService {
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new RuntimeException("You have already applied '"
+						throw new CustomException("You have already applied '"
 								+ type + "'. You can apply again in "
 								+ strNextApply + ".");
 					}
@@ -885,7 +879,7 @@ public class TMRequestHeaderService {
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new RuntimeException("You have already applied '"
+						throw new CustomException("You have already applied '"
 								+ type + "'. You can apply again in "
 								+ strNextApply + ".");
 					}
@@ -904,7 +898,7 @@ public class TMRequestHeaderService {
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new RuntimeException("You have already applied '"
+						throw new CustomException("You have already applied '"
 								+ type + "'. You can apply again in "
 								+ strNextApply + ".");
 					}
@@ -912,14 +906,14 @@ public class TMRequestHeaderService {
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time")) {
 					if (balance.getLastClaimDate() != null) {
-						throw new RuntimeException("You have already applied '"
+						throw new CustomException("You have already applied '"
 								+ type + "'. This type Only one time.");
 					}
 				}
 
 				if (balance.getType().toLowerCase().contains("lensa")) {
 					if (isLensaHaveClaimDate(listBalance)) {
-						throw new RuntimeException("You have already applied '"
+						throw new CustomException("You have already applied '"
 								+ type + "'. This type Only one time Apply.");
 
 					}
@@ -951,12 +945,17 @@ public class TMRequestHeaderService {
 		return null;
 	}
 
-	public void rejected(DataApproval dataApproval) {
+	public void rejectCancel(DataApproval dataApproval, String status) {
 		Long headerId = dataApproval.getObjectRef();
+		
 		// header status rejected
-		tmRequestHeaderRepository.rejected(headerId);
+		if(status.equals(DataApproval.REJECTED))
+			tmRequestHeaderRepository.rejected(headerId);
+		else if(status.equals(DataApproval.CANCELLED))
+			tmRequestHeaderRepository.cancelled(headerId);
+		
 		// every tmrequest set status reject with header id = headerid
-		tmRequestService.rejectWithHeaderId(headerId);
+		tmRequestService.rejectCancelHeaderId(headerId,status);
 
 	}
 
@@ -986,7 +985,7 @@ public class TMRequestHeaderService {
 	    if(listType != null && listType.size() > 0)
 	    	requestType = listType.get(0);
 	    if(requestType == null)
-	    	throw new RuntimeException("Your request type is not found");
+	    	throw new CustomException("Your request type is not found");
 	    
 		TMBalance balance = getBalance(request, user, employment);
 		Double totalDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
@@ -1013,7 +1012,7 @@ public class TMRequestHeaderService {
 		}
 		
 		if(requestCategoryType == null)
-		    throw new RuntimeException("Your request Category is not found");
+		    throw new CustomException("Your request Category is not found");
 		    
 		List<RequestType> listType = RequestTypeRepository.findByCompanyAndModuleAndCategoryAndType(user.getCompany(), request.getModule(), request.getCategoryType(), request.getType());
 	    RequestType requestType = null;
@@ -1022,7 +1021,7 @@ public class TMRequestHeaderService {
 	    
 	    
 	    if(requestType == null)
-	    	throw new RuntimeException("Your request type is not found");
+	    	throw new CustomException("Your request type is not found");
 	    
 	    
 		TMBalance balance = getBalance(request, user, employment);
@@ -1150,7 +1149,7 @@ public class TMRequestHeaderService {
 		
 		if(request.getStartDate() != null && request.getEndDate() != null){
 			if(Utils.comparingDate(request.getEndDate(), request.getStartDate(), "<")){
-				throw new RuntimeException("The End date must be greater than The start date.");
+				throw new CustomException("The End date must be greater than The start date.");
 			}
 		}
 		
@@ -1159,57 +1158,57 @@ public class TMRequestHeaderService {
 		if(requestType.getCannotRequestToday()!= null && requestType.getCannotRequestToday()){
 			
 			if(Utils.diffDayInt(request.getStartDate(), new Date()) == 0) {
-				throw new RuntimeException("Date must be less than Today.");
+				throw new CustomException("Date must be less than Today.");
 			}
 			
 		}
 		
 		if(requestType.getLimitDayOfMonth()!= null ) {
 			if(!validateLimitRequestDate(request.getStartDate(), requestType.getLimitDayOfMonth())) {
-				throw new RuntimeException("Cannot Process Last Month Request Date");
+				throw new CustomException("Cannot Process Last Month Request Date");
 			}
 		}
 		
 		// check can back date
 		if(requestType.getLimitBackDate() != null && requestType.getLimitBackDate() != 0) {
 			if(Utils.diffDayInt(request.getEndDate(), new Date()) > (requestType.getLimitBackDate()-1)) {
-				throw new RuntimeException("Start and End date must be "+requestType.getLimitBackDate()+" days before today.");
+				throw new CustomException("Start and End date must be "+requestType.getLimitBackDate()+" days before today.");
 			}
 		}else {
 			
 			if(Utils.diffDayInt(request.getEndDate(),new Date()) > 0) {
-				throw new RuntimeException("Start and End date must be earlier than today.");
+				throw new CustomException("Start and End date must be earlier than today.");
 			}
 		}
 		
 		// check can future date
 		if(requestType.getLimitFutureDate() != null && requestType.getLimitFutureDate() != 0) {
 			if(Utils.diffDayInt(new Date(), request.getEndDate()) > (requestType.getLimitFutureDate()-1)) {
-				throw new RuntimeException("Start and End date must be "+requestType.getLimitFutureDate()+" days from today.");
+				throw new CustomException("Start and End date must be "+requestType.getLimitFutureDate()+" days from today.");
 			}
 		}else {
 			// jika gak boleh future date periksa juga start date lebih dari hari ini gak 
 			// jika lebih dari hari ini kasih warning
 			if(Utils.diffDayInt(new Date(), request.getEndDate()) > 0) {
-				throw new RuntimeException("End date must be less than today.");
+				throw new CustomException("End date must be less than today.");
 			}
 		}
 		
 		// check max num of days
 		if(requestType.getMaxNumOfDays() != null && requestType.getMaxNumOfDays() != 0) {
 			if(request.getTotal() > requestType.getMaxNumOfDays())
-				throw new RuntimeException("Max request "+requestType.getMaxNumOfDays()+" days.");
+				throw new CustomException("Max request "+requestType.getMaxNumOfDays()+" days.");
 		}
 		
 		if(requestType.getFlagOvertime()!= null && requestType.getFlagOvertime()) {
 			EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
 			
 			if(employeePayroll == null)
-				throw new RuntimeException("Your data employee overtime is not completed. Please contact admin.");
+				throw new CustomException("Your data employee overtime is not completed. Please contact admin.");
 			
 			
 			if(employeePayroll.getFlagLembur() == null || !employeePayroll.getFlagLembur()) {
-				throw new RuntimeException("You are not allowed to request Overtime. Please contact admin.");
+				throw new CustomException("You are not allowed to request Overtime. Please contact admin.");
 			}
 		}
 		
@@ -1217,18 +1216,18 @@ public class TMRequestHeaderService {
 			// get employee data
 			Employee employee = employeeRepository.findOne(user.getEmployee());
 			if(employee != null && !employee.getGender().toLowerCase().equals(requestType.getGender().toLowerCase())){
-				throw new RuntimeException("Your gender is not "+requestType.getGender()+".");
+				throw new CustomException("Your gender is not "+requestType.getGender()+".");
 			}
 		}
 		
 		if(requestType.getGradeStart() != null && requestType.getGradeEnd() != null) {
 			if(vwEmpAssignment != null && vwEmpAssignment.getGradeNominal() != null) {
 				if(vwEmpAssignment.getGradeNominal() < requestType.getGradeStart() || vwEmpAssignment.getGradeNominal() > requestType.getGradeEnd()){
-					throw new RuntimeException(
+					throw new CustomException(
 							"Your grade is not between "+requestType.getGradeStart()+" - " + requestType.getGradeEnd());
 				}
 			}else {
-				throw new RuntimeException(
+				throw new CustomException(
 						"Your grade is empty. Can't process this request.");
 			}
 			
@@ -1269,12 +1268,12 @@ public class TMRequestHeaderService {
 					System.out.println("pass getJobTitle");
 					// if total minutes per month > request.getMaxMinutesPerMonthJobtitle(). Show warning
 					if(totalOvertime > requestType.getMaxMinutesPerMonthJobtitle())
-						throw new RuntimeException("Your Overtime Total has exceeded the limit this month.");
+						throw new CustomException("Your Overtime Total has exceeded the limit this month.");
 				}
 			}else {
 				System.out.println("not in pass getJobTitle");
 				if(totalOvertime > requestType.getDefaultMaxMinutesPerMonth())
-					throw new RuntimeException("Your Overtime Total has exceeded the limit this month.");
+					throw new CustomException("Your Overtime Total has exceeded the limit this month.");
 			}
 			
 			
@@ -1284,20 +1283,20 @@ public class TMRequestHeaderService {
 		}
 		
 		if(requestType.getNeedBalance() && balance == null){
-			throw new RuntimeException("Your balance is not found.");
+			throw new CustomException("Your balance is not found.");
 		}
 		
 		if(requestType.getNeedBalance() && balance != null) {
 			if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
 				if(balance.getLastClaimDate() != null){
-					throw new RuntimeException("This request one time apply only.");
+					throw new CustomException("This request one time apply only.");
 				}
 			}
 		}
 		
 		
 		if(requestType.getNeedBalance() &&  request.getTotal() > balance.getBalanceEnd()) {
-			throw new RuntimeException("Your balance is not enought.");
+			throw new CustomException("Your balance is not enought.");
 		}
 		
 		
@@ -1306,7 +1305,7 @@ public class TMRequestHeaderService {
 						request.getCategoryType(), request.getStartDate());
 		
 		if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"You are not allowed request in the range date.");
 		}
 
@@ -1341,7 +1340,7 @@ public class TMRequestHeaderService {
 		
 		EmployeePayroll employeePayroll = employeePayrollRepository.findByEmployeeNo(employment.getExtId());
 		if(employeePayroll == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Employment Payroll is not Found.");
 		}
 		

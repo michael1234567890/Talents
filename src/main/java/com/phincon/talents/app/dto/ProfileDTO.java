@@ -17,11 +17,14 @@ public class ProfileDTO {
 	private String mobilePhone;
 	private Boolean isAdmin;
 	private Boolean isLeader;
+	private Boolean isChangePassword;
+	private Boolean isHr;
 	private Long needApproval;
 	private Employee employeeTransient;
 	private Company company;
 	private CompanySettings companySettings;
 	private List<CompanyReference> companyReference;
+	private Long countAnnouncement;
 	
 
 	public ProfileDTO() {
@@ -137,6 +140,30 @@ public class ProfileDTO {
 
 	public void setMobilePhone(String mobilePhone) {
 		this.mobilePhone = mobilePhone;
+	}
+
+	public Long getCountAnnouncement() {
+		return countAnnouncement;
+	}
+
+	public void setCountAnnouncement(Long countAnnouncement) {
+		this.countAnnouncement = countAnnouncement;
+	}
+
+	public Boolean getIsChangePassword() {
+		return isChangePassword;
+	}
+
+	public void setIsChangePassword(Boolean isChangePassword) {
+		this.isChangePassword = isChangePassword;
+	}
+
+	public Boolean getIsHr() {
+		return isHr;
+	}
+
+	public void setIsHr(Boolean isHr) {
+		this.isHr = isHr;
 	}
 
 	

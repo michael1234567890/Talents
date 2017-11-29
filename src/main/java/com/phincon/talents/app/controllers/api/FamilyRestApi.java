@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.FamilyRepository;
 import com.phincon.talents.app.model.hr.Family;
 
@@ -46,7 +47,7 @@ public class FamilyRestApi {
 	public Family find(@PathVariable Long id) {
 		Family detail = repository.findOne(id);
 		if (detail == null) {
-			throw new FamilyNotFound();
+			throw new CustomException("Family not found");
 		} else {
 			return detail;
 		}
@@ -70,8 +71,6 @@ public class FamilyRestApi {
 		return repository.save(family);
 	}
 
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	static class FamilyNotFound extends RuntimeException {
-	}
+
 
 }

@@ -126,13 +126,14 @@ public class TMRequestService {
 	
 	
 	@Transactional
-	public void rejectWithHeaderId(Long headerId) {
+	public void rejectCancelHeaderId(Long headerId, String status) {
 		// get All detail with Header
 		List<TMRequest> listTmRequest = tmRequestRepository.findByTmRequestHeader(headerId);
 		if(listTmRequest!=null && listTmRequest.size() > 0) {
 			for (TMRequest tmRequest : listTmRequest) {
 				//tmBalance = listTmBalance.get(0);
-				tmRequest.setStatus(TMRequest.REJECT);
+				//tmRequest.setStatus(TMRequest.REJECT);
+				tmRequest.setStatus(status);
 				tmRequest.setNeedSync(true);
 				save(tmRequest);
 				List<TMBalance> listTmBalance = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(),  tmRequest.getType().toLowerCase()); 
@@ -149,13 +150,19 @@ public class TMRequestService {
 						}
 						
 					}
+					Double balanceEnd;
+					Double balanceUsed;
+					if(tmBalance.getModule().toLowerCase().equals("time management")) {
+						balanceEnd = tmBalance.getBalanceEnd() + tmRequest.getTotalWorkDay();
+						 balanceUsed = tmBalance.getBalanceUsed() - tmRequest.getTotalWorkDay();
+					}else {
+						balanceEnd = tmBalance.getBalanceEnd() + tmRequest.getAmount();
+						balanceUsed = tmBalance.getBalanceUsed() - tmRequest.getAmount();
+					}
 					
-					Double balanceEnd = tmBalance.getBalanceEnd() + tmRequest.getAmount();
-					Double balanceUsed = tmBalance.getBalanceUsed() - tmRequest.getAmount();
 					if(tmBalance.getBalanceType() != null && ( tmBalance.getBalanceType().toLowerCase().equals("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") )) {
 						tmBalance.setBalanceUsed(balanceUsed);						
 					} else if(tmBalance.getBalanceType() != null && (tmBalance.getBalanceType().toLowerCase().equals("one time (2 years)") || tmBalance.getBalanceType().toLowerCase().equals("one time (1 years)") || tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)")) ){
-						//tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
 					}else {
 						tmBalance.setBalanceEnd(balanceEnd);

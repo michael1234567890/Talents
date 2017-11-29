@@ -28,8 +28,6 @@ public class DataApproval extends AbstractEntity {
 	public final static String PROC_STATUS_CANCEL = "Cancel";
 	// task
 	
-	
-	
 	// Status
 	public final static String NOT_COMPLETED = "not_completed";
 	public final static String COMPLETED = "completed";

@@ -95,8 +95,12 @@ public class User extends AbstractEntity {
 	@Column(name = "is_admin")
 	private Boolean isAdmin;
 	
+	
 	@Column(name = "is_change_password")
 	private Boolean isChangePassword;
+	
+	@Column(name = "is_hr")
+	private Boolean isHr;
 	
 	
 
@@ -299,6 +303,15 @@ public class User extends AbstractEntity {
 
 	public void setIsChangePassword(Boolean isChangePassword) {
 		this.isChangePassword = isChangePassword;
+	}
+	
+
+	public Boolean getIsHr() {
+		return isHr;
+	}
+
+	public void setIsHr(Boolean isHr) {
+		this.isHr = isHr;
 	}
 
 	@Override

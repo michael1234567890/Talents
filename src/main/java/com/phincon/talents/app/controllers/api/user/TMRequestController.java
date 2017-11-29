@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
@@ -90,7 +92,7 @@ public class TMRequestController {
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null && listEmployment.size() == 0)
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your Employment ID is not Found.");
 
 		Employment employment = listEmployment.get(0);
@@ -108,7 +110,7 @@ public class TMRequestController {
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
 
 //		if(true)
-//			throw new RuntimeException("This Feature Will Available Soon");
+//			throw new CustomException("This Feature Will Available Soon");
 		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -116,7 +118,7 @@ public class TMRequestController {
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null || listEmployment.size() == 0)
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your Employment ID is not Found.");
 
 		Employment employment = listEmployment.get(0);
@@ -138,16 +140,16 @@ public class TMRequestController {
 				.findByEmployee(user.getEmployee());
 		
 		if (listEmployment.size() == 0)
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your Employment ID is not Found.");
 		
 		if(request.getEmployee() == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Employee Param is  not Found.");
 		}
 		
 		if(request.getWorkflow() == null) {
-			throw new RuntimeException(
+			throw new CustomException(
 					"Workflow Param is  not Found.");
 		}
 		
@@ -156,7 +158,7 @@ public class TMRequestController {
 				.findByEmployee(request.getEmployee());
 		
 		if (listEmploymentEmployee.size() == 0)
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your Employment Employee ID is not Found.");
 		
 		Employment employment = listEmploymentEmployee.get(0);
@@ -174,15 +176,17 @@ public class TMRequestController {
 	public ResponseEntity<BenefitDTO> verificationBenefit(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
 
-		if(true)
-			throw new RuntimeException("This Feature Will Available Soon");
+//		if(true)
+//			throw new CustomException("This Feature Will Available Soon");
+//		
+		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null || listEmployment.size() == 0)
-			throw new RuntimeException(
+			throw new CustomException(
 					"Your Employment ID is not Found.");
 
 		Employment employment = listEmployment.get(0);
@@ -341,7 +345,7 @@ public class TMRequestController {
 		}else {
 			List<CompanySettings> listCompanySettings = companySettingRepository.findByCompany(user.getCompany());
 			if(listCompanySettings == null || listCompanySettings.size()==0)
-				throw new RuntimeException(
+				throw new CustomException(
 						"Company Setting is not found.");
 			CompanySettings companySettings = listCompanySettings.get(0);
 			fromDate = companySettings.getPeriodStartDate();
@@ -350,8 +354,8 @@ public class TMRequestController {
 		}
 		
 		if(fromDate == null || toDate == null) {
-			throw new RuntimeException(
-					"Param fromdate and todate can't be empty.");
+			throw new CustomException(
+					"Param fromDate and toDate can't be empty.");
 
 		}
 		
@@ -406,6 +410,7 @@ public class TMRequestController {
 			listRequest = tmRequestHeaderRepository
 					.findByCompanyAndModuleAndRequestNoLike(user.getCompany(),requestNo, module);
 		}
+		
 		
 		
 		if(listRequest!= null && listRequest.size() > 0) {

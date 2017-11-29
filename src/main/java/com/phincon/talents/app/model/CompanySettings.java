@@ -53,7 +53,20 @@ public class CompanySettings extends AbstractEntity {
 	@Column(name="period_end_date")
 	private Date periodEndDate;
 	
-
+	
+	@Column(name="mobile_version")
+	private Integer mobileVersion;
+	
+	@Column(name="mobile_download", length=255)
+	private String mobileDownload;
+	
+	@Column(name="day_of_payroll")
+	private String dayOfPayroll;
+	
+	@Column(name="is_payroll_month_disable")
+	private Boolean isPayrollMonthDisable;
+	
+	
 	public Long getCompany() {
 		return company;
 	}
@@ -124,6 +137,38 @@ public class CompanySettings extends AbstractEntity {
 
 	public void setPeriodEndDate(Date periodEndDate) {
 		this.periodEndDate = periodEndDate;
+	}
+
+	public Integer getMobileVersion() {
+		return mobileVersion;
+	}
+
+	public void setMobileVersion(Integer mobileVersion) {
+		this.mobileVersion = mobileVersion;
+	}
+
+	public String getMobileDownload() {
+		return mobileDownload;
+	}
+
+	public void setMobileDownload(String mobileDownload) {
+		this.mobileDownload = mobileDownload;
+	}
+
+	public String getDayOfPayroll() {
+		return dayOfPayroll;
+	}
+
+	public void setDayOfPayroll(String dayOfPayroll) {
+		this.dayOfPayroll = dayOfPayroll;
+	}
+
+	public Boolean getIsPayrollMonthDisable() {
+		return isPayrollMonthDisable;
+	}
+
+	public void setIsPayrollMonthDisable(Boolean isPayrollMonthDisable) {
+		this.isPayrollMonthDisable = isPayrollMonthDisable;
 	}
 	
 	

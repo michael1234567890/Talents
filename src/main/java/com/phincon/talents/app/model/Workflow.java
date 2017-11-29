@@ -9,21 +9,18 @@ import javax.persistence.Table;
 public class Workflow extends AbstractEntity {
 	
 	public final static String DEFAULT = "default";
-	
+	public final static String WORK_LOCATION = "worklocation";
 	public final static String OPERATION_ADD = "add";
 	public final static String OPERATION_EDIT = "edit";
 	
 	
 	// Code register workflow 
 	public final static String CHANGE_MARITAL_STATUS = "CHANGEMARITALSTATUS";
-	
 	public final static String SUBMIT_LEAVE = "SUBMITLEAVE";
 	public final static String SUBMIT_FAMILY = "SUBMITFAMILY";
 	public final static String SUBMIT_ADDRESS = "SUBMITADDRESS";
-	
 	public final static String CHANGE_FAMILY = "CHANGEFAMILY";
 	public final static String CHANGE_ADDRESS = "CHANGEADDRESS";
-	
 	public final static String SUBMIT_BENEFIT = "SUBMITBENEFIT";
 	public final static String SUBMIT_BENEFIT1 = "SUBMITBENEFIT1";
 	public final static String SUBMIT_BENEFIT2 = "SUBMITBENEFIT2";
@@ -38,17 +35,11 @@ public class Workflow extends AbstractEntity {
 	public final static String SUBMIT_BENEFIT8 = "SUBMITBENEFIT8";
 	public final static String SUBMIT_BENEFIT9 = "SUBMITBENEFIT9";
 	public final static String SUBMIT_BENEFIT10 = "SUBMITBENEFIT10";
-	
 	public final static String SUBMIT_ATTENDANCE = "SUBMITAT";
-	
 	public final static String SUBMIT_TIMESHEET = "SUBMITTIMESHEET";
-	
 	public final static String APPROVAL_TYPE_CENTRALIZE = "centralize";
-
 	public final static String APPROVAL_TYPE_DECENTRALIZE = "decentralize";
-	
-	
-	
+	public final static String DEFAULT_APPROVER = "#HRD#";
 	
 //	@ManyToOne(fetch = FetchType.LAZY)
 //	@JoinColumn(name = "company_id")

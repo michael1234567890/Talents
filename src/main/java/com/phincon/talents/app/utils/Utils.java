@@ -27,6 +27,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import sun.misc.BASE64Decoder;
 
+import com.phincon.talents.app.config.CustomException;
+
 
 public class Utils {
 	public static String INPUT_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -159,7 +161,7 @@ public class Utils {
 			paramsMap = mapper.readValue(strJson, Map.class);
 
 		} catch (Exception e) {
-			throw new RuntimeException("Error :  Problem with convert Data");
+			throw new CustomException("Problem with convert Data");
 		}
 		return paramsMap;
 	}
@@ -256,8 +258,11 @@ public class Utils {
 			HttpServletRequest request, String path) {
 		String url = null;
 		if (request != null) {
-			url = http + request.getServerName() + ":"
-					+ request.getServerPort() + "/public/getImage?path=" + path;
+				url = http + request.getServerName()  + "/public/getImage?path=" + path;
+				
+				if(request.getServerPort() != 80) 
+					url = http + request.getServerName() + ":" + request.getServerPort() + "/public/getImage?path=" + path;
+				
 		}
 		return url;
 	}

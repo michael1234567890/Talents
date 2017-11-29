@@ -36,6 +36,12 @@ public class VwEmpAssignment  {
 	
 	@Column(name = "organization_id", length = 255)
 	private Long organization;
+	
+	@Column(name = "work_location_ext_id", length = 100)
+	private String workLocationExtId;
+	
+	@Column(name = "work_location_name", length = 100)
+	private String workLocationName;
 
 	@Column(name = "last_name", length = 100)
 	private String lastName;
@@ -307,6 +313,22 @@ public class VwEmpAssignment  {
 
 	public void setOrganization(Long organization) {
 		this.organization = organization;
+	}
+
+	public String getWorkLocationExtId() {
+		return workLocationExtId;
+	}
+
+	public void setWorkLocationExtId(String workLocationExtId) {
+		this.workLocationExtId = workLocationExtId;
+	}
+
+	public String getWorkLocationName() {
+		return workLocationName;
+	}
+
+	public void setWorkLocationName(String workLocationName) {
+		this.workLocationName = workLocationName;
 	}
 	
 	

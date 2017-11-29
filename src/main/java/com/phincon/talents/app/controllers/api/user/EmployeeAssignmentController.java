@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.model.User;
-import com.phincon.talents.app.model.hr.Family;
-import com.phincon.talents.app.model.hr.Timesheet;
 import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.utils.LoadResult;
 
@@ -46,7 +45,7 @@ public class EmployeeAssignmentController {
 				.getUserAuthentication().getName());
 		List<VwEmpAssignment> listAssignment = vwEmpAssignmentRepository.findByEmployee(user.getEmployee());
 		if(listAssignment.size() ==0) {
-			throw new RuntimeException("Employee Assignment is not found");
+			throw new CustomException("Employee Assignment is not found");
 		}
 		VwEmpAssignment assignment = listAssignment.get(0);
 		List<VwEmpAssignment> listEmployeeAssignment = null;
@@ -71,7 +70,7 @@ public class EmployeeAssignmentController {
 			listTotalRecord = vwEmpAssignmentRepository.countByDivisionAndCompany(value, user.getCompany());
 			listEmployeeAssignment = vwEmpAssignmentRepository.findByDivisionAndCompany(value, user.getCompany(),pageRequest);
 		}else {
-			throw new RuntimeException("Your param is not registered");
+			throw new CustomException("Your param is not registered");
 		}
 		
 		if (listTotalRecord != null && listTotalRecord.size() > 0) {
