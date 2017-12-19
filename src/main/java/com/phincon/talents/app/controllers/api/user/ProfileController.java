@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -127,7 +128,7 @@ public class ProfileController {
 
 	@RequestMapping(value = "/user/profile", method = RequestMethod.GET)
 	public ResponseEntity<ProfileDTO> myprofile(
-			OAuth2Authentication authentication,HttpServletRequest request) {
+			OAuth2Authentication authentication,@RequestParam(value = "mobileversion", required = false) Integer mobileVersion,HttpServletRequest request) {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -193,8 +194,7 @@ public class ProfileController {
 		profile.setCompany(company);
 		String image = null;
 		if(user.getPhotoProfile() != null && !user.getPhotoProfile().equals("")) {
-			image = Utils
-					.convertImageToBase64(user.getPhotoProfile());
+			image = Utils.convertImageToBase64(user.getPhotoProfile());
 			
 			/*String http = env.getProperty("talents.protocol");
 			image = Utils.getUrlAttachment(http, request,
@@ -203,6 +203,10 @@ public class ProfileController {
 		}
 		profile.setImage(image);
 
+		if(mobileVersion != null) {
+			user.setMobileVersion(mobileVersion);
+			userRepository.save(user);
+		}
 		return new ResponseEntity<ProfileDTO>(profile, HttpStatus.OK);
 	}
 

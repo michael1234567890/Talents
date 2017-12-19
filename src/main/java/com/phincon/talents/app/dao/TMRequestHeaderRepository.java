@@ -86,6 +86,15 @@ public interface TMRequestHeaderRepository extends
 			@Param("module") String module,
 			@Param("categoryType") String categoryType,
 			@Param("startDate") Date startDate);
+	
+	@Query("select p from TMRequestHeader p where p.company=:company AND p.requester=:requester AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND p.requestDate >=:startDate AND p.requestDate <=:endDate AND LOWER(p.status)!='rejected' AND LOWER(p.status)!='cancelled'")
+	List<TMRequestHeader> findRequestDateBetweenStartEndDate(
+			@Param("company") Long company, 
+			@Param("requester") Long requester,
+			@Param("module") String module,
+			@Param("categoryType") String categoryType,
+			@Param("startDate") Date startDate,
+			@Param("endDate") Date endDate);
 
 	@Modifying
 	@Query("UPDATE TMRequestHeader set totalAmount=:amount, totalAmountSubmit=:amount where id=:id")

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.phincon.talents.app.async.SendingEmailService;
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AddressTempRepository;
+import com.phincon.talents.app.dao.DataApprovalHistoryRepository;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.TemplateMailRepository;
@@ -30,6 +31,7 @@ import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.model.AttachmentDataApproval;
 import com.phincon.talents.app.model.DataApproval;
+import com.phincon.talents.app.model.DataApprovalHistory;
 import com.phincon.talents.app.model.SendingEmail;
 import com.phincon.talents.app.model.TemplateMail;
 import com.phincon.talents.app.model.User;
@@ -67,6 +69,10 @@ public class DataApprovalService {
 	UserRepository userRepository;
 	
 	@Autowired
+	DataApprovalHistoryRepository dataApprovalHistoryRepository;
+	
+	
+	@Autowired
 	VwEmpAssignmentRepository vwEmpAssignmentRepository;
 
 	@Autowired
@@ -100,12 +106,19 @@ public class DataApprovalService {
 	private Environment env;
 
 	@Transactional
-	public DataApproval findById(Long id) {
-		DataApproval dataApproval = dataApprovalRepository.findOne(id);
+	public DataApproval findById(Long id,User user, boolean bypass) {
+		
+		DataApproval dataApproval = null; 
+		if(bypass) {
+			dataApproval = dataApprovalRepository.findOne(id);
+		}else {
+			dataApproval = dataApprovalRepository.findByIdAndEmpRequest(id, user.getEmployee());
+		}
+		
+		
 		if (dataApproval != null) {
 			if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY)
 					|| dataApproval.getTask().equals(Workflow.CHANGE_FAMILY)) {
-				System.out.println("Family Data Approval");
 				if (dataApproval.getProcessingStatus().equals(
 						DataApproval.PROC_STATUS_REJECT)) {
 					System.out.println("Data Approval Object Ref "
@@ -313,8 +326,7 @@ public class DataApprovalService {
 
 		validationDataApproval(request, user);
 
-		if (workflow.getOperation() != null
-				&& workflow.getOperation().equals(Workflow.OPERATION_EDIT)) {
+		if (workflow.getOperation() != null && workflow.getOperation().equals(Workflow.OPERATION_EDIT)) {
 			if (request.getIdRef() == null) {
 				throw new CustomException(
 						"Error : your ref id can be empty. your task "
@@ -323,65 +335,50 @@ public class DataApprovalService {
 			}
 		}
 
-		approvalLevelOne = workflowService.findAssignApproval(
-				workflow.getApprovalCodeLevelOne(), user.getEmployee(),
-				user.getCompany(), request.getTask());
-
-		if (workflow.getApprovalCodeLevelTwo() != null
-				&& (!workflow.getApprovalCodeLevelTwo().equals("") || !workflow
-						.getApprovalCodeLevelTwo().isEmpty())) {
+		approvalLevelOne = workflowService.findAssignApproval(workflow.getApprovalCodeLevelOne(), user.getEmployee(),user.getCompany(), request.getTask());
+		
+		if (workflow.getApprovalCodeLevelTwo() != null&& (!workflow.getApprovalCodeLevelTwo().equals("") || !workflow.getApprovalCodeLevelTwo().isEmpty())) {
 			approvalLevel = 2;
-			approvalLevelTwo = workflowService.findAssignApproval(
-					workflow.getApprovalCodeLevelTwo(), user.getEmployee(),
-					user.getCompany(), request.getTask());
+			approvalLevelTwo = workflowService.findAssignApproval(workflow.getApprovalCodeLevelTwo(), user.getEmployee(),user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getApprovalCodeLevelThree() != null
-				&& !workflow.getApprovalCodeLevelThree().equals("")) {
+		if (workflow.getApprovalCodeLevelThree() != null && !workflow.getApprovalCodeLevelThree().equals("")) {
 			approvalLevel = 3;
 			approvalLevelThree = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelThree(), user.getEmployee(),
 					user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getApprovalCodeLevelFour() != null
-				&& !workflow.getApprovalCodeLevelFour().equals("")) {
+		if (workflow.getApprovalCodeLevelFour() != null && !workflow.getApprovalCodeLevelFour().equals("")) {
 			approvalLevel = 4;
 			approvalLevelFour = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelFour(), user.getEmployee(),
 					user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getApprovalCodeLevelFive() != null
-				&& !workflow.getApprovalCodeLevelFive().equals("")) {
+		if (workflow.getApprovalCodeLevelFive() != null&& !workflow.getApprovalCodeLevelFive().equals("")) {
 			approvalLevel = 5;
 			approvalLevelFive = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelFive(), user.getEmployee(),
 					user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getApprovalCodeLevelSix() != null
-				&& !workflow.getApprovalCodeLevelSix().equals("")) {
+		if (workflow.getApprovalCodeLevelSix() != null&& !workflow.getApprovalCodeLevelSix().equals("")) {
 			approvalLevel = 6;
 			approvalLevelSix = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelSix(), user.getEmployee(),
 					user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getApprovalCodeLevelSeven() != null
-				&& !workflow.getApprovalCodeLevelSeven().equals("")) {
+		if (workflow.getApprovalCodeLevelSeven() != null&& !workflow.getApprovalCodeLevelSeven().equals("")) {
 			approvalLevel = 7;
 			approvalLevelSeven = workflowService.findAssignApproval(
 					workflow.getApprovalCodeLevelSeven(), user.getEmployee(),
 					user.getCompany(), request.getTask());
 		}
 
-		if (workflow.getOperation() != null
-				&& workflow.getOperation().equals(Workflow.OPERATION_EDIT)) {
-			List<DataApproval> listDataApproval = dataApprovalRepository
-					.findByEmpRequestAndTaskAndActiveAndStatus(
-							user.getEmployee(), request.getTask(), true,
-							DataApproval.NOT_COMPLETED);
+		if (workflow.getOperation() != null&& workflow.getOperation().equals(Workflow.OPERATION_EDIT)) {
+			List<DataApproval> listDataApproval = dataApprovalRepository.findByEmpRequestAndTaskAndActiveAndStatus(user.getEmployee(), request.getTask(), true,DataApproval.NOT_COMPLETED);
 
 			if (listDataApproval != null && listDataApproval.size() > 0) {
 				dataApproval = listDataApproval.get(0);
@@ -437,16 +434,13 @@ public class DataApprovalService {
 		dataApproval.setModule(workflow.getModule());
 		save(dataApproval);
 
-		if (request.getAttachments() != null
-				&& request.getAttachments().size() > 0) {
+		if (request.getAttachments() != null&& request.getAttachments().size() > 0) {
 
 			// save attachment`
 			for (Map<String, Object> map : request.getAttachments()) {
 				String imageBase64 = (String) map.get("image");
 				if (imageBase64 != null) {
-					String pathname = "workflow/"
-							+ RandomStringUtils.randomAlphanumeric(10) + "."
-							+ Utils.UPLOAD_IMAGE_TYPE;
+					String pathname = "workflow/"+ RandomStringUtils.randomAlphanumeric(10) + "."+ Utils.UPLOAD_IMAGE_TYPE;
 					Utils.createImage(imageBase64, pathname);
 					AttachmentDataApproval obj = new AttachmentDataApproval();
 					obj.setPath(pathname);
@@ -467,9 +461,25 @@ public class DataApprovalService {
 			String empIdString = Utils.changeTagar(currentAssignApproval);
 			sendingEmail(user.getCompany(), "RESULTAPPBENEFIT",null,null, empIdString, dataApproval);
 		}
-
 		
+		String descriptionHistory = "Request created by " + user.getUsername();
+		saveWorkflowHistory(dataApproval,user,descriptionHistory,"Request");
 
+	}
+
+	private void saveWorkflowHistory(DataApproval dataApproval,User user, String description, String status) {
+		DataApprovalHistory dataApprovalHist = new DataApprovalHistory();
+		dataApprovalHist.setCreatedDate(new Date());
+		dataApprovalHist.setModifiedBy(user.getUsername());
+		dataApprovalHist.setModifiedDate(new Date());
+		dataApprovalHist.setDataApproval(dataApproval.getId());
+		dataApprovalHist.setCreatedBy(user.getUsername());
+		dataApprovalHist.setCurrentApproval(dataApproval.getCurrentApprovalLevel());
+		dataApprovalHist.setCompany(user.getCompany());
+		dataApprovalHist.setEmployeeApproval(user.getEmployee());
+		dataApprovalHist.setDescription(description);
+		dataApprovalHist.setStatus(status);
+		dataApprovalHistoryRepository.save(dataApprovalHist);
 	}
 
 	private void validationDataApproval(DataApprovalDTO request, User user) {
@@ -524,8 +534,7 @@ public class DataApprovalService {
 			throw new CustomException("Data Approval is not found");
 		}
 
-		if (dataApproval.getStatus().equals(DataApproval.COMPLETED)
-				&& !isBypass) {
+		if (dataApproval.getStatus().equals(DataApproval.COMPLETED) && !isBypass) {
 			throw new CustomException("This request is already Completed");
 		}
 
@@ -550,46 +559,27 @@ public class DataApprovalService {
 				throw new CustomException("Current approval step is over");
 			}
 			dataApproval.setCurrentApprovalLevel(currentApprovalLevel);
+			
 			if (dataApproval.getApprovalLevel() == currentApprovalLevel) {
 				isSendToRequest = true;
 				dataApproval.setStatus(DataApproval.COMPLETED);
-				dataApproval
-						.setProcessingStatus(DataApproval.PROC_STATUS_APPROVE);
+				dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_APPROVE);
 				callingApprovedMethod(dataApproval, approvalWorkflow);
 
 			} else {
-				Integer nextLevelApproval = dataApproval
-						.getCurrentApprovalLevel() + 1;
-				if (nextLevelApproval == 2
-						&& dataApproval.getApprovalLevelTwo() != null
-						&& !dataApproval.getApprovalLevelTwo().isEmpty()) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelTwo());
-				} else if (nextLevelApproval == 3
-						&& !dataApproval.getApprovalLevelThree().isEmpty()
-						&& dataApproval.getApprovalLevelThree() != null) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelThree());
-				} else if (nextLevelApproval == 4
-						&& !dataApproval.getApprovalLevelFour().isEmpty()
-						&& dataApproval.getApprovalLevelFour() != null) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelFour());
-				} else if (nextLevelApproval == 5
-						&& !dataApproval.getApprovalLevelFive().isEmpty()
-						&& dataApproval.getApprovalLevelFive() != null) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelFive());
-				} else if (nextLevelApproval == 6
-						&& !dataApproval.getApprovalLevelSix().isEmpty()
-						&& dataApproval.getApprovalLevelSix() != null) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelSix());
-				} else if (nextLevelApproval == 7
-						&& !dataApproval.getApprovalLevelSeven().isEmpty()
-						&& dataApproval.getApprovalLevelSeven() != null) {
-					dataApproval.setCurrentAssignApproval(dataApproval
-							.getApprovalLevelSeven());
+				Integer nextLevelApproval = dataApproval.getCurrentApprovalLevel() + 1;
+				if (nextLevelApproval == 2 && dataApproval.getApprovalLevelTwo() != null && !dataApproval.getApprovalLevelTwo().isEmpty()) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelTwo());
+				} else if (nextLevelApproval == 3 && !dataApproval.getApprovalLevelThree().isEmpty() && dataApproval.getApprovalLevelThree() != null) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelThree());
+				} else if (nextLevelApproval == 4 && !dataApproval.getApprovalLevelFour().isEmpty() && dataApproval.getApprovalLevelFour() != null) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelFour());
+				} else if (nextLevelApproval == 5 && !dataApproval.getApprovalLevelFive().isEmpty() && dataApproval.getApprovalLevelFive() != null) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelFive());
+				} else if (nextLevelApproval == 6 && !dataApproval.getApprovalLevelSix().isEmpty() && dataApproval.getApprovalLevelSix() != null) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelSix());
+				} else if (nextLevelApproval == 7 && !dataApproval.getApprovalLevelSeven().isEmpty() && dataApproval.getApprovalLevelSeven() != null) {
+					dataApproval.setCurrentAssignApproval(dataApproval.getApprovalLevelSeven());
 				}
 
 				processingBeforeApprovedObject(dataApproval, approvalWorkflow);
@@ -600,7 +590,6 @@ public class DataApprovalService {
 
 		} else if (approvalWorkflow.getStatus().equals(DataApproval.REJECTED)) {
 			isSendToRequest = true;
-			
 			dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_REJECT);
 			dataApproval.setStatus(DataApproval.COMPLETED);
 			dataApproval.setReasonReject(approvalWorkflow.getReasonReject());
@@ -639,6 +628,11 @@ public class DataApprovalService {
 					.getCurrentAssignApproval());
 
 		sendingEmail(user.getCompany(), "RESULTAPPBENEFIT",null,null, empIdString, dataApproval);
+		
+		
+		String descriptionHistory = "Request " + approvalWorkflow.getStatus() + " by " + user.getUsername();
+		saveWorkflowHistory(dataApproval,user,descriptionHistory,approvalWorkflow.getStatus());
+		
 	}
 
 	private void processingBeforeApprovedObject(DataApproval dataApproval,

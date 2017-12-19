@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.config.CustomException;
+import com.phincon.talents.app.dao.AddressRepository;
 import com.phincon.talents.app.dao.AddressTempRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
@@ -48,6 +49,9 @@ public class AddressController {
 	
 	@Autowired
 	AddressService addressService;
+	
+	@Autowired
+	AddressRepository addressRepository;
 	
 	@Autowired
 	EmployeeRepository employeeRepository;
@@ -142,10 +146,25 @@ public class AddressController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		Address address = addressService.findById(id);
-		if(address == null) {
-			throw new CustomException("Your ID Address is not found.");
+		
+		boolean bypass = false;
+		if((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader()!=null&& user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
+			bypass = true;
 		}
+		
+		Address address = null;
+		if(bypass) {
+			address = addressService.findById(id);
+		}else {
+			address = addressRepository.findByIdAndEmployee(id, user.getEmployee());
+		}
+		
+		 
+		if(address == null) {
+			throw new CustomException("Your Detail Address is not found.");
+		}
+		
+		
 		AddressTemp addressTemp = copyFromAddress(address);
 		address.setAddress(request.getAddress());
 		address.setAddressStatus(request.getAddressStatus());
@@ -209,7 +228,23 @@ public class AddressController {
 		if (user == null) {
 			return new ResponseEntity(HttpStatus.NO_CONTENT);
 		}		
-		Address address = addressService.findById(id);
+		Address address = null;
+		boolean bypass = false;
+		if((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader()!=null&& user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
+			bypass = true;
+		}
+		
+		if(bypass) {
+			address = addressService.findById(id);
+		}else {
+			address = addressRepository.findByIdAndEmployee(id, user.getEmployee());
+		}
+		
+		 
+		if(address == null) {
+			throw new CustomException("Your Detail Address is not found.");
+		}
+		
 		return new ResponseEntity<Address>(address, HttpStatus.OK);
 	}
 	

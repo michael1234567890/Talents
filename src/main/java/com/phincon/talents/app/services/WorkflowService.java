@@ -68,8 +68,7 @@ public class WorkflowService {
 		
 		VwEmpAssignment vwEmpAssignment = vwEmpAssignmentService.findAssignmentByEmployee(employee);
 		if(vwEmpAssignment == null) {
-			throw new CustomException(
-					"Data Employee is not completed.");
+			throw new CustomException("Data Employee is not completed.");
 		}
 		
 		if (codeApproval.equals(Workflow.DEFAULT)) {
@@ -88,9 +87,8 @@ public class WorkflowService {
 				ApprovalGroup approvalGroup = listApprovalGroup.get(0);
 				assignApproval = approvalGroup.getMember();
 				if(approvalGroup.getHaveType()!=null && approvalGroup.getHaveType()) {
-					String memberType = null;
+					String memberType = approvalGroup.getMember();
 					Employee employeeObj = employeeRepository.findOne(employee);
-					
 					if(employeeObj != null && employeeObj.getBenefitType()!=null && !employeeObj.getBenefitType().equals("")){
 						if(employeeObj.getBenefitType().equals(Employee.APPROVAL_1))
 							memberType = approvalGroup.getMemberTypeOne();

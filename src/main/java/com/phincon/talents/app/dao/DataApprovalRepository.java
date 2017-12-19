@@ -9,9 +9,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.phincon.talents.app.model.DataApproval;
+import com.phincon.talents.app.model.hr.Family;
 
 @Repository
 public interface DataApprovalRepository extends PagingAndSortingRepository<DataApproval,Long>{
+	
+	
+	@Query
+	DataApproval findByIdAndEmpRequest(Long id ,Long employee);
 	
 	 @Query
 	 List<DataApproval> findByEmpRequestAndTaskAndActiveAndStatus(Long employee,String task, boolean active, String status);

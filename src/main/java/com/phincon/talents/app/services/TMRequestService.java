@@ -56,8 +56,6 @@ public class TMRequestService {
 	public void ApproveWithHeaderId(Long headerId,List<TMRequest> listTmRequest) {
 		tmRequestRepository.approvedByHeaderId(TMRequest.APPROVED, headerId);
 		for (TMRequest tmRequest : listTmRequest) {	
-			//List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), employmentId, module, category, type, tmRequest.getRequestDate());
-			// List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(), tmRequest.getCategoryType().toLowerCase(), tmRequest.getType().toLowerCase()); 
 			List<TMBalance> listTmBalances = tmBalanceRepository.findBalanceTypeByEmployment(tmRequest.getCompany(), tmRequest.getEmployment(), tmRequest.getModule().toLowerCase(),  tmRequest.getType().toLowerCase()); 
 			
 			TMBalance balance = null;

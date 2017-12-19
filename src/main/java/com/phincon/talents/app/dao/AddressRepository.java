@@ -13,11 +13,17 @@ import com.phincon.talents.app.model.hr.Address;
 @Repository
 public interface AddressRepository extends PagingAndSortingRepository<Address,Long>{
 	
-	 @Query
+	@Query
+	Address findByIdAndEmployee(Long id ,Long employee);
+	 
+	
+	@Query
 	 Iterable<Address> findByEmployee(Long employee);
 	 
 	 @Query
 	 List<Address> findByAddressStatusAndEmployee(String addressStatus, Long employee);
+	 
+	 
 	 
 	 
 	 @Modifying

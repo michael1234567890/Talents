@@ -74,7 +74,15 @@ public class PayrollController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
 		
+		// temporary
+		if(companySettings.getIsPayrollMonthDisable() != null && companySettings.getIsPayrollMonthDisable())
+			throw new CustomException("This Feature Will Available Soon");
+				
 		// load company setting
 		List<CompanySettings> listCompanySettings = companySettingsRepository.findByCompany(user.getCompany());
 		CompanySettings companySetting = null;
@@ -140,8 +148,6 @@ public class PayrollController {
 				}
 			}
 		}
-
-
 		
 	}
 

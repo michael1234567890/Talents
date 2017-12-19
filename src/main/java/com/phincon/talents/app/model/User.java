@@ -103,6 +103,10 @@ public class User extends AbstractEntity {
 	private Boolean isHr;
 	
 	
+	@Column(name = "mobile_version")
+	private Integer mobileVersion;
+	
+	
 
 	@Transient
 	private Employee employeeTransient;
@@ -312,6 +316,16 @@ public class User extends AbstractEntity {
 
 	public void setIsHr(Boolean isHr) {
 		this.isHr = isHr;
+	}
+	
+	
+
+	public Integer getMobileVersion() {
+		return mobileVersion;
+	}
+
+	public void setMobileVersion(Integer mobileVersion) {
+		this.mobileVersion = mobileVersion;
 	}
 
 	@Override

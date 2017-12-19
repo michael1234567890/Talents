@@ -8,6 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.Family;
 
 @Repository
@@ -15,6 +16,9 @@ public interface FamilyRepository extends PagingAndSortingRepository<Family,Long
 	@Query("select p from Family p where UPPER(p.name) like UPPER(?1) or " +
             "UPPER(p.name) like UPPER(?1)")
     List search(String term);
+	
+	@Query
+	Family findByIdAndEmployee(Long id ,Long employee);
 	
 	@Query
 	Iterable<Family> findByEmployee(Long employeeId);

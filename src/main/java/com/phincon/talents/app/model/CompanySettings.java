@@ -66,6 +66,15 @@ public class CompanySettings extends AbstractEntity {
 	@Column(name="is_payroll_month_disable")
 	private Boolean isPayrollMonthDisable;
 	
+	@Column(name="is_payroll_year_disable")
+	private Boolean isPayrollYearDisable;
+	
+	@Column(name="is_benefit_disable")
+	private Boolean isBenefitDisable;
+	
+	
+	@Column(name="is_tm_disable")
+	private Boolean isTMDisable;
 	
 	public Long getCompany() {
 		return company;
@@ -169,6 +178,30 @@ public class CompanySettings extends AbstractEntity {
 
 	public void setIsPayrollMonthDisable(Boolean isPayrollMonthDisable) {
 		this.isPayrollMonthDisable = isPayrollMonthDisable;
+	}
+
+	public Boolean getIsPayrollYearDisable() {
+		return isPayrollYearDisable;
+	}
+
+	public void setIsPayrollYearDisable(Boolean isPayrollYearDisable) {
+		this.isPayrollYearDisable = isPayrollYearDisable;
+	}
+
+	public Boolean getIsBenefitDisable() {
+		return isBenefitDisable;
+	}
+
+	public void setIsBenefitDisable(Boolean isBenefitDisable) {
+		this.isBenefitDisable = isBenefitDisable;
+	}
+
+	public Boolean getIsTMDisable() {
+		return isTMDisable;
+	}
+
+	public void setIsTMDisable(Boolean isTMDisable) {
+		this.isTMDisable = isTMDisable;
 	}
 	
 	

@@ -80,6 +80,9 @@ public class TMRequestController {
 
 	@Autowired
 	RequestTypeRepository requestTypeRepository;
+	
+	@Autowired
+	CompanySettingsRepository companySettingsRepository;
 
 	@RequestMapping(value = "/user/tmrequestheader/benefit", method = RequestMethod.POST)
 	@ResponseBody
@@ -109,8 +112,8 @@ public class TMRequestController {
 	public ResponseEntity<BenefitDTO> verificationAttendance(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
 
-//		if(true)
-//			throw new CustomException("This Feature Will Available Soon");
+		if(true)
+			throw new CustomException("This Feature Will Available Soon");
 		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
@@ -136,21 +139,17 @@ public class TMRequestController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 
-		List<Employment> listEmployment = employmentRepository
-				.findByEmployee(user.getEmployee());
+		List<Employment> listEmployment = employmentRepository.findByEmployee(user.getEmployee());
 		
 		if (listEmployment.size() == 0)
-			throw new CustomException(
-					"Your Employment ID is not Found.");
+			throw new CustomException("Your Employment ID is not Found.");
 		
 		if(request.getEmployee() == null) {
-			throw new CustomException(
-					"Employee Param is  not Found.");
+			throw new CustomException("Employee Param is  not Found.");
 		}
 		
 		if(request.getWorkflow() == null) {
-			throw new CustomException(
-					"Workflow Param is  not Found.");
+			throw new CustomException("Workflow Param is  not Found.");
 		}
 		
 		
@@ -175,13 +174,20 @@ public class TMRequestController {
 	@ResponseBody
 	public ResponseEntity<BenefitDTO> verificationBenefit(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
-
-//		if(true)
-//			throw new CustomException("This Feature Will Available Soon");
-//		
 		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
+		// temporary
+		if(companySettings.getIsBenefitDisable() != null && companySettings.getIsBenefitDisable())
+			throw new CustomException("This Feature Will Available Soon");
+				
+		
 
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
@@ -205,6 +211,7 @@ public class TMRequestController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
 		module = module.toLowerCase();
 		List<RequestCategoryType> listCategorySelected = new ArrayList<RequestCategoryType>();
 		
@@ -436,7 +443,8 @@ public class TMRequestController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		TMRequestHeader objRequest ;
-		if((user.getIsAdmin()!=null && user.getIsAdmin()) || (user.getIsLeader() != null && user.getIsLeader())) {
+		
+		if((user.getIsAdmin()!=null && user.getIsAdmin()) || (user.getIsLeader() != null && user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
 				objRequest = tmRequestHeaderService.findByIdWithDetail(id,null);
 		}else {
 			objRequest = tmRequestHeaderService.findByIdWithDetail(id,user.getEmployee());

@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.config.CustomException;
+import com.phincon.talents.app.dao.FamilyRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
+import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.model.hr.FamilyTemp;
 import com.phincon.talents.app.services.DataApprovalService;
@@ -38,6 +40,9 @@ public class FamilyController {
 	
 	@Autowired
 	FamilyTempService familyTempService;
+	
+	@Autowired
+	FamilyRepository familyRepository;
 
 	@Autowired
 	WorkflowService workflowService;
@@ -97,10 +102,25 @@ public class FamilyController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-		Family family = familyService.findById(id);
+		
+		boolean bypass = false;
+		if((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader()!=null&& user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
+			bypass = true;
+		}
+		
+		Family family = null;
+		if(bypass) {
+			family = familyService.findById(id);
+		}else {
+			family = familyRepository.findByIdAndEmployee(id, user.getEmployee());
+		}
+		
+		//Family family = familyService.findById(id);
 		if(family == null) {
 			throw new CustomException("Your ID family is not found.");
 		}
+		
+		
 		FamilyTemp familyTemp = copyFromFamily(family);
 		family = copyFromFamilyDTO(family, request);
 		
@@ -173,8 +193,25 @@ public class FamilyController {
 
 		if (user == null) {
 			return new ResponseEntity(HttpStatus.NO_CONTENT);
-		}		
-		Family family = familyService.findById(id);
+		}
+		
+		boolean bypass = false;
+		if((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader()!=null&& user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
+			bypass = true;
+		}
+		
+		Family family = null;
+		if(bypass) {
+			family = familyService.findById(id);
+		}else {
+			family = familyRepository.findByIdAndEmployee(id, user.getEmployee());
+		}
+		
+		 
+		if(family == null) {
+			throw new CustomException("Your Detail Family is not found.");
+		}
+		
 		return new ResponseEntity<Family>(family, HttpStatus.OK);
 	}
 	

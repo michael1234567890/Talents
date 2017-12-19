@@ -1,6 +1,7 @@
 package com.phincon.talents.app.controllers.api.user;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.DataApprovalRepository;
 import com.phincon.talents.app.dao.UserRepository;
+import com.phincon.talents.app.dao.VwHistDataApprovalTMRequestHeaderRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
 import com.phincon.talents.app.dto.CountObjectDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
@@ -29,6 +31,7 @@ import com.phincon.talents.app.model.AttachmentDataApproval;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
+import com.phincon.talents.app.model.hr.VwHistDataApprovalTMRequestHeader;
 import com.phincon.talents.app.services.AttachmentDataApprovalService;
 import com.phincon.talents.app.services.DataApprovalService;
 import com.phincon.talents.app.services.FamilyService;
@@ -57,6 +60,9 @@ public class WorkflowController {
 
 	@Autowired
 	DataApprovalRepository dataApprovalRepository;
+	
+	@Autowired
+	VwHistDataApprovalTMRequestHeaderRepository vwHistoryApprovalRepository;
 
 	@Autowired
 	AttachmentDataApprovalService attachmentDataApprovalService;
@@ -238,18 +244,26 @@ public class WorkflowController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-
-		DataApproval dataApproval = dataApprovalService.findById(id);
+		
+		boolean bypass = false;
+		if((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader()!=null&& user.getIsLeader()) || (user.getIsHr() != null && user.getIsHr())) {
+			bypass = true;
+		}
+		
+		DataApproval dataApproval = dataApprovalService.findById(id, user, bypass);
+		
+		if(dataApproval == null) {
+			throw new CustomException("Data Approval is not found.");
+		}
+		
+		
 		// User
-		User userEmployee = userRepository.findByEmployee(dataApproval
-				.getEmpRequest());
+		User userEmployee = userRepository.findByEmployee(dataApproval.getEmpRequest());
 		// ambil foto profile
 		String imageProfile = null;
-		if (userEmployee != null && userEmployee.getPhotoProfile() != null
-				&& !userEmployee.getPhotoProfile().equals("")) {
+		if (userEmployee != null && userEmployee.getPhotoProfile() != null && !userEmployee.getPhotoProfile().equals("")) {
 			String http = env.getProperty("talents.protocol");
-			imageProfile = Utils.getUrlAttachment(http, request,
-					userEmployee.getPhotoProfile());
+			imageProfile = Utils.getUrlAttachment(http, request, userEmployee.getPhotoProfile());
 		}
 
 		dataApproval.setEmployeeRequestPhotoProfile(imageProfile);
@@ -273,8 +287,31 @@ public class WorkflowController {
 		dataApproval.setAttachments(tempAttachmentDataApproval);
 
 		return new ResponseEntity<DataApproval>(dataApproval, HttpStatus.OK);
-
 	}
+	
+	
+	@RequestMapping(value = "/user/workflow/dataapproval/historyapproval", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<List<VwHistDataApprovalTMRequestHeader>> historyApproval(@RequestParam(value = "fromdate", required = true) String strFromDate, @RequestParam(value = "todate", required = true)  String strToDate, OAuth2Authentication authentication,
+			HttpServletRequest request) {
+		
+		User user = userRepository.findByUsernameCaseInsensitive(authentication.getUserAuthentication().getName());
+		if(strFromDate == null || strToDate == null) {
+			throw new CustomException("Parameter fromDate and toDate must be defined.");
+		}
+		
+		Date fromDate = Utils.convertStringToDateTime(strFromDate);
+		Date toDate = Utils.convertStringToDateTime(strToDate);
+		List<VwHistDataApprovalTMRequestHeader> listHistoryApproval = vwHistoryApprovalRepository.findByEmployeeApprovalAndCompanyAndRangeDate(user.getEmployee(), user.getCompany(), fromDate, toDate);
+		
+		if(listHistoryApproval == null) {
+			throw new CustomException("Approval History not found.");
+		}
+		
+		return new ResponseEntity<List<VwHistDataApprovalTMRequestHeader>>(listHistoryApproval, HttpStatus.OK);
+	}
+
+	
 
 	@RequestMapping(value = "/user/attachmentdataapproval/{id}", method = RequestMethod.GET)
 	@ResponseBody
@@ -300,10 +337,17 @@ public class WorkflowController {
 		
 		String message = "Request has been approved";
 		boolean isBypass = false;
-		
+	
+		/*
 		if ((user.getIsAdmin() != null && user.getIsAdmin()) || (user.getIsLeader() != null && user.getIsLeader()))
 				isBypass = true;
 			
+		*/
+		
+		if ((user.getIsHr() != null && user.getIsHr()))
+				isBypass = true;
+	
+		
 		dataApprovalService.approval(request, user, isBypass);
 		
 		if (request.getStatus().equals(DataApproval.REJECTED))
