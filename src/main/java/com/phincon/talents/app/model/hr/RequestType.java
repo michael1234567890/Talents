@@ -103,6 +103,8 @@ public class RequestType extends AbstractEntity {
 	@Column(name="limit_day_of_month")
 	private Integer limitDayOfMonth; // batas tanggal submit transaksi per bulan ex: 5, untuk request date bulan kemarin hanya bs di masukan sampai tanggal 5 bulan ini 
 	
+	@Column(name="is_calendar_date")
+	private Boolean isCalendarDate;
 	
 	
 	public String getModule() {
@@ -327,6 +329,14 @@ public class RequestType extends AbstractEntity {
 
 	public void setLimitDayOfMonth(Integer limitDayOfMonth) {
 		this.limitDayOfMonth = limitDayOfMonth;
+	}
+
+	public Boolean getIsCalendarDate() {
+		return isCalendarDate;
+	}
+
+	public void setIsCalendarDate(Boolean isCalendarDate) {
+		this.isCalendarDate = isCalendarDate;
 	}
 
 	

@@ -145,6 +145,28 @@ public class TMRequestHeader extends AbstractEntity {
 	private DataApproval dataApproval;
 	
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_date_in_time")
+	private Date startDateInTime;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_date_in_time")
+	private Date endDateInTime;
+	
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_date_out_time")
+	private Date startDateOutTime;
+	
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_date_out_time")
+	private Date endDateOutTime;
+	
+	
+	@Column(name = "atempdaily_id")
+	private Long atempdaily;
+	
 
 	public DataApproval getDataApproval() {
 		return dataApproval;
@@ -381,6 +403,48 @@ public class TMRequestHeader extends AbstractEntity {
 		this.substituteToEmployment = substituteToEmployment;
 	}
 
+	public Date getStartDateInTime() {
+		return startDateInTime;
+	}
+
+	public void setStartDateInTime(Date startDateInTime) {
+		this.startDateInTime = startDateInTime;
+	}
+
+	public Date getEndDateInTime() {
+		return endDateInTime;
+	}
+
+	public void setEndDateInTime(Date endDateInTime) {
+		this.endDateInTime = endDateInTime;
+	}
+
+	public Date getStartDateOutTime() {
+		return startDateOutTime;
+	}
+
+	public void setStartDateOutTime(Date startDateOutTime) {
+		this.startDateOutTime = startDateOutTime;
+	}
+
+	public Date getEndDateOutTime() {
+		return endDateOutTime;
+	}
+
+	public void setEndDateOutTime(Date endDateOutTime) {
+		this.endDateOutTime = endDateOutTime;
+	}
+
+	public Long getAtempdaily() {
+		return atempdaily;
+	}
+
+	public void setAtempdaily(Long atempdaily) {
+		this.atempdaily = atempdaily;
+	}
+
+	
+	
 	
 	
 }

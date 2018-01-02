@@ -19,8 +19,8 @@ public interface VwEmpAssignmentRepository extends PagingAndSortingRepository<Vw
 	 @Query("select p from VwEmpAssignment p where p.employee=:employee AND p.gradeName != NULL")
 	 List<VwEmpAssignment> findWithGradeByEmployee(@Param("employee") Long employee);
 	 
-	 @Query
-	 List<VwEmpAssignment> findByDirectEmployee(Long reportTo);
+	 @Query("select p from VwEmpAssignment p where p.directEmployee=:reportTo AND p.employeeStatus != 'Bekas Karyawan'")
+	 List<VwEmpAssignment> findByDirectEmployee(@Param("reportTo") Long reportTo);
 	 
 	 @Query
 	 List<VwEmpAssignment> findByOrganizationAndCompany(Long organization,Long company,Pageable pageable);

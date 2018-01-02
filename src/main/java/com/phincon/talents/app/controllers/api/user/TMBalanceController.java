@@ -78,7 +78,7 @@ public class TMBalanceController {
 	
 	@RequestMapping(value = "/user/tmbalance/currenttype", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<TMBalance> getBalance(
+	public ResponseEntity<List<TMBalance>> getBalance(
 			@RequestParam(value = "module", required = true) String module,@RequestParam(value = "category", required = true) String category,@RequestParam(value = "type", required = true) String type,
 			OAuth2Authentication authentication) {
 
@@ -96,9 +96,9 @@ public class TMBalanceController {
 		if (listBalance == null || listBalance.size() == 0)
 			throw new CustomException(
 					"Your Balance is not Found.");
-
-		TMBalance tmBalance = listBalance.get(0);
-		return new ResponseEntity<TMBalance>(tmBalance,
+		
+		//TMBalance tmBalance = listBalance.get(0);
+		return new ResponseEntity<List<TMBalance>>(listBalance,
 				HttpStatus.OK);
 	}
 

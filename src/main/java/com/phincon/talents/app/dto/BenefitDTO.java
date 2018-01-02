@@ -38,6 +38,11 @@ public class BenefitDTO {
 	private Integer overtimeIn;
 	private Integer overtimeOut;
 	private Long substituteToEmployment;
+	private Date startDateInTime;
+	private Date endDateInTime;
+	private Long atempdaily;
+	private Date startDateOutTime;
+	private Date endDateOutTime;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -317,6 +322,64 @@ public class BenefitDTO {
 
 	public void setRequestType(RequestType requestType) {
 		this.requestType = requestType;
+	}
+	
+	
+
+	public Date getStartDateInTime() {
+		return startDateInTime;
+	}
+
+	public void setStartDateInTime(String startDateInTime) {
+		if (startDateInTime != null && !startDateInTime.equals(""))
+			this.startDateInTime = Utils.convertStringToDateTime(startDateInTime);
+		else
+			this.startDateInTime = null;
+	}
+
+	public Date getEndDateInTime() {
+		return endDateInTime;
+	}
+
+	public void setEndDateInTime(String endDateInTime) {
+		if (endDateInTime != null && !endDateInTime.equals(""))
+			this.endDateInTime = Utils.convertStringToDateTime(endDateInTime);
+		else
+			this.endDateInTime = null;
+	}
+	
+	
+
+	public Date getStartDateOutTime() {
+		return startDateOutTime;
+	}
+
+	public void setStartDateOutTime(String startDateOutTime) {
+		if (startDateOutTime != null && !startDateOutTime.equals(""))
+			this.startDateOutTime = Utils.convertStringToDateTime(startDateOutTime);
+		else
+			this.startDateOutTime = null;
+	}
+
+	public Date getEndDateOutTime() {
+		return endDateOutTime;
+	}
+	
+	
+
+	public Long getAtempdaily() {
+		return atempdaily;
+	}
+
+	public void setAtempdaily(Long atempdaily) {
+		this.atempdaily = atempdaily;
+	}
+
+	public void setEndDateOutTime(String endDateOutTime) {
+		if (endDateOutTime != null && !endDateOutTime.equals(""))
+			this.endDateOutTime = Utils.convertStringToDateTime(endDateOutTime);
+		else
+			this.endDateOutTime = null;
 	}
 
 	@Override

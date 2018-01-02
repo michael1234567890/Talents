@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
@@ -12,17 +11,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.SendingEmailHistoryRepository;
 import com.phincon.talents.app.dao.SendingEmailRepository;
 import com.phincon.talents.app.model.SendingEmail;
 import com.phincon.talents.app.model.SendingEmailHistory;
 import com.phincon.talents.app.model.hr.Employee;
-import com.phincon.talents.app.services.SendingEmailHistoryService;
 
+//@EnableScheduling
 @Component
 public class SendingEmailScheduling {
 private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
@@ -90,8 +89,7 @@ private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/y
 			}
 		}
 		
-		System.out.println(
-				"Sending Mail Job ran at " +dateFormat.format(new Date()));
+		System.out.println("Sending Mail Job ran at " +dateFormat.format(new Date()));
 	}
 	
 	

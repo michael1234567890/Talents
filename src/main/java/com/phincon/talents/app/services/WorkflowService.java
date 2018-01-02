@@ -1,5 +1,6 @@
 package com.phincon.talents.app.services;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Service;
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.ApprovalGroupRepository;
 import com.phincon.talents.app.dao.ApproverSpesificRepository;
+import com.phincon.talents.app.dao.DelegateApproverRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.WorkflowRepository;
+import com.phincon.talents.app.model.DelegateApprover;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.ApprovalGroup;
 import com.phincon.talents.app.model.hr.ApproverSpesific;
@@ -37,6 +40,9 @@ public class WorkflowService {
 	
 	@Autowired
 	ApproverSpesificRepository approverSpesificRepository;
+	
+	@Autowired
+	DelegateApproverRepository delegateApproverRepository;
 
 	@Autowired
 	VwEmpAssignmentService vwEmpAssignmentService;
@@ -73,10 +79,23 @@ public class WorkflowService {
 		
 		if (codeApproval.equals(Workflow.DEFAULT)) {
 			// get direct report
-			Employee objEmployee = vwEmpAssignmentService
-					.findReportTo(employee);
-			if (objEmployee != null)
-				assignApproval = "#" + objEmployee.getId() + "#";
+			Employee objEmployee = vwEmpAssignmentService.findReportTo(employee);
+			if (objEmployee != null){
+				List<DelegateApprover> listDelegateApprover = delegateApproverRepository.findByEmployeeAndCompany(objEmployee.getId(), company, new Date());
+				DelegateApprover delegateApprover = null;
+				if(listDelegateApprover!=null && listDelegateApprover.size() > 0)
+					delegateApprover = listDelegateApprover.get(0);
+				
+				if(delegateApprover != null && delegateApprover.getEmployee() != null){
+					if(delegateApprover.getDelegateToEmployee() != null)
+						assignApproval = "#" + delegateApprover.getDelegateToEmployee() + "#";
+					else
+						assignApproval = null;
+				}else {
+					assignApproval = "#" + objEmployee.getId() + "#";
+				}	
+			}
+				
 		} else if(codeApproval.equals(Workflow.WORK_LOCATION)){
 			assignApproval = getSpesificApprovalWorkLocation(company,task,vwEmpAssignment);
 		} else {

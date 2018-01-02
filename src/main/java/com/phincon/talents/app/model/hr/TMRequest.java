@@ -189,6 +189,25 @@ public class TMRequest extends AbstractEntity {
 	private String spdType;
 	
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_date_in_time")
+	private Date startDateInTime;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_date_in_time")
+	private Date endDateInTime;
+	
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "start_date_out_time")
+	private Date startDateOutTime;
+	
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "end_date_out_time")
+	private Date endDateOutTime;
+	
+	
 	public Date getRequestDate() {
 		return requestDate;
 	}
@@ -504,6 +523,38 @@ public class TMRequest extends AbstractEntity {
 
 	public void setTypeDesc(String typeDesc) {
 		this.typeDesc = typeDesc;
+	}
+
+	public Date getStartDateInTime() {
+		return startDateInTime;
+	}
+
+	public void setStartDateInTime(Date startDateInTime) {
+		this.startDateInTime = startDateInTime;
+	}
+
+	public Date getEndDateInTime() {
+		return endDateInTime;
+	}
+
+	public void setEndDateInTime(Date endDateInTime) {
+		this.endDateInTime = endDateInTime;
+	}
+
+	public Date getStartDateOutTime() {
+		return startDateOutTime;
+	}
+
+	public void setStartDateOutTime(Date startDateOutTime) {
+		this.startDateOutTime = startDateOutTime;
+	}
+
+	public Date getEndDateOutTime() {
+		return endDateOutTime;
+	}
+
+	public void setEndDateOutTime(Date endDateOutTime) {
+		this.endDateOutTime = endDateOutTime;
 	}
 	
 	

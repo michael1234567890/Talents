@@ -1,10 +1,12 @@
-package com.phincon.talents.app.services;
+package com.phincon.talents.app.scheduling;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.phincon.talents.app.model.SendingEmail;
 import com.phincon.talents.app.model.SendingEmailHistory;
 
+@Component
 @Service
 public class SendingEmailHistoryService {
 	

@@ -415,8 +415,20 @@ public class DataApprovalService {
 			dataApproval.setApprovalLevelFive(approvalLevelFive);
 			dataApproval.setApprovalLevelSix(approvalLevelSix);
 			dataApproval.setApprovalLevelSeven(approvalLevelSeven);
-
-			currentAssignApproval = approvalLevelOne;
+			
+			if(approvalLevelOne != null){
+				currentAssignApproval = approvalLevelOne;
+			}else {
+				if(approvalLevelTwo != null) {
+					currentAssignApproval = approvalLevelTwo;
+				}else {
+					dataApproval.setStatus(DataApproval.COMPLETED);
+				}
+				currentApprovalLevel++;
+			}
+				
+			
+			
 			dataApproval.setCurrentAssignApproval(currentAssignApproval);
 			dataApproval.setCurrentApprovalLevel(currentApprovalLevel);
 			dataApproval.setApprovalLevel(approvalLevel);

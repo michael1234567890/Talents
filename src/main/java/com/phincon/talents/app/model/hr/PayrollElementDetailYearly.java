@@ -35,7 +35,7 @@ public class PayrollElementDetailYearly extends AbstractEntity {
 	
 
 	
-	@Column(name="payroll_element_header__yearly_id")
+	@Column(name="payroll_element_header_yearly_id")
 	private Long payrollElementHeaderYearly;
 	
 	

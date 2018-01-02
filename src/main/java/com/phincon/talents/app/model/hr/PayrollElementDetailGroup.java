@@ -6,7 +6,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "vw_py_element_detail_group")
+@Table(name = "hr_payroll_element_detail_group")
+//@Table(name = "vw_py_element_detail_group")
 public class PayrollElementDetailGroup  {
 	public final static String ELEMENT_TYPE_DEDUCTION = "Deduction";
 	public final static String ELEMENT_TYPE_ALLOWANCE = "Allowance";
@@ -15,7 +16,6 @@ public class PayrollElementDetailGroup  {
 	@Column(name="id")
 	private Long id;
 
-	
 	@Column(name="payroll_element_header_id")
 	private Long payrollElementHeader;
 	

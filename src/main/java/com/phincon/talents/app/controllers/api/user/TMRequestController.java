@@ -111,12 +111,22 @@ public class TMRequestController {
 	@ResponseBody
 	public ResponseEntity<BenefitDTO> verificationAttendance(
 			@RequestBody BenefitDTO request, OAuth2Authentication authentication) {
+		
 
-		if(true)
-			throw new CustomException("This Feature Will Available Soon");
 		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
+		// temporary
+		if(companySettings.getIsTMDisable() != null && companySettings.getIsTMDisable())
+			throw new CustomException("This Feature Will Available Soon");
+				
+		
 
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
