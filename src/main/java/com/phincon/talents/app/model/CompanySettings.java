@@ -72,6 +72,9 @@ public class CompanySettings extends AbstractEntity {
 	@Column(name="is_benefit_disable")
 	private Boolean isBenefitDisable;
 	
+	@Column(name="payslip_yearly_year", length=4)
+	private String payslipYearlyYear;
+	
 	
 	@Column(name="is_tm_disable")
 	private Boolean isTMDisable;
@@ -202,6 +205,14 @@ public class CompanySettings extends AbstractEntity {
 
 	public void setIsTMDisable(Boolean isTMDisable) {
 		this.isTMDisable = isTMDisable;
+	}
+
+	public String getPayslipYearlyYear() {
+		return payslipYearlyYear;
+	}
+
+	public void setPayslipYearlyYear(String payslipYearlyYear) {
+		this.payslipYearlyYear = payslipYearlyYear;
 	}
 	
 	

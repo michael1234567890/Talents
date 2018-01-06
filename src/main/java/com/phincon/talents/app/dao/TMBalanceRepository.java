@@ -26,7 +26,7 @@ List<TMBalance> findBalanceByModuleEmployment(@Param("company") Long company, @P
 
 
 
-@Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND p.startDate <=:today AND p.endDateFinal>=:today")
+@Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND p.startDate <=:today AND p.endDateFinal>=:today order by p.endDate asc")
 List<TMBalance> findBalanceTypeByEmployment(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType, @Param("type") String type,   @Param("today")  Date today);
 
 @Query("select p from TMBalance p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type)")

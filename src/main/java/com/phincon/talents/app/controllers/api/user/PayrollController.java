@@ -177,21 +177,33 @@ public class PayrollController {
 	public ResponseEntity<List<PayrollElementHeaderYearly>> getPayrollYearly(
 			OAuth2Authentication authentication) {
 
-		// temporary
-		if(true)
-			throw new CustomException("This Feature Will Available Soon");
-		
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
+		if(companySettings.getIsPayrollYearDisable() != null && companySettings.getIsPayrollYearDisable())
+			throw new CustomException("This Feature Will Available Soon");
+			
+		
+//		SimpleDateFormat df = new SimpleDateFormat("yyyy");
+//		String year = df.format(new Date());
+		
+		String year = null;
+		if(companySettings.getPayslipYearlyYear()== null || companySettings.getPayslipYearlyYear().equals("")) {
+			throw new CustomException("No year parameter selected. Please contact Admin.");
+		}
+		year = companySettings.getPayslipYearlyYear();
 		// get employment ID with user
 		
 		List<Employment> listEmployment = employmentRepository.findByEmployee(user.getEmployee());
 		if(listEmployment == null && listEmployment.size() == 0)
 			throw new CustomException("Your Employment ID is not Found.");
 		
-		SimpleDateFormat df = new SimpleDateFormat("yyyy");
-		String year = df.format(new Date());
+		
 		Employment employment = listEmployment.get(0);
 		
 		List<PayrollElementHeaderYearly> listElementHeaderYearly = payrollElementHeaderYearlyService.findByEmploymentAndYearAndEmployee(employment.getId(), year, user.getEmployee());

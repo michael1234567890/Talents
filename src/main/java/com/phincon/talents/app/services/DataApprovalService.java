@@ -614,7 +614,6 @@ public class DataApprovalService {
 			callingRejectCancel(dataApproval,DataApproval.REJECTED);
 		} else if (approvalWorkflow.getStatus().equals(DataApproval.CANCELLED)) {
 			isSendToRequest = true;
-			
 			dataApproval.setProcessingStatus(DataApproval.PROC_STATUS_CANCEL);
 			dataApproval.setStatus(DataApproval.COMPLETED);
 			String fullName = user.getFirstName();

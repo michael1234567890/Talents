@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.persistence.Column;
 
 import com.phincon.talents.app.model.hr.RequestType;
+import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.utils.Utils;
 
 public class BenefitDTO {
@@ -46,6 +47,7 @@ public class BenefitDTO {
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
+	private List<TMBalance> listBalance;
 
 	public BenefitDTO() {
 
@@ -380,6 +382,16 @@ public class BenefitDTO {
 			this.endDateOutTime = Utils.convertStringToDateTime(endDateOutTime);
 		else
 			this.endDateOutTime = null;
+	}
+	
+	
+
+	public List<TMBalance> getListBalance() {
+		return listBalance;
+	}
+
+	public void setListBalance(List<TMBalance> listBalance) {
+		this.listBalance = listBalance;
 	}
 
 	@Override
