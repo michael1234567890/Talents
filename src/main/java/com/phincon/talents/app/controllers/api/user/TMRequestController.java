@@ -126,7 +126,18 @@ public class TMRequestController {
 		if(companySettings.getIsTMDisable() != null && companySettings.getIsTMDisable())
 			throw new CustomException("This Feature Will Available Soon");
 				
-		
+//		else if(request.getCategoryType().equals("Overtime") && companySettings.getIsOvertimeOverlimitDisable() != null && companySettings.getIsOvertimeOverlimitDisable())
+//			throw new CustomException("This Feature Will Available Soon");
+//		
+//		else if(request.getCategoryType().equals("Attendance Edit") && companySettings.getIsAttendanceEditDisable() != null && companySettings.getIsAttendanceEditDisable())
+//			throw new CustomException("This Feature Will Available Soon");
+//		
+//		else if(request.getCategoryType().equals("Permission") && companySettings.getIsPermissionDisable() != null && companySettings.getIsPermissionDisable())
+//			throw new CustomException("This Feature Will Available Soon");
+//		
+//		else if(request.getCategoryType().equals("Leave") && companySettings.getIsLeaveDisable() != null && companySettings.getIsLeaveDisable())
+//			throw new CustomException("This Feature Will Available Soon");
+			
 
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
@@ -423,6 +434,7 @@ public class TMRequestController {
 		List<TMRequestHeader> listRequest = null;
 		if (module == null) {
 			listRequest = tmRequestHeaderRepository.findByCompanyAndRequestNoLike(user.getCompany(), requestNo);
+//			listRequest = tmRequestHeaderService.findByNPK(user.getCompany(), requestNo);
 		} else {
 			listRequest = tmRequestHeaderRepository
 					.findByCompanyAndModuleAndRequestNoLike(user.getCompany(),requestNo, module);

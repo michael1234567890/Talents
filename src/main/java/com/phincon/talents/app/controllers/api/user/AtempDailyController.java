@@ -123,12 +123,13 @@ public class AtempDailyController {
 		System.out.println("month : " +month);
 		
 		List<AtempDaily> listAtempDaily = null;
+		Date today = new Date();
 		
 		if(type.equals("monthly")){
 			if(month == null)
 				throw new RuntimeException("Month can not be empty.");
 			
-			listAtempDaily = atempDailyRepository.findByEmployeeAndCompanyAndMonthPeriod(employment.getExtId(), user.getCompany(), month);
+			listAtempDaily = atempDailyRepository.findByEmployeeAndCompanyAndMonthPeriod(employment.getExtId(), user.getCompany(), month, today);
 			
 		} else if(type.equals("rangedate")){
 			if(startDate == null)
@@ -137,7 +138,7 @@ public class AtempDailyController {
 			if(endDate == null)
 				endDate = startDate;
 			
-			listAtempDaily = atempDailyRepository.findByEmployeeNoAndCompanyAndWorkdate(employment.getExtId(), user.getCompany(), startDate, endDate);
+			listAtempDaily = atempDailyRepository.findByEmployeeNoAndCompanyAndWorkdate(employment.getExtId(), user.getCompany(), startDate, endDate, today);
 			
 		} else {
 			throw new RuntimeException("Invalid value of type.");

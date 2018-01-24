@@ -1,6 +1,7 @@
 package com.phincon.talents.app.controllers.api.user;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AddressRepository;
 import com.phincon.talents.app.dao.AddressTempRepository;
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.AddressDTO;
 import com.phincon.talents.app.dto.DataApprovalDTO;
+import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
@@ -61,6 +64,9 @@ public class AddressController {
 
 	@Autowired
 	DataApprovalService dataApprovalService;
+	
+	@Autowired
+	CompanySettingsRepository companySettingsRepository;
 
 
 	@RequestMapping(value = "/user/address", method = RequestMethod.GET)
@@ -91,6 +97,11 @@ public class AddressController {
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
 
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
 		Employee employee = employeeService.findEmployee(user.getEmployee());
 
 		Address address = new Address();

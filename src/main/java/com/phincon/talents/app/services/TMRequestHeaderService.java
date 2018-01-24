@@ -10,7 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.transaction.Transactional;
+
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -31,6 +33,7 @@ import com.phincon.talents.app.dao.RequestCategoryTypeRepository;
 import com.phincon.talents.app.dao.RequestTypeRepository;
 import com.phincon.talents.app.dao.ShiftRepository;
 import com.phincon.talents.app.dao.TMBalanceRepository;
+import com.phincon.talents.app.dao.TMRequestHeaderBalanceRepository;
 import com.phincon.talents.app.dao.TMRequestHeaderRepository;
 import com.phincon.talents.app.dao.TMRequestRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
@@ -57,6 +60,7 @@ import com.phincon.talents.app.model.hr.Shift;
 import com.phincon.talents.app.model.hr.TMBalance;
 import com.phincon.talents.app.model.hr.TMRequest;
 import com.phincon.talents.app.model.hr.TMRequestHeader;
+import com.phincon.talents.app.model.hr.TMRequestHeaderBalance;
 import com.phincon.talents.app.model.hr.VwEmpAssignment;
 import com.phincon.talents.app.utils.Utils;
 
@@ -72,6 +76,9 @@ public class TMRequestHeaderService {
 
 	@Autowired
 	TMBalanceRepository tmBalanceRepository;
+	
+	@Autowired
+	TMRequestHeaderBalanceRepository tmRequestHeaderBalanceRepository;
 
 	@Autowired
 	EmployeeRepository employeeRepository;
@@ -124,6 +131,7 @@ public class TMRequestHeaderService {
 
 	@Autowired
 	PayrollElementHeaderRepository payrollElementHeaderRepository;
+	
 
 	private Double BATAS_SPD_AMOUNT = Double.valueOf("2000000");
 	private ObjectMapper objectMapper = new ObjectMapper();
@@ -132,6 +140,13 @@ public class TMRequestHeaderService {
 	public TMRequestHeader findById(Long id) {
 		return tmRequestHeaderRepository.findOne(id);
 	}
+	
+//	@Transactional
+//	public List<TMRequestHeader> findByNPK(Long companyId, String npk){
+//		Employment emp = employmentRepository.findByName(npk);
+//		
+//		return tmRequestHeaderRepository.findByCompanyAndNPK(companyId, emp.getEmployee());
+//	}
 
 	@Transactional
 	public TMRequestHeader findByIdWithDetail(Long id) {
@@ -698,8 +713,7 @@ public class TMRequestHeaderService {
 				decrease = mapBenefitDetail.get(tmBalance.getType()
 						.toLowerCase());
 
-				if (tmBalance.getBalanceType() != null && ((tmBalance.getBalanceType().toLowerCase().equals("daily")
-								|| tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") 
+				if (tmBalance.getBalanceType() != null && ((tmBalance.getBalanceType().toLowerCase().equals("daily") || tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") 
 								|| tmBalance.getBalanceType().toLowerCase().equals("one time (2 years)")
 								|| tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)") 
 								|| tmBalance.getBalanceType().toLowerCase().equals("one time (1 years)")))) 
@@ -763,7 +777,7 @@ public class TMRequestHeaderService {
 						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount
 						&& passed) {
 					throw new CustomException("Your Balance "
-							+ details.getType() + " is not enought.");
+							+ details.getType() + " is not enough.");
 				}
 			}
 		}
@@ -790,6 +804,20 @@ public class TMRequestHeaderService {
 					amount);
 		} else {
 			tmRequestService.ApproveWithHeaderId(headerId, listTmRequest);
+		}
+		
+		TMRequestHeader tmRequestHeader = findById(headerId);
+		if(tmRequestHeader.getAtempdaily() != null){
+			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
+//			obj.setRemark(tmRequestHeader.getRemark());
+//			obj.setIsLocked(false);
+//			obj.setActualInTime(tmRequestHeader.getAttendanceInTime());
+//			obj.setActualOutTime(tmRequestHeader.getAttendanceOutTime());
+			obj.setEditRemark(tmRequestHeader.getRemark());
+			obj.setEditInTime(tmRequestHeader.getAttendanceInTime());
+			obj.setEditOutTime(tmRequestHeader.getAttendanceOutTime());
+			obj.setIsLocked(false);
+			atempDailyRepository.save(obj);
 		}
 
 	}
@@ -912,12 +940,12 @@ public class TMRequestHeaderService {
 					}
 				}
 
-				if (balance.getType().toLowerCase().contains("lensa")) {
-					if (isLensaHaveClaimDate(listBalance)) {
-						throw new CustomException("You have already applied '" + type + "'. This type Only one time Apply.");
-
-					}
-				}
+//				if (balance.getType().toLowerCase().contains("lensa")) {
+//					if (isLensaHaveClaimDate(listBalance)) {
+//						throw new CustomException("You have already applied '" + type + "'. This type Only one time Apply.");
+//
+//					}
+//				}
 
 			}
 
@@ -956,6 +984,14 @@ public class TMRequestHeaderService {
 		
 		// every tmrequest set status reject with header id = headerid
 		tmRequestService.rejectCancelHeaderId(headerId,status);
+		
+		TMRequestHeader tmRequestHeader = findById(headerId);
+		if(tmRequestHeader.getAtempdaily() != null){
+			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
+			obj.setEditReason(null);
+			obj.setIsLocked(false);
+			atempDailyRepository.save(obj);
+		}
 
 	}
 
@@ -987,7 +1023,8 @@ public class TMRequestHeaderService {
 	    if(requestType == null)
 	    	throw new CustomException("Your request type is not found");
 	    
-		TMBalance balance = getBalance(request, user, employment);
+		// TMBalance balance = getBalance(request, user, employment);
+	    List<TMBalance> balance = getListBalancePerToday(request, user, employment);
 		Double totalDay = null;
 		if(requestType.getIsCalendarDate() != null && requestType.getIsCalendarDate()) {
 			totalDay = (double) Utils.diffDayInt(request.getStartDate(), request.getEndDate()) + 1;
@@ -1003,8 +1040,11 @@ public class TMRequestHeaderService {
 		
 		request.setVerified(verified);
 		request.setRequestType(requestType);
-		if(requestType.getNeedBalance())
-			request.setTotalBalance(balance.getBalanceEnd());
+		if(requestType.getNeedBalance()){
+			Double balanceEnd = getTotalBalanceEnd(balance);
+			request.setTotalBalance(balanceEnd);
+		}
+			
 		
 	}
 	
@@ -1030,7 +1070,10 @@ public class TMRequestHeaderService {
 	    	throw new CustomException("Your request type is not found");
 	    
 	    
-		TMBalance balance = getBalance(request, user, employment);
+		//TMBalance balance = getBalance(request, user, employment);
+	    
+	    List<TMBalance> balance = getListBalancePerToday(request, user, employment);
+		
 		Double totalWorkDay = getTotalDaysAttendance(request.getStartDate(), request.getEndDate(), employment);
 		Double totalDay = null;
 		if(requestType.getIsCalendarDate() != null && requestType.getIsCalendarDate()) {
@@ -1040,7 +1083,7 @@ public class TMRequestHeaderService {
 		}
 		
 		request.setTotal(totalWorkDay);
-		validationAttendanceRequest(requestType,request, balance,  user, employment);
+		//validationAttendanceRequest(requestType,request, balance,  user, employment);
 		// 1. Validation
 		
 		TMRequestHeader tmRequestHeader = new TMRequestHeader();
@@ -1069,12 +1112,16 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setStartDateOutTime(request.getStartDateOutTime());
 		tmRequestHeader.setEndDateOutTime(request.getEndDateOutTime());
 		tmRequestHeader.setAtempdaily(request.getAtempdaily());
+		
 		if(tmRequestHeader.getAtempdaily() != null) {
 			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
-			obj.setReason(requestType.getTypeLabel());
+//			obj.setReason(requestType.getTypeLabel());
+//			obj.setIsLocked(true);
+			obj.setEditReason(requestType.getTypeLabel());
 			obj.setIsLocked(true);
 			atempDailyRepository.save(obj);
 		}
+		
 		Double totalAmount = totalWorkDay;
 		tmRequestHeader.setTotalAmount(totalAmount);
 		//Double totalAmountSubmit = request.getTotalSubmit();
@@ -1122,11 +1169,11 @@ public class TMRequestHeaderService {
 			tmRequest.setReqNo(reqNo);
 			tmRequest.setNeedSync(true);
 			tmRequest.setTotalWorkDay(totalWorkDay);
-			tmRequest.setAttendanceInTime(request.getAttendanceInTime());
-			tmRequest.setAttendanceOutTime(request.getAttendanceOutTime());
+			tmRequest.setAttendanceInTime(request.getAttendanceInTime());  // edit_in_time
+			tmRequest.setAttendanceOutTime(request.getAttendanceOutTime()); // edit_out_time
 			tmRequest.setOvertimeIn(request.getOvertimeIn());
 			tmRequest.setOvertimeOut(request.getOvertimeOut());
-			tmRequest.setTypeDesc(request.getTypeDesc());
+			tmRequest.setTypeDesc(request.getTypeDesc()); // reason
 			tmRequest.setCategoryTypeExtId(requestCategoryType.getCategoryTypeExtId());
 			tmRequest.setStartDateInTime(request.getStartDateInTime());
 			tmRequest.setEndDateInTime(request.getEndDateInTime());
@@ -1140,13 +1187,52 @@ public class TMRequestHeaderService {
 			tmRequestRepository.save(tmRequest);
 		
 		// 3. Balance
-		if(requestType.getNeedBalance() && balance!= null && balance.getBalanceUsed() != null && balance.getBalanceEnd() != null){
-			Double balanceEnd = balance.getBalanceEnd() - totalWorkDay;
-			Double balanceUsed = balance.getBalanceUsed() + totalWorkDay;
-			balance.setLastClaimDate(new Date());
-			balance.setBalanceEnd(balanceEnd);
-			balance.setBalanceUsed(balanceUsed);
-			tmBalanceRepository.save(balance);
+		if(requestType.getNeedBalance() && balance!= null  && balance.size() > 0){
+			Double remainingRequest = totalWorkDay;
+			
+			for (TMBalance tmBalance : balance) {
+				
+				if(tmBalance.getBalanceUsed() != null && tmBalance.getBalanceEnd() != null) {
+					if(tmBalance.getBalanceEnd() > 0D && remainingRequest > 0D) {
+						Double validRequest = 0D;
+						Double balanceEnd = tmBalance.getBalanceEnd() - remainingRequest;
+						Double balanceUsed = 0D;
+						// jika hasil pengurangan kurang dari nol
+						if(balanceEnd < 0D) {
+							validRequest = tmBalance.getBalanceEnd();
+							remainingRequest = (-1) * balanceEnd;
+							balanceUsed = tmBalance.getBalanceUsed() + tmBalance.getBalanceEnd();
+							balanceEnd = 0D;
+							
+						}else {
+							validRequest = remainingRequest;
+							balanceUsed = tmBalance.getBalanceUsed() + remainingRequest;
+							remainingRequest = 0D;
+						}
+						
+						tmBalance.setLastClaimDate(new Date());
+						tmBalance.setBalanceEnd(balanceEnd);
+						tmBalance.setBalanceUsed(balanceUsed);
+						tmBalanceRepository.save(tmBalance);
+						
+						// create request_balance header_id, balance_id, valid_request
+						TMRequestHeaderBalance objHeaderBalance = new TMRequestHeaderBalance();
+						objHeaderBalance.setBalanceUsed(validRequest);
+						objHeaderBalance.setCompany(user.getCompany());
+						objHeaderBalance.setTmBalance(tmBalance.getId());
+						objHeaderBalance.setTmRequestHeader(tmRequestHeader.getId());
+						tmRequestHeaderBalanceRepository.save(objHeaderBalance);
+						
+					}
+					
+				}
+				
+			}
+			
+			
+			
+			// create array request balance
+			
 		}
 		
 		
@@ -1167,7 +1253,7 @@ public class TMRequestHeaderService {
 	
 	}
 	
-	private void validationAttendanceRequest(RequestType requestType, BenefitDTO request, TMBalance balance,
+	private void validationAttendanceRequest(RequestType requestType, BenefitDTO request, List<TMBalance> balance,
 			User user, Employment employment) {
 		List<VwEmpAssignment> listVwEmpAssignments = vwEmpAssignmentRepository.findByEmployee(user.getEmployee());
 		VwEmpAssignment vwEmpAssignment = null;
@@ -1343,21 +1429,23 @@ public class TMRequestHeaderService {
 		
 		
 		// check setiap request yang butuh balance
-		if(requestType.getNeedBalance() && balance == null){
+		if(requestType.getNeedBalance() && (balance == null || balance.size() == 0)){
 			throw new CustomException("Your balance is not found.");
 		}
 		
-		if(requestType.getNeedBalance() && balance != null) {
-			if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
-				if(balance.getLastClaimDate() != null){
-					throw new CustomException("This request one time apply only.");
-				}
-			}
-		}
+//		if(requestType.getNeedBalance() && balance != null) {
+//			if(balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time")) {
+//				if(balance.getLastClaimDate() != null){
+//					throw new CustomException("This request one time apply only.");
+//				}
+//			}
+//		}
 		
 		
-		if(requestType.getNeedBalance() &&  request.getTotal() > balance.getBalanceEnd()) {
-			throw new CustomException("Your balance is not enought.");
+		if(requestType.getNeedBalance() ) {
+			Double balanceEnd = getTotalBalanceEnd(balance);
+			if(request.getTotal() > balanceEnd)
+				throw new CustomException("Your balance is not enough.");
 		}
 		
 		
@@ -1372,6 +1460,17 @@ public class TMRequestHeaderService {
 		
 
 		
+	}
+	
+	private Double getTotalBalanceEnd(List<TMBalance> listBalance){
+		Double total = 0D;
+		if(listBalance != null) {
+			for (TMBalance tmBalance : listBalance) {
+				total += tmBalance.getBalanceEnd();
+			}
+		}
+		
+		return total;
 	}
 	
 	@SuppressWarnings("unused")
@@ -1589,5 +1688,13 @@ public List<AttendanceRefDTO> getAttendanceRef(Date startDate, Date endDate, Gro
 		if(resultBalance!= null && resultBalance.size() > 0)
 			balance = resultBalance.get(0);
 		return balance;
+	}
+	
+	@Transactional
+	private List<TMBalance> getListBalancePerToday(BenefitDTO request, User user,
+			Employment employment) {
+		Date today = new Date();
+		List<TMBalance> resultBalance = tmBalanceRepository.findBalanceTypeByEmployment(user.getCompany(),employment.getId(),request.getModule(),request.getCategoryType(),request.getType(),today);
+		return resultBalance;
 	}
 }

@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.AttachmentCertificationRepository;
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwEmpAssignmentRepository;
 import com.phincon.talents.app.dto.CertificationDTO;
 import com.phincon.talents.app.dto.UserChangePasswordDTO;
 import com.phincon.talents.app.model.AttachmentCertification;
+import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.hr.Address;
 import com.phincon.talents.app.model.hr.Certification;
@@ -86,6 +88,9 @@ public class MyProfileController {
 	
 	@Autowired
 	VwEmpAssignmentRepository assignmentRepository;
+	
+	@Autowired
+	CompanySettingsRepository companySettingsRepository;
 
 	@RequestMapping(value = "/myprofile", method = RequestMethod.GET)
 	public ResponseEntity<User> myprofile(OAuth2Authentication authentication) {
@@ -281,6 +286,12 @@ public class MyProfileController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
 
 		Employee employee = employeeService.findEmployee(user.getEmployee());
 

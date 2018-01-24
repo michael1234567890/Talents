@@ -24,6 +24,7 @@ public class BenefitDTO {
 	private Long linkRefHeader;
 	private String workflow;
 	private String remark;
+	private String reason;
 	private boolean isVerified = false;
 	private Boolean pulangKampung;
 	private String spdType;
@@ -392,6 +393,14 @@ public class BenefitDTO {
 
 	public void setListBalance(List<TMBalance> listBalance) {
 		this.listBalance = listBalance;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 	@Override

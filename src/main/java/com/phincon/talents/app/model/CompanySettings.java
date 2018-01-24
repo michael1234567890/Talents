@@ -79,6 +79,27 @@ public class CompanySettings extends AbstractEntity {
 	@Column(name="is_tm_disable")
 	private Boolean isTMDisable;
 	
+	/*@Column(name="is_overtime_overlimit_disable")
+	private Boolean isOvertimeOverlimitDisable;
+	
+	@Column(name="is_attendance_edit_disable")
+	private Boolean isAttendanceEditDisable;
+	
+	@Column(name="is_leave_disable")
+	private Boolean isLeaveDisable;
+	
+	@Column(name="is_permission_disable")
+	private Boolean isPermissionDisable;
+	
+	@Column(name="is_family_disable")
+	private Boolean isFamilyDisable;
+	
+	@Column(name="is_address_disable")
+	private Boolean isAddressDisable;
+	
+	@Column(name="is_certification_disable")
+	private Boolean isCertificationDisable;*/
+	
 	public Long getCompany() {
 		return company;
 	}
@@ -214,7 +235,6 @@ public class CompanySettings extends AbstractEntity {
 	public void setPayslipYearlyYear(String payslipYearlyYear) {
 		this.payslipYearlyYear = payslipYearlyYear;
 	}
-	
 	
 	
 	

@@ -1,6 +1,7 @@
 package com.phincon.talents.app.controllers.api.user;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.config.CustomException;
+import com.phincon.talents.app.dao.CompanySettingsRepository;
 import com.phincon.talents.app.dao.FamilyRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dto.DataApprovalDTO;
 import com.phincon.talents.app.dto.FamilyDTO;
+import com.phincon.talents.app.model.CompanySettings;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
 import com.phincon.talents.app.model.hr.Address;
@@ -49,6 +52,9 @@ public class FamilyController {
 
 	@Autowired
 	DataApprovalService dataApprovalService;
+	
+	@Autowired
+	CompanySettingsRepository companySettingsRepository;
 
 	@RequestMapping(value = "/user/family", method = RequestMethod.POST)
 	@ResponseBody
@@ -57,6 +63,13 @@ public class FamilyController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
+		
+		List<CompanySettings> listCompany = companySettingsRepository.findByCompany(user.getCompany());
+		CompanySettings companySettings = null;
+		if(listCompany != null && listCompany.size() > 0)
+			companySettings = listCompany.get(0);
+		
+				
 		Family family = new Family();
 		family = copyFromFamilyDTO(family, request);
 		family.setCreatedBy(authentication.getUserAuthentication().getName());

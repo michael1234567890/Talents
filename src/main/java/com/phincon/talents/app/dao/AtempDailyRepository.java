@@ -23,11 +23,11 @@ public interface AtempDailyRepository extends PagingAndSortingRepository<AtempDa
 	@Query("SELECT u FROM AtempDaily u WHERE u.employeeNo = :employeeNo ORDER BY modifiedDate DESC")
 	List<AtempDaily> findByEmployeeNo(@Param("employeeNo") String employeeNo, Pageable pageable);
 	
-	@Query("SELECT u FROM AtempDaily u WHERE u.employeeNo = :employeeNo AND u.company = :company AND SUBSTRING(u.workDate,1,7) like %:period%")
-	List<AtempDaily> findByEmployeeAndCompanyAndMonthPeriod(@Param ("employeeNo") String employeeNo, @Param("company") Long company, @Param("period") String period);
+	@Query("SELECT u FROM AtempDaily u WHERE u.employeeNo = :employeeNo AND u.company = :company AND SUBSTRING(u.workDate,1,7) like %:period% AND u.workDate < :today ORDER BY workDate DESC")
+	List<AtempDaily> findByEmployeeAndCompanyAndMonthPeriod(@Param ("employeeNo") String employeeNo, @Param("company") Long company, @Param("period") String period, @Param("today") Date today);
 	
-	@Query("SELECT u FROM AtempDaily u WHERE u.employeeNo = :employeeNo AND u.company = :company AND u.workDate >= :startDate AND u.workDate <= :endDate ORDER BY modifiedDate DESC")
-	List<AtempDaily> findByEmployeeNoAndCompanyAndWorkdate(@Param("employeeNo") String employeeNo, @Param("company") Long company, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	@Query("SELECT u FROM AtempDaily u WHERE u.employeeNo = :employeeNo AND u.company = :company AND u.workDate >= :startDate AND u.workDate <= :endDate AND u.workDate < :today ORDER BY workDate DESC")
+	List<AtempDaily> findByEmployeeNoAndCompanyAndWorkdate(@Param("employeeNo") String employeeNo, @Param("company") Long company, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("today") Date today);
 	
 	@Query("SELECT COUNT (u.id) FROM AtempDaily u WHERE u.employeeNo=:employeeNo")
 	List<Long> countByEmployeeNo(@Param("employeeNo") String employeeNo);

@@ -15,6 +15,9 @@ public interface EmploymentRepository extends PagingAndSortingRepository<Employm
 	 @Query
 	 List<Employment> findByEmployee(Long employee);
 	 
+	 @Query
+	 Employment findByName(String name);
+	 
 	
 	
 }

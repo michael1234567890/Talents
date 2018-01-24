@@ -769,7 +769,7 @@ public class TMRequestHeaderServiceBak {
 						&& mapBalance.get(details.getType().toLowerCase()) < detailAmount
 						&& passed) {
 					throw new CustomException("Your Balance "
-							+ details.getType() + " is not enought.");
+							+ details.getType() + " is not enough.");
 				}
 			}
 		}
@@ -1413,7 +1413,7 @@ public class TMRequestHeaderServiceBak {
 		if(requestType.getNeedBalance() ) {
 			Double balanceEnd = getTotalBalanceEnd(balance);
 			if(request.getTotal() > balanceEnd)
-				throw new CustomException("Your balance is not enought.");
+				throw new CustomException("Your balance is not enough.");
 		}
 		
 		

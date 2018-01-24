@@ -253,6 +253,12 @@ public class AtempDaily extends AbstractEntity {
 	@Column(name = "transaction_ref_no", length = 50)
 	private String transactionRefNo;
 	
+	@Column(name = "edit_reason", length = 255)
+	private String editReason;
+	
+	@Column(name = "edit_remark", length = 255)
+	private String editRemark;
+	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "work_date")
 	private Date workDate;
@@ -270,9 +276,19 @@ public class AtempDaily extends AbstractEntity {
 	@Column(name = "status", length = 20)
 	private String status;
 	
-	
+	@Column(name="ack_sync")
+	private Boolean ackSync;
+
 	@Column(name = "is_locked")
 	private Boolean isLocked;
+	
+	public Boolean getAckSync() {
+		return ackSync;
+	}
+
+	public void setAckSync(Boolean ackSync) {
+		this.ackSync = ackSync;
+	}
 	
 	
 	public Double getAcceptedOvertimeIn() {
@@ -897,6 +913,22 @@ public class AtempDaily extends AbstractEntity {
 
 	public void setIsLocked(Boolean isLocked) {
 		this.isLocked = isLocked;
+	}
+
+	public String getEditReason() {
+		return editReason;
+	}
+
+	public void setEditReason(String editReason) {
+		this.editReason = editReason;
+	}
+
+	public String getEditRemark() {
+		return editRemark;
+	}
+
+	public void setEditRemark(String editRemark) {
+		this.editRemark = editRemark;
 	}
 	
 	

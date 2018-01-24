@@ -49,6 +49,9 @@ public interface TMRequestHeaderRepository extends
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.reqNo like %:reqNo% ORDER BY createdDate DESC")
 	List<TMRequestHeader> findByCompanyAndRequestNoLike(
 			@Param("company") Long company, @Param("reqNo") String reqNo);
+	
+//	@Query("SELECT u FROM TMRequestHeader u WHERE u.company=:company AND u.employee=:employeeId ORDER BY createdDate DESC")
+//	List<TMRequestHeader> findByCompanyAndNPK(@Param("company") Long company, @Param("employeeId") Long employee);
 
 	@Query("SELECT u FROM TMRequestHeader u WHERE u.employee=:employee AND u.id=:id")
 	TMRequestHeader findByEmployeeAndId(@Param("employee") Long employee,
