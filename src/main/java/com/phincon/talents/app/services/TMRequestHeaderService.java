@@ -807,13 +807,16 @@ public class TMRequestHeaderService {
 		}
 		
 		TMRequestHeader tmRequestHeader = findById(headerId);
+		TMRequest tmRequest = listTmRequest.get(0);
 		if(tmRequestHeader.getAtempdaily() != null){
 			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
 //			obj.setRemark(tmRequestHeader.getRemark());
 //			obj.setIsLocked(false);
 //			obj.setActualInTime(tmRequestHeader.getAttendanceInTime());
 //			obj.setActualOutTime(tmRequestHeader.getAttendanceOutTime());
-			obj.setEditRemark(tmRequestHeader.getRemark());
+			obj.setEditReason(tmRequest.getTypeDesc());
+//			obj.setEditRemark(tmRequestHeader.getRemark());
+			obj.setEditRemark(tmRequest.getTypeDesc());
 			obj.setEditInTime(tmRequestHeader.getAttendanceInTime());
 			obj.setEditOutTime(tmRequestHeader.getAttendanceOutTime());
 			obj.setIsLocked(false);
@@ -988,7 +991,7 @@ public class TMRequestHeaderService {
 		TMRequestHeader tmRequestHeader = findById(headerId);
 		if(tmRequestHeader.getAtempdaily() != null){
 			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
-			obj.setEditReason(null);
+//			obj.setEditReason(null);
 			obj.setIsLocked(false);
 			atempDailyRepository.save(obj);
 		}
@@ -1117,7 +1120,7 @@ public class TMRequestHeaderService {
 			AtempDaily obj = atempDailyRepository.findOne(tmRequestHeader.getAtempdaily());
 //			obj.setReason(requestType.getTypeLabel());
 //			obj.setIsLocked(true);
-			obj.setEditReason(requestType.getTypeLabel());
+//			obj.setEditReason(requestType.getTypeLabel());
 			obj.setIsLocked(true);
 			atempDailyRepository.save(obj);
 		}
@@ -1154,7 +1157,7 @@ public class TMRequestHeaderService {
 			tmRequest.setRequesterEmploymentExtId(requester.getExtId());
 			tmRequest.setEmploymentExtId(employment.getExtId());
 			tmRequest.setEndTimeBreak(request.getEndTimeBreak());
-			tmRequest.setRemark(request.getRemark());
+			tmRequest.setRemark(request.getTypeDesc());
 			tmRequest.setModule(TMRequestHeader.MOD_TIME_MANAGEMENT);
 			tmRequest.setCategoryType(request.getCategoryType());
 			tmRequest.setCategoryTypeExtId(request.getCategoryTypeExtId());
