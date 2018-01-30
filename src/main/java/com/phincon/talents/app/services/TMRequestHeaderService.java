@@ -1453,7 +1453,7 @@ public class TMRequestHeaderService {
 		
 		
 		// cek sudah pernah request pada hari beririsan atau belum utk request selain Overtime dan Overtime Overlimit
-		if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL")) {
+		if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL") && !requestType.getCategoryType().equals("Attendance Edit")) {
 			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(),user.getEmployee(), TMRequestHeader.MOD_TIME_MANAGEMENT, request.getStartDate());
 			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
 				throw new CustomException(
