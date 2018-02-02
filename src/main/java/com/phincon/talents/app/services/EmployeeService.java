@@ -105,6 +105,19 @@ public class EmployeeService {
 				employeeId);
 
 	}
+	
+	
+	public void requestNPWP(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		Map<String, Object> paramsMap = Utils.convertStrJsonToMap(strJson);
+		if(paramsMap == null){
+			throw new CustomException("Error :  Problem with convert Data");
+		}
+		
+		employeeRepository.requestMaritalStatus((String) paramsMap.get("npwpNo"), dataApproval.getId(), employeeId);
+	}
 
 	@Transactional
 	public Employee findById(Long id) {

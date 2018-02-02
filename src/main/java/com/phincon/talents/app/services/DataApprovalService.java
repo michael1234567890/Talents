@@ -442,6 +442,11 @@ public class DataApprovalService {
 			dataApproval.setDescription(workflow.getDescription());
 			dataApproval.setObjectName(Employee.class.getSimpleName());
 		}
+		
+		if(request.getTask().equals(Workflow.CHANGE_NPWP)){
+			dataApproval.setDescription(workflow.getDescription());
+			dataApproval.setObjectName(Employee.class.getSimpleName());
+		}
 
 		dataApproval.setModule(workflow.getModule());
 		save(dataApproval);
@@ -466,6 +471,10 @@ public class DataApprovalService {
 
 		if (request.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.requestMaritalStatus(dataApproval);
+		}
+		
+		if (request.getTask().equals(Workflow.CHANGE_NPWP)){
+			
 		}
 		
 		if(request.getTask().contains(Workflow.SUBMIT_BENEFIT)) {

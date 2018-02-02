@@ -63,6 +63,14 @@ public class FamilyService {
 		return familyRepository.findByEmployee(employeeId);
 	}
 
+	public Iterable<Family> findByEmployeeAndIsEligibleKacamata(Long employeeId, Boolean isEligibleKacamata){
+		return familyRepository.findByEmployeeAndIsEligibleKacamata(employeeId, isEligibleKacamata);
+	}
+	
+	public Iterable<Family> findByEmployeeAndIsEligibleMedical(Long employeeId, Boolean isEligibleMedical){
+		return familyRepository.findByEmployeeAndIsEligibleMedical(employeeId, isEligibleMedical);
+	}
+
 	@Transactional
 	public void approvedSubmitFamily(DataApproval dataApproval) {
 		Long familyId = dataApproval.getObjectRef();
