@@ -37,5 +37,8 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 @Query("UPDATE Employee set  changeMaritalStatus=:changeMaritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval where id=:employeeId")
 	 void requestMaritalStatus(@Param("changeMaritalStatus") String changeMaritalStatus, @Param("maritalStatusDataApproval") Long maritalStatusDataApproval, @Param("employeeId") Long employeeId);
 	 
-	
+	 @Modifying
+	 @Query("UPDATE Employee set changeNPWP=:changeNPWP, npwpStatusDataApproval=:npwpStatusDataApproval where id=:employeeId")
+	 void requestNPWP(@Param("changeNPWP") String changeNPWP, @Param("npwpStatusDataApproval") Long npwpStatusDataApproval, @Param("employeeId") Long employeeId);
+	 
 }

@@ -22,6 +22,12 @@ public interface FamilyRepository extends PagingAndSortingRepository<Family,Long
 	
 	@Query
 	Iterable<Family> findByEmployee(Long employeeId);
+
+	@Query
+	Iterable<Family> findByEmployeeAndIsEligibleKacamata(Long employeeId, Boolean isEligibleKacamata);
+	
+	@Query
+	Iterable<Family> findByEmployeeAndIsEligibleMedical(Long employeeId, Boolean isEligibleMedical);
 	
 	 @Modifying
 	 @Query("UPDATE Family set status='"+Family.APPROVED+"', needSync=true where id=:familyId")
