@@ -88,6 +88,12 @@ public class Family extends AbstractEntity {
 	@Column(name = "need_sync")
 	private Boolean needSync;
 
+	@Column(name = "is_eligible_kacamata")
+	private Boolean isEligibleKacamata;
+	
+	@Column(name = "is_eligible_medical")
+	private Boolean isEligibleMedical;
+
 	// @OneToOne
 	// @JoinColumn(name = "employee_id")
 	// private Employee employee;
@@ -414,6 +420,22 @@ public class Family extends AbstractEntity {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Boolean getIsEligibleKacamata() {
+		return isEligibleKacamata;
+	}
+
+	public void setIsEligibleKacamata(Boolean isEligibleKacamata) {
+		this.isEligibleKacamata = isEligibleKacamata;
+	}
+
+	public Boolean getIsEligibleMedical() {
+		return isEligibleMedical;
+	}
+
+	public void setIsEligibleMedical(Boolean isEligibleMedical) {
+		this.isEligibleMedical = isEligibleMedical;
 	}
 	
 	

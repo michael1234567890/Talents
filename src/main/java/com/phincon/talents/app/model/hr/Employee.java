@@ -434,10 +434,16 @@ public class Employee extends AbstractEntity {
 	
 	@Column(name="change_marital_status", length=50)
 	private String changeMaritalStatus;
+	
+	@Column(name="change_npwp", length=50)
+	private String changeNPWP;
 
 	
 	@Column(name="marital_status_dataapproval_id")
 	private Long maritalStatusDataApproval;
+	
+	@Column(name="npwp_status_dataapproval_id")
+	private Long npwpStatusDataApproval;
 	
 	
 	@Column(name="need_sync")
@@ -1310,8 +1316,16 @@ public class Employee extends AbstractEntity {
 		this.changeMaritalStatus = changeMaritalStatus;
 	}
 
-
 	
+	
+
+	public String getChangeNPWP() {
+		return changeNPWP;
+	}
+
+	public void setChangeNPWP(String changeNPWP) {
+		this.changeNPWP = changeNPWP;
+	}
 
 	public Address getAddress() {
 		return address;
