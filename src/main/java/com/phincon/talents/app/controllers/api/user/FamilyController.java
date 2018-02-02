@@ -107,6 +107,51 @@ public class FamilyController {
 		return new ResponseEntity<CustomMessage>(new CustomMessage(
 				"Family has been Added", false), HttpStatus.OK);
 	}
+
+	@RequestMapping(value = "/user/familyeligible", method = RequestMethod.GET)
+	public ResponseEntity<Iterable<Family>> benefitChild(
+			OAuth2Authentication authentication) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+
+		if (user.getEmployee() == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+		
+//			Long empId = 1691L;
+			Iterable<Family> listFamily = familyService.findByEmployeeAndIsEligibleKacamata(user.getEmployee(), true);
+			//System.out.println(listFamily);
+			return new ResponseEntity<Iterable<Family>>(listFamily, HttpStatus.OK);
+		
+		
+	}
+	
+	@RequestMapping(value = "/user/familyeligiblemedical", method = RequestMethod.GET)
+	public ResponseEntity<Iterable<Family>> benefitChildMedical(
+			OAuth2Authentication authentication) {
+		
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+
+		if (user.getEmployee() == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+			
+		
+//		Long empId = 1691L;
+		Iterable<Family> listFamily = familyService.findByEmployeeAndIsEligibleMedical(user.getEmployee(), true);
+		return new ResponseEntity<Iterable<Family>>(listFamily, HttpStatus.OK);
+		
+	}
 	
 	@RequestMapping(value = "/user/family/{id}", method = RequestMethod.POST)
 	@ResponseBody
