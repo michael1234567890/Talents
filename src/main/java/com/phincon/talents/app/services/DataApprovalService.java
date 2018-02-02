@@ -474,7 +474,7 @@ public class DataApprovalService {
 		}
 		
 		if (request.getTask().equals(Workflow.CHANGE_NPWP)){
-			
+			employeeService.requestNPWP(dataApproval);
 		}
 		
 		if(request.getTask().contains(Workflow.SUBMIT_BENEFIT)) {

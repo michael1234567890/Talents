@@ -106,7 +106,7 @@ public class EmployeeService {
 
 	}
 	
-	
+	@Transactional
 	public void requestNPWP(DataApproval dataApproval){
 		Long employeeId = dataApproval.getObjectRef();
 		String strJson = dataApproval.getData();
