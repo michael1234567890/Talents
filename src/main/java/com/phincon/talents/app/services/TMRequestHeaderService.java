@@ -349,12 +349,19 @@ public class TMRequestHeaderService {
 	}
 
 	private void validationInputBenefitProcess(BenefitDTO request, User user, Employment employment) {
+		System.out.println("category type : " +request.getCategoryType());
+		
 		boolean validationBeforeEndDate = true;
 		boolean validationNextStartDate = false;
 		if (request.getCategoryType().toLowerCase().equals("spd advance")) {
 			validationBeforeEndDate = false;
 			validationNextStartDate = true;
 		}
+		
+//		if (request.getCategoryType().toLowerCase().equals("spd advance")) {
+//			validationBeforeEndDate = false;
+//			validationNextStartDate = true;
+//		}
 
 		if (request.getCategoryType().toLowerCase().equals("perjalanan dinas")
 				|| request.getCategoryType().toLowerCase()
@@ -517,6 +524,7 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setDestination(request.getDestination());
 		tmRequestHeader.setRemark(request.getRemark());
 		tmRequestHeader.setNeedReport(false);
+		tmRequestHeader.setRequestForFamily(request.getRequestForFamily());
 		Double totalAmount = request.getTotal();
 		Double totalAmountSubmit = request.getTotalSubmit();
 		// if category Medical Overlimit get from min (balance valid Medical,
@@ -641,6 +649,7 @@ public class TMRequestHeaderService {
 			tmRequest.setStatus(TMRequest.APPROVED);
 			tmRequest.setQty(details.getQty());
 			tmRequest.setReqNo(reqNo);
+			tmRequest.setRequestForFamily(request.getRequestForFamily());
 			if (workflow != null) {
 				tmRequest.setNeedSync(false);
 				tmRequest.setStatus(TMRequest.REQUEST);
