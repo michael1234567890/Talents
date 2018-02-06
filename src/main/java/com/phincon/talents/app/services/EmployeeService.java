@@ -132,7 +132,7 @@ public class EmployeeService {
 			throw new CustomException("Error :  Problem with convert Data");
 		}
 		
-		employeeRepository.requestMaritalStatus((String) paramsMap.get("npwpNo"), dataApproval.getId(), employeeId);
+		employeeRepository.requestMaritalStatus((String) paramsMap.get("npwp"), dataApproval.getId(), employeeId);
 	}
 
 	@Transactional

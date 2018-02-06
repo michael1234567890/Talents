@@ -667,6 +667,8 @@ public class DataApprovalService {
 	private void callingRejectCancel(DataApproval dataApproval, String status) {
 		if (dataApproval.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.rejectedChangeMaritalStatus(dataApproval);
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_NPWP)) {
+			employeeService.rejectedNPWP(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
 			leaveRequestService.rejected(dataApproval, LeaveRequest.REJECTED);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY)) {
@@ -686,6 +688,8 @@ public class DataApprovalService {
 			ApprovalWorkflowDTO approvalWorkflow) {
 		if (dataApproval.getTask().equals(Workflow.CHANGE_MARITAL_STATUS)) {
 			employeeService.approvedChangeMaritalStatus(dataApproval);
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_NPWP)) {
+			employeeService.approvedChangeNPWP(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_LEAVE)) {
 			leaveRequestService.approved(dataApproval, LeaveRequest.APPROVED);
 		} else if (dataApproval.getTask().equals(Workflow.SUBMIT_FAMILY)) {
