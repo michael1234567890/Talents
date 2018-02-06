@@ -207,6 +207,9 @@ public class TMRequest extends AbstractEntity {
 	@Column(name = "end_date_out_time")
 	private Date endDateOutTime;
 	
+	@Column(name = "request_for_family_id")
+	private Long requestForFamily;
+	
 	
 	public Date getRequestDate() {
 		return requestDate;
@@ -555,6 +558,14 @@ public class TMRequest extends AbstractEntity {
 
 	public void setEndDateOutTime(Date endDateOutTime) {
 		this.endDateOutTime = endDateOutTime;
+	}
+
+	public Long getRequestForFamily() {
+		return requestForFamily;
+	}
+
+	public void setRequestForFamily(Long requestForFamily) {
+		this.requestForFamily = requestForFamily;
 	}
 	
 	

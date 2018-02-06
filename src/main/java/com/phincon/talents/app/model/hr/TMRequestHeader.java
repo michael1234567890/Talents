@@ -167,6 +167,9 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "atempdaily_id")
 	private Long atempdaily;
 	
+	@Column(name = "request_for_family_id")
+	private Long requestForFamily;
+	
 
 	public DataApproval getDataApproval() {
 		return dataApproval;
@@ -441,6 +444,14 @@ public class TMRequestHeader extends AbstractEntity {
 
 	public void setAtempdaily(Long atempdaily) {
 		this.atempdaily = atempdaily;
+	}
+
+	public Long getRequestForFamily() {
+		return requestForFamily;
+	}
+
+	public void setRequestForFamily(Long requestForFamily) {
+		this.requestForFamily = requestForFamily;
 	}
 
 	
