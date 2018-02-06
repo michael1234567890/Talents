@@ -132,6 +132,7 @@ public class TMRequestHeaderService {
 	@Autowired
 	PayrollElementHeaderRepository payrollElementHeaderRepository;
 	
+	
 
 	private Double BATAS_SPD_AMOUNT = Double.valueOf("2000000");
 	private ObjectMapper objectMapper = new ObjectMapper();
@@ -349,19 +350,12 @@ public class TMRequestHeaderService {
 	}
 
 	private void validationInputBenefitProcess(BenefitDTO request, User user, Employment employment) {
-		System.out.println("category type : " +request.getCategoryType());
-		
 		boolean validationBeforeEndDate = true;
 		boolean validationNextStartDate = false;
 		if (request.getCategoryType().toLowerCase().equals("spd advance")) {
 			validationBeforeEndDate = false;
 			validationNextStartDate = true;
 		}
-		
-//		if (request.getCategoryType().toLowerCase().equals("spd advance")) {
-//			validationBeforeEndDate = false;
-//			validationNextStartDate = true;
-//		}
 
 		if (request.getCategoryType().toLowerCase().equals("perjalanan dinas")
 				|| request.getCategoryType().toLowerCase()
@@ -678,6 +672,7 @@ public class TMRequestHeaderService {
 			dataApprovalDTO.setIdRef(tmRequestHeader.getId());
 			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
+			dataApprovalDTO.setRequestForFamily(tmRequestHeader.getRequestForFamily());
 			if (request.getAttachments() != null && request.getAttachments().size() > 0) {
 				dataApprovalDTO.setAttachments(request.getAttachments());
 			}
@@ -1467,6 +1462,15 @@ public class TMRequestHeaderService {
 			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
 				throw new CustomException(
 						"You are not allowed request in the range date.");
+			}
+		}
+		
+		if(request.getType().equals("NHJ")){
+			List<TMRequest> listRequest = tmRequestRepository.findTMRequestByType(user.getCompany(), employment.getId(), request.getModule(), request.getCategoryType(), request.getType());
+			System.out.println("listRequest size : " +listRequest.size());
+			if(listRequest != null && listRequest.size() > 0){
+				throw new CustomException(
+						"You can only request once");
 			}
 		}
 		

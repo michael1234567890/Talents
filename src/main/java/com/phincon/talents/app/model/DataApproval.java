@@ -113,6 +113,15 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "approval_level")
 	private Integer approvalLevel;
 	
+	@Column(name = "request_for_family_id")
+	private Long requestForFamily;
+	
+	@Column(name = "request_for_family_name", length=100)
+	private String requestForFamilyName;
+	
+	@Column(name = "request_for_family_relationship", length=100)
+	private String requestForFamilyRelationhip;
+	
 	@Transient
 	private Employee employeeRequest;
 	
@@ -388,6 +397,30 @@ public class DataApproval extends AbstractEntity {
 
 	public void setEmployeeRequestPhotoProfile(String employeeRequestPhotoProfile) {
 		this.employeeRequestPhotoProfile = employeeRequestPhotoProfile;
+	}
+
+	public Long getRequestForFamily() {
+		return requestForFamily;
+	}
+
+	public void setRequestForFamily(Long requestForFamily) {
+		this.requestForFamily = requestForFamily;
+	}
+
+	public String getRequestForFamilyName() {
+		return requestForFamilyName;
+	}
+
+	public void setRequestForFamilyName(String requestForFamilyName) {
+		this.requestForFamilyName = requestForFamilyName;
+	}
+
+	public String getRequestForFamilyRelationhip() {
+		return requestForFamilyRelationhip;
+	}
+
+	public void setRequestForFamilyRelationhip(String requestForFamilyRelationhip) {
+		this.requestForFamilyRelationhip = requestForFamilyRelationhip;
 	}
 	
 	

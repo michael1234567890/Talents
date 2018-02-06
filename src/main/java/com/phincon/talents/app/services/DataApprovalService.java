@@ -415,6 +415,7 @@ public class DataApprovalService {
 			dataApproval.setApprovalLevelFive(approvalLevelFive);
 			dataApproval.setApprovalLevelSix(approvalLevelSix);
 			dataApproval.setApprovalLevelSeven(approvalLevelSeven);
+			dataApproval.setRequestForFamily(request.getRequestForFamily());
 			
 			if(approvalLevelOne != null){
 				currentAssignApproval = approvalLevelOne;

@@ -9,6 +9,7 @@ public class DataApprovalDTO {
 	private String data;
 	private String objectName;
 	private String description;
+	private Long requestForFamily;
 	private Long idRef;
 	private List<Map<String, Object>> attachments;
 	
@@ -70,7 +71,15 @@ public class DataApprovalDTO {
 		this.module = module;
 	}
 
+	public Long getRequestForFamily() {
+		return requestForFamily;
+	}
 
+	public void setRequestForFamily(Long requestForFamily) {
+		this.requestForFamily = requestForFamily;
+	}
+
+	
 	
 	
 
