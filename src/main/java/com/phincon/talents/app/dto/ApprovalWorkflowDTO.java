@@ -38,6 +38,12 @@ public class ApprovalWorkflowDTO {
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
+
+	@Override
+	public String toString() {
+		return "ApprovalWorkflowDTO [id=" + id + ", status=" + status
+				+ ", reasonReject=" + reasonReject + ", amount=" + amount + "]";
+	}
 	
 	
 
