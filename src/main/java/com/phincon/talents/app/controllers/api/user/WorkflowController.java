@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.phincon.talents.app.config.CustomException;
 import com.phincon.talents.app.dao.DataApprovalRepository;
+import com.phincon.talents.app.dao.FamilyRepository;
 import com.phincon.talents.app.dao.UserRepository;
 import com.phincon.talents.app.dao.VwHistDataApprovalTMRequestHeaderRepository;
 import com.phincon.talents.app.dto.ApprovalWorkflowDTO;
@@ -31,6 +32,7 @@ import com.phincon.talents.app.model.AttachmentDataApproval;
 import com.phincon.talents.app.model.DataApproval;
 import com.phincon.talents.app.model.User;
 import com.phincon.talents.app.model.Workflow;
+import com.phincon.talents.app.model.hr.Family;
 import com.phincon.talents.app.model.hr.VwHistDataApprovalTMRequestHeader;
 import com.phincon.talents.app.services.AttachmentDataApprovalService;
 import com.phincon.talents.app.services.DataApprovalService;
@@ -66,6 +68,9 @@ public class WorkflowController {
 
 	@Autowired
 	AttachmentDataApprovalService attachmentDataApprovalService;
+	
+	@Autowired
+	FamilyRepository familyRepository;
 
 	@Autowired
 	private Environment env;
@@ -285,6 +290,11 @@ public class WorkflowController {
 				tempAttachmentDataApproval.add(attachmentDataApproval);
 			}
 		dataApproval.setAttachments(tempAttachmentDataApproval);
+		
+		Family family = familyRepository.findOne(dataApproval.getRequestForFamily());
+		
+		dataApproval.setRequestForFamilyName(family.getName());
+		dataApproval.setRequestForFamilyRelationhip(family.getRelationship());
 
 		return new ResponseEntity<DataApproval>(dataApproval, HttpStatus.OK);
 	}
