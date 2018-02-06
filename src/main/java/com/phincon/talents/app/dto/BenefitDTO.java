@@ -45,6 +45,7 @@ public class BenefitDTO {
 	private Long atempdaily;
 	private Date startDateOutTime;
 	private Date endDateOutTime;
+	private Long requestForFamily;
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;
@@ -403,11 +404,41 @@ public class BenefitDTO {
 		this.reason = reason;
 	}
 
+	public Long getRequestForFamily() {
+		return requestForFamily;
+	}
+
+	public void setRequestForFamily(Long requestForFamily) {
+		this.requestForFamily = requestForFamily;
+	}
+
 	@Override
 	public String toString() {
-		return "BenefitDTO [total=" + total + ", module=" + module
-				+ ", categoryType=" + categoryType + ", details=" + details
-				+ "]";
+		return "BenefitDTO [total=" + total + ", totalSubmit=" + totalSubmit
+				+ ", module=" + module + ", origin=" + origin
+				+ ", destination=" + destination + ", categoryType="
+				+ categoryType + ", categoryTypeExtId=" + categoryTypeExtId
+				+ ", startDate=" + startDate + ", endDate=" + endDate
+				+ ", linkRef=" + linkRef + ", linkRefHeader=" + linkRefHeader
+				+ ", workflow=" + workflow + ", remark=" + remark + ", reason="
+				+ reason + ", isVerified=" + isVerified + ", pulangKampung="
+				+ pulangKampung + ", spdType=" + spdType + ", type=" + type
+				+ ", typeDesc=" + typeDesc + ", startTimeBreak="
+				+ startTimeBreak + ", endTimeBreak=" + endTimeBreak
+				+ ", attendanceInTime=" + attendanceInTime
+				+ ", attendanceOutTime=" + attendanceOutTime + ", requestType="
+				+ requestType + ", employee=" + employee + ", totalBalance="
+				+ totalBalance + ", overtimeIn=" + overtimeIn
+				+ ", overtimeOut=" + overtimeOut + ", substituteToEmployment="
+				+ substituteToEmployment + ", startDateInTime="
+				+ startDateInTime + ", endDateInTime=" + endDateInTime
+				+ ", atempdaily=" + atempdaily + ", startDateOutTime="
+				+ startDateOutTime + ", endDateOutTime=" + endDateOutTime
+				+ ", requestForFamily=" + requestForFamily + ", details="
+				+ details + ", attachments=" + attachments + ", listBalance="
+				+ listBalance + "]";
 	}
+
+	
 
 }
