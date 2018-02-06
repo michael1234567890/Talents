@@ -27,10 +27,17 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 @Query("UPDATE Employee set maritalStatus=:maritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval,changeMaritalStatus=:changeMaritalStatus, needSync=:needSync where id=:employeeId")
 	 void updateMaritalStatus(@Param("employeeId") Long employeeId, @Param("maritalStatus") String maritalStatus,@Param("maritalStatusDataApproval") Long maritalStatusDataApproval,@Param("changeMaritalStatus") String changeMaritalStatus,@Param("needSync") Boolean needSync);
 	 
+	 @Modifying
+	 @Query("UPDATE Employee set npwpNo=:npwpNo, npwpStatusDataApproval=:npwpStatusDataApproval, changeNPWP=:changeNPWP, needSync=:needSync where id=:employeeId")
+	 void updateNPWP(@Param("employeeId") Long employeeId, @Param("npwpNo") String npwpNo, @Param("npwpStatusDataApproval") Long npwpStatusDataApproval, @Param("changeNPWP") String changeNPWP, @Param("needSync") Boolean needSync);
 	 
 	 @Modifying
 	 @Query("UPDATE Employee  set maritalStatusDataApproval=null,changeMaritalStatus=null, needSync=false where id=:employeeId")
 	 void rejectedMaritalStatus(@Param("employeeId") Long employeeId);
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set npwpStatusDataApproval=null, changeNPWP=null, needSync=false where id=employeeId")
+	 void rejectedNPWP(@Param("employeeId") Long employeeId);
 	 
 	 
 	 @Modifying
