@@ -89,6 +89,22 @@ public class EmployeeService {
 				(String) paramsMap.get("maritalStatus"), null, null, true);
 
 	}
+	
+	@Transactional
+	public void approvedChangeNPWP(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		System.out.println("strJson : " + strJson);
+		Map<String, Object> paramsMap = null;
+		try{
+			paramsMap = mapper.readValue(strJson, Map.class);
+		}catch (Exception e) {
+			throw new CustomException("Error :  Problem with convert Data");
+		}
+		
+		employeeRepository.updateNPWP(employeeId, (String) paramsMap.get("npwp"), null, null, true);
+	}
 
 	@Transactional
 	public void requestMaritalStatus(DataApproval dataApproval) {
@@ -128,6 +144,12 @@ public class EmployeeService {
 	public void rejectedChangeMaritalStatus(DataApproval dataApproval) {
 		Long employeeId = dataApproval.getObjectRef();
 		employeeRepository.rejectedMaritalStatus(employeeId);
+	}
+	
+	@Transactional
+	public void rejectedNPWP(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		employeeRepository.rejectedNPWP(employeeId);
 	}
 
 }
