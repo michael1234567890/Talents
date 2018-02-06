@@ -1351,7 +1351,14 @@ public class Employee extends AbstractEntity {
 		this.maritalStatusDataApproval = maritalStatusDataApproval;
 	}
 	
-	
+
+	public Long getNpwpStatusDataApproval() {
+		return npwpStatusDataApproval;
+	}
+
+	public void setNpwpStatusDataApproval(Long npwpStatusDataApproval) {
+		this.npwpStatusDataApproval = npwpStatusDataApproval;
+	}
 
 	public String getName() {
 		return name;
