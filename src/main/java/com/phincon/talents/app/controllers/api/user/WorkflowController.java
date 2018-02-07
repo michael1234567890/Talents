@@ -291,10 +291,13 @@ public class WorkflowController {
 			}
 		dataApproval.setAttachments(tempAttachmentDataApproval);
 		
-		Family family = familyRepository.findOne(dataApproval.getRequestForFamily());
-		
-		dataApproval.setRequestForFamilyName(family.getName());
-		dataApproval.setRequestForFamilyRelationhip(family.getRelationship());
+		if(dataApproval.getRequestForFamily() != null){
+			Family family = familyRepository.findOne(dataApproval.getRequestForFamily());
+			
+			dataApproval.setRequestForFamilyName(family.getName());
+			dataApproval.setRequestForFamilyRelationhip(family.getRelationship());
+		}
+
 
 		return new ResponseEntity<DataApproval>(dataApproval, HttpStatus.OK);
 	}
