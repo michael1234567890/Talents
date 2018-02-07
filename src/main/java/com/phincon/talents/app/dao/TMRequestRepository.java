@@ -36,14 +36,14 @@ public interface TMRequestRepository extends PagingAndSortingRepository<TMReques
 	@Query("UPDATE TMRequest set amount=:amount, amountSubmit=:amount where tmRequestHeader=:headerId")
 	void updateAmountByHeaderId(@Param("amount") Double amount, @Param("headerId") Long headerId);
 	
-	@Query("select p from TMRequest p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND p.startDate=:startDate AND LOWER(p.status)!='reject'")
+	@Query("select p from TMRequest p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND p.startDate=:startDate AND LOWER(p.status)!='rejected'")
 	List<TMRequest> findTMRequestByStartDate(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType, @Param("type") String type, @Param("startDate") Date startDate);
 
 
 	@Query("select new com.phincon.talents.app.dto.TotalCategoryDTO(sum(u.overtimeIn),sum(u.overtimeOut), u.type, u.module , SUBSTRING(u.startDate,1,7), u.company,u.employment) from TMRequest u where u.company=:company AND u.employment=:employment AND SUBSTRING(u.startDate,1,7)=:month AND u.module=:module AND u.type=:type GROUP BY u.company,u.employment,u.module,u.type,SUBSTRING(u.startDate,1,7)")
 	List<TotalCategoryDTO> sumTotalOvertimeInOutPerMonth(@Param("company") Long company , @Param("employment") Long employment, @Param("month") String month, @Param("module") String module, @Param("type") String type );
 	
-	@Query("select p from TMRequest p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND LOWER(p.status)!='reject'")
+	@Query("select p from TMRequest p where p.company=:company AND p.employment=:employment AND LOWER(p.module)=LOWER(:module) AND LOWER(p.categoryType)=LOWER(:categoryType) AND LOWER(p.type)=LOWER(:type) AND LOWER(p.status)!='rejected'")
 	List<TMRequest> findTMRequestByType(@Param("company") Long company, @Param("employment")  Long employment,  @Param("module") String module, @Param("categoryType") String categoryType, @Param("type") String type);
 	
 }
