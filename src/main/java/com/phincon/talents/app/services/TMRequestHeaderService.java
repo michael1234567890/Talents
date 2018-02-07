@@ -1467,7 +1467,7 @@ public class TMRequestHeaderService {
 		
 		if(request.getType().equals("NHJ")){
 			List<TMRequest> listRequest = tmRequestRepository.findTMRequestByType(user.getCompany(), employment.getId(), request.getModule(), request.getCategoryType(), request.getType());
-			System.out.println("listRequest size : " +listRequest.size());
+//			System.out.println("listRequest size : " +listRequest.size());
 			if(listRequest != null && listRequest.size() > 0){
 				throw new CustomException(
 						"You can only request once");

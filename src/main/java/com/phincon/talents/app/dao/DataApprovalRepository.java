@@ -24,15 +24,27 @@ public interface DataApprovalRepository extends PagingAndSortingRepository<DataA
 	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company")
 	 List<DataApproval> findNeedApproval(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company);
 	 
+	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.company=:company")
+	 List<DataApproval> findAll(@Param("emp") String emp, @Param("company") Long company);
+	 
 	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company")
 	 List<Long> countNeedApproval(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company);
+	 
+	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.company=:company")
+	 List<Long> countAll(@Param("emp") String emp, @Param("company") Long company);
 	 
 	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company AND u.module=:module")
 	 List<Long> countNeedApprovalAndModule(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company, @Param("module") String module);
 	 
+	 @Query("SELECT COUNT(u.id) FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.company=:company AND u.module=:module")
+	 List<Long> countAllModule(@Param("emp") String emp, @Param("company") Long company, @Param("module") String module);
+	 
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.status=:status AND u.company=:company AND u.module=:module")
 	 List<DataApproval> findNeedApprovalAndModule(@Param("emp") String emp, @Param("status") String status, @Param("company") Long company, @Param("module") String module,Pageable pageable);
+	 
+	 @Query("SELECT u FROM DataApproval u WHERE u.currentAssignApproval like %:emp% AND u.company=:company AND u.module=:module")
+	 List<DataApproval> findAllModule(@Param("emp") String emp, @Param("company") Long company, @Param("module") String module,Pageable pageable);
 	 
 	 @Query("SELECT u FROM DataApproval u WHERE u.empRequest=:employee ORDER BY modifiedDate DESC")
 	 List<DataApproval> findByEmpRequest(@Param("employee") Long employee,Pageable pageable);

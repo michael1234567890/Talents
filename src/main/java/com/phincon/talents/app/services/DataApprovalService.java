@@ -293,6 +293,24 @@ public class DataApprovalService {
 				listDataApprovals, request);
 		return lisApprovalsTemp;
 	}
+	
+	@Transactional
+	public List<DataApproval> findAll(String emp,
+			Long company, String module, PageRequest pageRequest,
+			HttpServletRequest request) {
+		List<DataApproval> listDataApprovals = null;
+		if (module == null)
+			listDataApprovals = dataApprovalRepository.findAll(emp,
+					company);
+		else
+			listDataApprovals = dataApprovalRepository
+					.findAllModule(emp, company, module,
+							pageRequest);
+
+		List<DataApproval> lisApprovalsTemp = modifyResultDataApproval(
+				listDataApprovals, request);
+		return lisApprovalsTemp;
+	}
 
 	@Transactional
 	public List<DataApproval> findByEmployeeAndTaskAndActiveAndStatus(
