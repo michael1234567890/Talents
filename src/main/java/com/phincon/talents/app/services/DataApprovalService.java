@@ -311,6 +311,23 @@ public class DataApprovalService {
 				listDataApprovals, request);
 		return lisApprovalsTemp;
 	}
+	
+	@Transactional
+	public List<DataApproval> findAllApproval( Long company, 
+			String module, PageRequest pageRequest,
+			HttpServletRequest request) {
+		List<DataApproval> listDataApprovals = null;
+		if (module == null)
+			listDataApprovals = dataApprovalRepository.findAllApproval(company, pageRequest);
+		else
+			listDataApprovals = dataApprovalRepository
+					.findAllApprovalModule(company, module,
+							pageRequest);
+
+		List<DataApproval> lisApprovalsTemp = modifyResultDataApproval(
+				listDataApprovals, request);
+		return lisApprovalsTemp;
+	}
 
 	@Transactional
 	public List<DataApproval> findByEmployeeAndTaskAndActiveAndStatus(
