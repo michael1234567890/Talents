@@ -276,6 +276,67 @@ public class WorkflowController {
 		return new ResponseEntity<LoadResult>(loadResult, HttpStatus.OK);
 
 	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@RequestMapping(value = "/user/workflow/alldataapproval", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<LoadResult> listDataApprovalAll2(
+			@RequestParam(value = "module", required = false) String module,
+			@RequestParam(value = "page", required = false) Integer page,
+			@RequestParam(value = "size", required = false) Integer size,
+			OAuth2Authentication authentication, HttpServletRequest request) {
+
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		LoadResult loadResult = new LoadResult<List<DataApproval>>();
+
+		int pageData = PAGE_START;
+		int sizeData = SIZE;
+
+		if (size != null)
+			sizeData = size;
+
+		if (page != null)
+			pageData = page;
+
+		PageRequest pageRequest = new PageRequest(pageData, sizeData);
+		loadResult.setPage(pageData);
+		loadResult.setSize(sizeData);
+
+		// get workflow record with task name
+//		String strEmployee = "#" + user.getEmployee() + "#";
+		List<DataApproval> listDataApproval = null;
+		Long totalRecord = 0L;
+		List<Long> listTotalRecord = null;
+		if (module == null) {
+			listDataApproval = dataApprovalService.findAllApproval(
+					user.getCompany(),
+					null, pageRequest, request);
+			listTotalRecord = dataApprovalRepository.countAllApproval(
+					user.getCompany());
+
+		} else {
+			listDataApproval = dataApprovalService.findAllApproval(
+					user.getCompany(),
+					module, pageRequest, request);
+			listTotalRecord = dataApprovalRepository
+					.countAllApprovalModule(
+							user.getCompany(),
+							module);
+		}
+
+		if (listTotalRecord != null && listTotalRecord.size() > 0) {
+			for (Long objects : listTotalRecord) {
+				totalRecord = objects;
+			}
+		}
+
+		loadResult.setData(listDataApproval);
+		loadResult.setTotalRecord(totalRecord);
+		return new ResponseEntity<LoadResult>(loadResult, HttpStatus.OK);
+
+	}
 
 	@RequestMapping(value = "/user/workflow/countneedapproval", method = RequestMethod.GET)
 	@ResponseBody
