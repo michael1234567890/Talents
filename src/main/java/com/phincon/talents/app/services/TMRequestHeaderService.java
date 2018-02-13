@@ -27,6 +27,7 @@ import com.phincon.talents.app.dao.EmployeeRepository;
 import com.phincon.talents.app.dao.EmploymentRepository;
 import com.phincon.talents.app.dao.GroupRepository;
 import com.phincon.talents.app.dao.HolidayRepository;
+import com.phincon.talents.app.dao.LastClaimDateFamilyRepository;
 import com.phincon.talents.app.dao.PatternRepository;
 import com.phincon.talents.app.dao.PayrollElementHeaderRepository;
 import com.phincon.talents.app.dao.RequestCategoryTypeRepository;
@@ -52,6 +53,7 @@ import com.phincon.talents.app.model.hr.Employee;
 import com.phincon.talents.app.model.hr.EmployeePayroll;
 import com.phincon.talents.app.model.hr.Employment;
 import com.phincon.talents.app.model.hr.Group;
+import com.phincon.talents.app.model.hr.LastClaimDateFamily;
 import com.phincon.talents.app.model.hr.Pattern;
 import com.phincon.talents.app.model.hr.PayrollElementHeader;
 import com.phincon.talents.app.model.hr.RequestCategoryType;
@@ -131,6 +133,9 @@ public class TMRequestHeaderService {
 
 	@Autowired
 	PayrollElementHeaderRepository payrollElementHeaderRepository;
+	
+	@Autowired
+	LastClaimDateFamilyRepository lastClaimDateRepository;
 	
 	
 
@@ -323,6 +328,9 @@ public class TMRequestHeaderService {
 							* tmBalance.getBalanceEnd();
 					benefitDetail
 							.setLastClaimDate(tmBalance.getLastClaimDate());
+					
+					System.out.println("totalClaimBalance : " +totalClaimBalance);
+					System.out.println("totalClaim : " +totalClaim);
 
 					if (totalClaimBalance < totalClaim)
 						benefitDetail.setTotalCurrentClaim(totalClaimBalance);
@@ -663,7 +671,7 @@ public class TMRequestHeaderService {
 
 		}
 
-		actionForBalance(listBalance, mapBenefitDetail, user);
+		actionForBalance(listBalance, mapBenefitDetail, user, tmRequestHeader);
 		if (workflow != null) {
 			DataApprovalDTO dataApprovalDTO = new DataApprovalDTO();
 			dataApprovalDTO
@@ -710,7 +718,7 @@ public class TMRequestHeaderService {
 	}
 
 	private void actionForBalance(List<TMBalance> listBalance,
-			Map<String, Double> mapBenefitDetail, User user) {
+			Map<String, Double> mapBenefitDetail, User user, TMRequestHeader tmRequestHeader) {
 		for (TMBalance tmBalance : listBalance) {
 			if (mapBenefitDetail.get(tmBalance.getType().toLowerCase()) != null) {
 				Double decrease = Double.valueOf("0");
@@ -733,8 +741,15 @@ public class TMRequestHeaderService {
 				if (tmBalance.getLastClaimDate() != null)
 					tmBalance.setLastClaimDateBefore(tmBalance
 							.getLastClaimDate());
-
-				tmBalance.setLastClaimDate(new Date());
+				
+				LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(tmBalance.getId(), tmRequestHeader.getRequestForFamily(), tmBalance.getEmployment());
+				
+				if(lastClaimDateFamily != null){
+					tmBalance.setLastClaimDateFamilyId(lastClaimDateFamily.getId());
+				} else {
+					tmBalance.setLastClaimDate(new Date());
+				}
+				
 				if (tmBalance.getType().toLowerCase().equals("sumbangan perabot")) {
 					Employee employee = employeeRepository.findOne(user
 							.getEmployee());
@@ -893,8 +908,42 @@ public class TMRequestHeaderService {
 				if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (2 years)")) {
-					// check last claim date
-					if (balance.getLastClaimDate() != null&& (Utils.diffDay(balance.getLastClaimDate(),
+					// check last claim date for family
+					if(header.getRequestForFamily() != null){
+						LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(balance.getId(), header.getRequestForFamily(), balance.getEmployment());
+						
+						if(lastClaimDateFamily != null){
+							if(lastClaimDateFamily.getLastClaimDate() != null && (Utils.diffDay(lastClaimDateFamily.getLastClaimDate(), new Date()) < 730)){
+								String strNextApply = "";
+								Date nextApply = null;
+								try {
+									nextApply = Utils.addDay(
+											lastClaimDateFamily.getLastClaimDate(), 730);
+									strNextApply = Utils.convertDateToString(nextApply);
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}
+								throw new CustomException("You have already applied aaa '"
+										+ type + "'. You can apply again in "
+										+ strNextApply + ".");
+								}
+							}
+							
+						} else {
+							LastClaimDateFamily lastClaimDateFamilyDTO = new LastClaimDateFamily();
+							lastClaimDateFamilyDTO.setBalance(balance.getId());
+							lastClaimDateFamilyDTO.setFamily(header.getRequestForFamily());
+							lastClaimDateFamilyDTO.setLastClaimDate(new Date());
+							lastClaimDateFamilyDTO.setEmployment(header.getRequestForFamily());
+							lastClaimDateRepository.save(lastClaimDateFamilyDTO);
+						}
+						
+					}
+				
+					// check last claim date employee
+					else {
+						
+						if (balance.getLastClaimDate() != null&& (Utils.diffDay(balance.getLastClaimDate(),
 									new Date()) < 730)) {
 						String strNextApply = "";
 						Date nextApply = null;
@@ -905,10 +954,12 @@ public class TMRequestHeaderService {
 						} catch (ParseException e) {
 							e.printStackTrace();
 						}
-						throw new CustomException("You have already applied '"
+						throw new CustomException("You have already applied aaa '"
 								+ type + "'. You can apply again in "
 								+ strNextApply + ".");
+						}
 					}
+					
 				} else if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (1 years)")) {
@@ -957,7 +1008,7 @@ public class TMRequestHeaderService {
 			}
 
 		}
-	}
+	
 
 	public boolean isLensaHaveClaimDate(List<TMBalance> listBalance) {
 		for (TMBalance tmBalance : listBalance) {
@@ -1456,21 +1507,23 @@ public class TMRequestHeaderService {
 		}
 		
 		
+		// BUKA KOMEN DULU
 		// cek sudah pernah request pada hari beririsan atau belum utk request selain Overtime dan Overtime Overlimit
-		if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL") && !requestType.getCategoryType().equals("Attendance Edit")) {
+		/*if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL") && !requestType.getCategoryType().equals("Attendance Edit")) {
 			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(),user.getEmployee(), TMRequestHeader.MOD_TIME_MANAGEMENT, request.getStartDate());
 			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
 				throw new CustomException(
 						"You are not allowed request in the range date.");
 			}
-		}
+		}*/
 		
 		if(request.getType().equals("NHJ")){
+			System.out.println("type label haji : " + requestType.getTypeLabel());
 			List<TMRequest> listRequest = tmRequestRepository.findTMRequestByType(user.getCompany(), employment.getId(), request.getModule(), request.getCategoryType(), request.getType());
 //			System.out.println("listRequest size : " +listRequest.size());
 			if(listRequest != null && listRequest.size() > 0){
 				throw new CustomException(
-						"You can only request once");
+						"You have already applied '" + requestType.getTypeLabel() + "'. This type Only one time Apply.");
 			}
 		}
 		
@@ -1553,6 +1606,7 @@ public class TMRequestHeaderService {
 		
 		Group groupAttendance = groupAttendanceRepository.findByExtId(employeePayroll.getAttendanceGroupCode());
 		if(groupAttendance == null) {
+			System.out.println("Masukkkkk siniiiiii");
 			String code = "a0q6F00000KBA19QAH";
 			groupAttendance = groupAttendanceRepository.findByExtId(code);
 		}
@@ -1589,7 +1643,8 @@ private boolean isOffDay(Calendar startCal,List<AttendanceRefDTO> arrAttendanceR
 			if(formattedPanduanDate.equals(formattedDate)){
 				Shift objShift = getShiftFromPattern(objPatternDTO.getShiftCode(), listShift);
 				
-				if(objShift != null && objShift.getMasterCode() !=null && objShift.getMasterCode().toLowerCase().contains("off"))
+				System.out.println("master code : " +objShift.getMasterCode());
+				if(objShift != null && objShift.getMasterCode() !=null && objShift.getMasterCode().toLowerCase().contains("off") || objShift.getMasterCode().toLowerCase().contains("libur"))
 					return true;
 			}
 		}
