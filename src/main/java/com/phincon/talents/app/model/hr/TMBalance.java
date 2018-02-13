@@ -106,7 +106,8 @@ public class TMBalance extends AbstractEntity {
 	@Column(name = "need_sync")
 	private Boolean needSync;
 	
-	
+	@Column(name = "last_claim_date_family_id")
+	private Long lastClaimDateFamilyId;
 
 	
 	public String getName() {
@@ -302,6 +303,14 @@ public class TMBalance extends AbstractEntity {
 
 	public void setLastClaimDateBefore(Date lastClaimDateBefore) {
 		this.lastClaimDateBefore = lastClaimDateBefore;
+	}
+
+	public Long getLastClaimDateFamilyId() {
+		return lastClaimDateFamilyId;
+	}
+
+	public void setLastClaimDateFamilyId(Long lastClaimDateFamilyId) {
+		this.lastClaimDateFamilyId = lastClaimDateFamilyId;
 	}
 
 	@Override
