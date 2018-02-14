@@ -237,6 +237,7 @@ public class TMRequestHeaderService {
 		}
 
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
+		System.out.println("list balance : " +listBalance.get(0));
 		processSubmitedClaim(request, listBalance, user, employment);
 		return request;
 	}
@@ -317,7 +318,8 @@ public class TMRequestHeaderService {
 				}
 
 				if (tmBalance != null && !tmBalance.getBalanceType().toLowerCase().equals("one time (transaction)") && passed) {
-
+					
+					System.out.println("type benefit detail : " +benefitDetail.getType());
 					if (benefitDetail.getType().toLowerCase().equals("medical"))
 						benefitDetail.setTotalSubmitedClaim(tmBalance
 								.getBalanceUsed());
@@ -488,6 +490,7 @@ public class TMRequestHeaderService {
 	@Transactional
 	public void createBenefit(BenefitDTO request, User user,
 			Employment employment, Employment requester) {
+		System.out.println("test masuk");
 
 		if (request.getModule() == null || request.getCategoryType() == null) {
 			throw new CustomException(
@@ -730,8 +733,10 @@ public class TMRequestHeaderService {
 								|| tmBalance.getBalanceType().toLowerCase().equals("one time (5 years)") 
 								|| tmBalance.getBalanceType().toLowerCase().equals("one time (1 years)")))) 
 				{
+					System.out.println("masuk ifff");
 					tmBalance.setBalanceUsed(decrease);
 				} else {
+					System.out.println("masuk elseeee");
 					Double balanceEnd = tmBalance.getBalanceEnd() - decrease;
 					tmBalance.setBalanceEnd(balanceEnd);
 					Double balanceUsed = tmBalance.getBalanceUsed() + decrease;
@@ -774,6 +779,7 @@ public class TMRequestHeaderService {
 	public void validationBenefitAmount(BenefitDTO obj,
 			Map<String, Double> mapBalance, List<TMBalance> listBalance,
 			User user, Employment employment) {
+		System.out.println("masukkkkkk");
 
 		if (obj.getDetails() != null && obj.getDetails().size() > 0) {
 			for (BenefitDetailDTO details : obj.getDetails()) {
@@ -891,7 +897,9 @@ public class TMRequestHeaderService {
 	public void validationBalanceType(BenefitDTO header,
 			BenefitDetailDTO tmRequest, List<TMBalance> listBalance,
 			Long employmentId, Long companyId) {
-
+		
+		
+		System.out.println("masukkkkkk lagi");
 		String type = tmRequest.getType();
 		TMBalance balance = null;
 		for (TMBalance tmBalance : listBalance) {
@@ -904,15 +912,20 @@ public class TMRequestHeaderService {
 			if (balance.getBalanceType() != null
 					&& balance.getBalanceType().toLowerCase()
 							.contains("one time")) {
-				
+				System.out.println("Masuk one time");
 				if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (2 years)")) {
 					// check last claim date for family
 					if(header.getRequestForFamily() != null){
+						System.out.println("Masuk sini 1");
+						System.out.println("balanceId : " +balance.getId());
+						System.out.println("familyId : " +header.getRequestForFamily());
+						System.out.println("employmentId : " +balance.getEmployment() );
 						LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(balance.getId(), header.getRequestForFamily(), balance.getEmployment());
 						
 						if(lastClaimDateFamily != null){
+							System.out.println("Masuk sini 1-1");
 							if(lastClaimDateFamily.getLastClaimDate() != null && (Utils.diffDay(lastClaimDateFamily.getLastClaimDate(), new Date()) < 730)){
 								String strNextApply = "";
 								Date nextApply = null;
@@ -923,63 +936,104 @@ public class TMRequestHeaderService {
 								} catch (ParseException e) {
 									e.printStackTrace();
 								}
-								throw new CustomException("You have already applied aaa '"
+								throw new CustomException("You have already applied '"
 										+ type + "'. You can apply again in "
 										+ strNextApply + ".");
 								}
+							} else {
+								System.out.println("Masuk sini 2");
+								LastClaimDateFamily lastClaimDateFamilyDTO = new LastClaimDateFamily();
+								lastClaimDateFamilyDTO.setBalance(balance.getId());
+								lastClaimDateFamilyDTO.setFamily(header.getRequestForFamily());
+								lastClaimDateFamilyDTO.setLastClaimDate(new Date());
+								lastClaimDateFamilyDTO.setEmployment(balance.getEmployment());
+								lastClaimDateRepository.save(lastClaimDateFamilyDTO);
 							}
-							
-						} else {
-							LastClaimDateFamily lastClaimDateFamilyDTO = new LastClaimDateFamily();
-							lastClaimDateFamilyDTO.setBalance(balance.getId());
-							lastClaimDateFamilyDTO.setFamily(header.getRequestForFamily());
-							lastClaimDateFamilyDTO.setLastClaimDate(new Date());
-							lastClaimDateFamilyDTO.setEmployment(header.getRequestForFamily());
-							lastClaimDateRepository.save(lastClaimDateFamilyDTO);
+						
+						}
+						else {
+							// check last claim date employee
+							if (balance.getLastClaimDate() != null&& (Utils.diffDay(balance.getLastClaimDate(),
+										new Date()) < 730)) {
+							String strNextApply = "";
+							Date nextApply = null;
+							try {
+								nextApply = Utils.addDay(
+										balance.getLastClaimDate(), 730);
+								strNextApply = Utils.convertDateToString(nextApply);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+							throw new CustomException("You have already applied '"
+									+ type + "'. You can apply again in "
+									+ strNextApply + ".");
+							}
 						}
 						
 					}
 				
-					// check last claim date employee
-					else {
-						
-						if (balance.getLastClaimDate() != null&& (Utils.diffDay(balance.getLastClaimDate(),
-									new Date()) < 730)) {
-						String strNextApply = "";
-						Date nextApply = null;
-						try {
-							nextApply = Utils.addDay(
-									balance.getLastClaimDate(), 730);
-							strNextApply = Utils.convertDateToString(nextApply);
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						throw new CustomException("You have already applied aaa '"
-								+ type + "'. You can apply again in "
-								+ strNextApply + ".");
-						}
-					}
+					
+					
 					
 				} else if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (1 years)")) {
-					// check last claim date
-					if (balance.getLastClaimDate() != null
-							&& (Utils.diffDay(balance.getLastClaimDate(),
-									new Date()) < 365)) {
-						String strNextApply = "";
-						Date nextApply = null;
-						try {
-							nextApply = Utils.addDay(
-									balance.getLastClaimDate(), 365);
-							strNextApply = Utils.convertDateToString(nextApply);
-						} catch (ParseException e) {
-							e.printStackTrace();
+					
+					// check last claim date for family
+					if(header.getRequestForFamily() != null){
+						System.out.println("Masuk sini 1");
+						System.out.println("balanceId : " +balance.getId());
+						System.out.println("familyId : " +header.getRequestForFamily());
+						System.out.println("employmentId : " +balance.getEmployment() );
+						LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(balance.getId(), header.getRequestForFamily(), balance.getEmployment());
+						
+						if(lastClaimDateFamily != null){
+							System.out.println("Masuk sini 1-1");
+							if(lastClaimDateFamily.getLastClaimDate() != null && (Utils.diffDay(lastClaimDateFamily.getLastClaimDate(), new Date()) < 365)){
+								String strNextApply = "";
+								Date nextApply = null;
+								try {
+									nextApply = Utils.addDay(
+											lastClaimDateFamily.getLastClaimDate(), 730);
+									strNextApply = Utils.convertDateToString(nextApply);
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}
+								throw new CustomException("You have already applied '"
+										+ type + "'. You can apply again in "
+										+ strNextApply + ".");
+								}
+							} else {
+								System.out.println("Masuk sini 2");
+								LastClaimDateFamily lastClaimDateFamilyDTO = new LastClaimDateFamily();
+								lastClaimDateFamilyDTO.setBalance(balance.getId());
+								lastClaimDateFamilyDTO.setFamily(header.getRequestForFamily());
+								lastClaimDateFamilyDTO.setLastClaimDate(new Date());
+								lastClaimDateFamilyDTO.setEmployment(balance.getEmployment());
+								lastClaimDateRepository.save(lastClaimDateFamilyDTO);
+							}
+						
+						}else {
+							// check last claim date employee
+							if (balance.getLastClaimDate() != null
+									&& (Utils.diffDay(balance.getLastClaimDate(),
+											new Date()) < 365)) {
+								String strNextApply = "";
+								Date nextApply = null;
+								try {
+									nextApply = Utils.addDay(
+											balance.getLastClaimDate(), 365);
+									strNextApply = Utils.convertDateToString(nextApply);
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}
+								throw new CustomException("You have already applied '"
+										+ type + "'. You can apply again in "
+										+ strNextApply + ".");
+							}
 						}
-						throw new CustomException("You have already applied '"
-								+ type + "'. You can apply again in "
-								+ strNextApply + ".");
-					}
+					
+					
 				} else if (balance.getBalanceType() != null && balance.getBalanceType().toLowerCase().equals("one time (5 years)")) {
 					if (balance.getLastClaimDate() != null&& (Utils.diffDay(balance.getLastClaimDate(),new Date()) < 1825)) {
 						String strNextApply = "";
@@ -1268,7 +1322,15 @@ public class TMRequestHeaderService {
 							remainingRequest = 0D;
 						}
 						
-						tmBalance.setLastClaimDate(new Date());
+						
+						LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(tmBalance.getId(), tmRequestHeader.getRequestForFamily(), tmBalance.getEmployment());
+						
+						if(lastClaimDateFamily != null){
+							tmBalance.setLastClaimDateFamilyId(lastClaimDateFamily.getId());
+						} else {
+							tmBalance.setLastClaimDate(new Date());
+						}
+						
 						tmBalance.setBalanceEnd(balanceEnd);
 						tmBalance.setBalanceUsed(balanceUsed);
 						tmBalanceRepository.save(tmBalance);
@@ -1507,15 +1569,15 @@ public class TMRequestHeaderService {
 		}
 		
 		
-		// BUKA KOMEN DULU
+		
 		// cek sudah pernah request pada hari beririsan atau belum utk request selain Overtime dan Overtime Overlimit
-		/*if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL") && !requestType.getCategoryType().equals("Attendance Edit")) {
+		if(!requestType.getType().equals("OVT") && !requestType.getType().equals("OVTL") && !requestType.getCategoryType().equals("Attendance Edit")) {
 			List<TMRequestHeader> listHeaderRequest = tmRequestHeaderRepository.findBetweenStartEndDate(user.getCompany(),user.getEmployee(), TMRequestHeader.MOD_TIME_MANAGEMENT, request.getStartDate());
 			if (listHeaderRequest != null && listHeaderRequest.size() > 0) {
 				throw new CustomException(
 						"You are not allowed request in the range date.");
 			}
-		}*/
+		}
 		
 		if(request.getType().equals("NHJ")){
 			System.out.println("type label haji : " + requestType.getTypeLabel());
