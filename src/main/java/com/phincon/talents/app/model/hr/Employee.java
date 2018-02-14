@@ -462,6 +462,9 @@ public class Employee extends AbstractEntity {
 	@Column(name="benefit_type", length=20)
 	private String benefitType;
 	
+	@Column(name="last_education", length=100)
+	private String lastEducation;
+	
 
 	public String getAge() {
 		return age;
@@ -1386,6 +1389,14 @@ public class Employee extends AbstractEntity {
 
 	public void setBenefitType(String benefitType) {
 		this.benefitType = benefitType;
+	}
+
+	public String getLastEducation() {
+		return lastEducation;
+	}
+
+	public void setLastEducation(String lastEducation) {
+		this.lastEducation = lastEducation;
 	}
 
 	@Override
