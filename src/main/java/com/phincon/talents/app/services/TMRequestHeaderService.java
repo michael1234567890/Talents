@@ -909,6 +909,7 @@ public class TMRequestHeaderService {
 		}
 
 		if (balance != null) {
+			System.out.println("balance type : "+balance.getBalanceType());
 			if (balance.getBalanceType() != null
 					&& balance.getBalanceType().toLowerCase()
 							.contains("one time")) {
@@ -970,7 +971,7 @@ public class TMRequestHeaderService {
 							}
 						}
 						
-					}
+					
 				
 					
 					
@@ -978,17 +979,17 @@ public class TMRequestHeaderService {
 				} else if (balance.getBalanceType() != null
 						&& balance.getBalanceType().toLowerCase()
 								.equals("one time (1 years)")) {
-					
+					System.out.println("Masuk one time (1 years)");
 					// check last claim date for family
 					if(header.getRequestForFamily() != null){
-						System.out.println("Masuk sini 1");
+						System.out.println("Masuk one time (1 years) family ");
 						System.out.println("balanceId : " +balance.getId());
 						System.out.println("familyId : " +header.getRequestForFamily());
 						System.out.println("employmentId : " +balance.getEmployment() );
 						LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(balance.getId(), header.getRequestForFamily(), balance.getEmployment());
 						
 						if(lastClaimDateFamily != null){
-							System.out.println("Masuk sini 1-1");
+							System.out.println("Masuk ada last claim date family");
 							if(lastClaimDateFamily.getLastClaimDate() != null && (Utils.diffDay(lastClaimDateFamily.getLastClaimDate(), new Date()) < 365)){
 								String strNextApply = "";
 								Date nextApply = null;
@@ -1004,7 +1005,7 @@ public class TMRequestHeaderService {
 										+ strNextApply + ".");
 								}
 							} else {
-								System.out.println("Masuk sini 2");
+								System.out.println("Masuk ga ada last claim date family");
 								LastClaimDateFamily lastClaimDateFamilyDTO = new LastClaimDateFamily();
 								lastClaimDateFamilyDTO.setBalance(balance.getId());
 								lastClaimDateFamilyDTO.setFamily(header.getRequestForFamily());
@@ -1014,6 +1015,7 @@ public class TMRequestHeaderService {
 							}
 						
 						}else {
+							System.out.println("Masuk ga ada request family");
 							// check last claim date employee
 							if (balance.getLastClaimDate() != null
 									&& (Utils.diffDay(balance.getLastClaimDate(),
@@ -1060,8 +1062,9 @@ public class TMRequestHeaderService {
 //				}
 
 			}
-
 		}
+
+	}
 	
 
 	public boolean isLensaHaveClaimDate(List<TMBalance> listBalance) {
