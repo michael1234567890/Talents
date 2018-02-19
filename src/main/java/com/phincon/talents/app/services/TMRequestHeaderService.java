@@ -328,11 +328,15 @@ public class TMRequestHeaderService {
 
 					totalClaimBalance = qty.doubleValue()
 							* tmBalance.getBalanceEnd();
-					benefitDetail
-							.setLastClaimDate(tmBalance.getLastClaimDate());
 					
-					System.out.println("totalClaimBalance : " +totalClaimBalance);
-					System.out.println("totalClaim : " +totalClaim);
+					LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(tmBalance.getId(), request.getRequestForFamily(), tmBalance.getEmployment());
+					
+					if(request.getRequestForFamily() != null && request.getCategoryType().toLowerCase().equals("Kacamata Family")){
+						benefitDetail.setLastClaimDate(lastClaimDateFamily.getLastClaimDate());
+					}else{
+						benefitDetail.setLastClaimDate(tmBalance.getLastClaimDate());
+					}
+					
 
 					if (totalClaimBalance < totalClaim)
 						benefitDetail.setTotalCurrentClaim(totalClaimBalance);
