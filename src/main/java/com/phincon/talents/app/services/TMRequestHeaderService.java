@@ -331,8 +331,11 @@ public class TMRequestHeaderService {
 					
 					LastClaimDateFamily lastClaimDateFamily = lastClaimDateRepository.findByBalanceAndFamilyAndEmployment(tmBalance.getId(), request.getRequestForFamily(), tmBalance.getEmployment());
 					
-					if(request.getRequestForFamily() != null && request.getCategoryType().toLowerCase().equals("Kacamata Family")){
-						benefitDetail.setLastClaimDate(lastClaimDateFamily.getLastClaimDate());
+					if(request.getRequestForFamily() != null && request.getCategoryType().toLowerCase().equals("kacamata family")){
+						if(lastClaimDateFamily == null)
+							benefitDetail.setLastClaimDate(null);
+						else 
+							benefitDetail.setLastClaimDate(lastClaimDateFamily.getLastClaimDate());
 					}else{
 						benefitDetail.setLastClaimDate(tmBalance.getLastClaimDate());
 					}
@@ -1241,7 +1244,15 @@ public class TMRequestHeaderService {
 			atempDailyRepository.save(obj);
 		}
 		
-		Double totalAmount = totalWorkDay;
+		Double totalAmount = null;
+		
+		if(requestType.getIsCalendarDate() != null && requestType.getIsCalendarDate())
+			totalAmount = totalDay;
+		else 
+			totalAmount = totalWorkDay;
+		
+//		Double totalAmount = totalWorkDay;
+		
 		tmRequestHeader.setTotalAmount(totalAmount);
 		//Double totalAmountSubmit = request.getTotalSubmit();
 		//tmRequestHeader.setTotalAmountSubmit(totalAmountSubmit);
