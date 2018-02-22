@@ -92,6 +92,8 @@ public class EmployeeService {
 	
 	@Transactional
 	public void approvedChangeNPWP(DataApproval dataApproval) {
+		
+		
 		Long employeeId = dataApproval.getObjectRef();
 		String strJson = dataApproval.getData();
 		
@@ -103,7 +105,44 @@ public class EmployeeService {
 			throw new CustomException("Error :  Problem with convert Data");
 		}
 		
+		
 		employeeRepository.updateNPWP(employeeId, (String) paramsMap.get("npwp"), null, null, true);
+	}
+	
+	
+	@Transactional
+	public void approvedChangeNIRCNO(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		System.out.println("strJson : " + strJson);
+		Map<String, Object> paramsMap = null;
+		try{
+			paramsMap = mapper.readValue(strJson, Map.class);
+		}catch (Exception e) {
+			throw new CustomException("Error :  Problem with convert Data");
+		}
+		
+		System.out.println("masuk 11");
+		employeeRepository.updateNIRCNO(employeeId, (String) paramsMap.get("nircno"), null, null, true);
+	}
+	
+	
+	@Transactional
+	public void approvedChangeKTPNAME(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		Map<String, Object> paramsMap = null;
+		
+		try {
+			paramsMap = mapper.readValue(strJson, Map.class);
+		}catch (Exception e) {
+			throw new CustomException("Error : Problem with convert Data");
+		}
+		
+		employeeRepository.updateKTPNAME(employeeId, (String) paramsMap.get("ktpname"), null, null, true);
+		
 	}
 
 	@Transactional
@@ -134,6 +173,42 @@ public class EmployeeService {
 		
 		employeeRepository.requestNPWP((String) paramsMap.get("npwp"), dataApproval.getId(), employeeId);
 	}
+	
+	
+	@Transactional
+	public void requestNIRCNO(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		Map<String, Object> paramsMap = Utils.convertStrJsonToMap(strJson);
+		if(paramsMap == null){
+			throw new CustomException("Error :  Problem with convert Data");
+		}
+		
+		employeeRepository.requestNIRCNO((String) paramsMap.get("nircno"), dataApproval.getId(), employeeId);
+	}
+	
+	
+	@Transactional
+	public void requestKTPNAME(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		System.out.println("coba buat get data ktpname");
+		
+		
+		Map<String, Object> paramsMap = Utils.convertStrJsonToMap(strJson);
+		
+		if(paramsMap == null) {
+			throw new CustomException("Error : Problem with convert Data");
+		}
+		
+//		employeeRepository.requestKTPNAME("55555555", dataApproval.getId(), employeeId);
+		
+		employeeRepository.requestKTPNAME((String) paramsMap.get("ktpname"), dataApproval.getId(), employeeId);
+	}
+	
+	
 
 	@Transactional
 	public Employee findById(Long id) {
@@ -150,6 +225,20 @@ public class EmployeeService {
 	public void rejectedNPWP(DataApproval dataApproval){
 		Long employeeId = dataApproval.getObjectRef();
 		employeeRepository.rejectedNPWP(employeeId);
+	}
+	
+	
+	@Transactional
+	public void rejectedNIRCNO(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		employeeRepository.rejectedNIRCNO(employeeId);
+	}
+	
+	
+	@Transactional
+	public void rejectedKTPNAME(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		employeeRepository.rejectedKTPNAME(employeeId);
 	}
 
 }

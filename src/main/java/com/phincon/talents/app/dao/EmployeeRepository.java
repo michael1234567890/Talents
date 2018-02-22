@@ -32,6 +32,15 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 void updateNPWP(@Param("employeeId") Long employeeId, @Param("npwpNo") String npwpNo, @Param("npwpStatusDataApproval") Long npwpStatusDataApproval, @Param("changeNPWP") String changeNPWP, @Param("needSync") Boolean needSync);
 	 
 	 @Modifying
+	 @Query("UPDATE Employee set nircNo=:nircNo, nircStatusDataApproval=:nircStatusDataApproval, changeNIRCNO=:changeNIRCNO, needSync=:needSync where id=:employeeId")
+	 void updateNIRCNO(@Param("employeeId") Long employeeId, @Param("nircNo") String nircNo, @Param("nircStatusDataApproval") Long nircStatusDataApproval, @Param("changeNIRCNO") String changeNIRCNO, @Param("needSync") Boolean needSync);
+	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set ktpName=:ktpName, ktpnameStatusDataApproval=:ktpnameStatusDataApproval, changeKTPNAME=:changeKTPNAME, needSync=:needSync where id=:employeeId")
+	 void updateKTPNAME(@Param("employeeId") Long employeeId, @Param("ktpName") String ktpName, @Param("ktpnameStatusDataApproval") Long ktpnameStatusDataApproval, @Param("changeKTPNAME") String changeKTPNAME, @Param("needSync") Boolean needSync);
+	 
+	 @Modifying
 	 @Query("UPDATE Employee  set maritalStatusDataApproval=null,changeMaritalStatus=null, needSync=false where id=:employeeId")
 	 void rejectedMaritalStatus(@Param("employeeId") Long employeeId);
 	 
@@ -41,11 +50,31 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 
 	 
 	 @Modifying
+	 @Query("UPDATE Employee set nircStatusDataApproval=null, changeNIRCNO=null, needSync=false where id=:employeeId")
+	 void rejectedNIRCNO(@Param("employeeId") Long employeeId);
+	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set ktpnameStatusDataApproval=null, changeKTPNAME=null, needSync=false where id=:employeeId")
+	 void rejectedKTPNAME(@Param("employeeId") Long employeeId);
+	 
+	 
+	 @Modifying
 	 @Query("UPDATE Employee set  changeMaritalStatus=:changeMaritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval where id=:employeeId")
 	 void requestMaritalStatus(@Param("changeMaritalStatus") String changeMaritalStatus, @Param("maritalStatusDataApproval") Long maritalStatusDataApproval, @Param("employeeId") Long employeeId);
 	 
 	 @Modifying
 	 @Query("UPDATE Employee set changeNPWP=:changeNPWP, npwpStatusDataApproval=:npwpStatusDataApproval where id=:employeeId")
 	 void requestNPWP(@Param("changeNPWP") String changeNPWP, @Param("npwpStatusDataApproval") Long npwpStatusDataApproval, @Param("employeeId") Long employeeId);
+	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set changeNIRCNO=:changeNIRCNO, nircStatusDataApproval=:nircStatusDataApproval where id=:employeeId")
+	 void requestNIRCNO(@Param("changeNIRCNO") String changeNIRCNO, @Param("nircStatusDataApproval") Long nircStatusDataApproval, @Param("employeeId") Long employeeId);
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set changeKTPNAME=:changeKTPNAME, ktpnameStatusDataApproval=:ktpnameStatusDataApproval where id=:employeeId")
+	 void requestKTPNAME(@Param("changeKTPNAME") String changeKTPNAME, @Param("ktpnameStatusDataApproval") Long ktpnameStatusDataApproval, @Param("employeeId") Long employeeId);
+	 
 	 
 }

@@ -437,8 +437,23 @@ public class Employee extends AbstractEntity {
 	
 	@Column(name="change_npwp", length=50)
 	private String changeNPWP;
+	
+	
+	@Column(name="change_nircno", length=50)
+	private String changeNIRCNO;
+	
+	@Column(name="change_ktpname", length=50)
+	private String changeKTPNAME;
 
 	
+	public String getChangeKTPNAME() {
+		return changeKTPNAME;
+	}
+
+	public void setChangeKTPNAME(String changeKTPNAME) {
+		this.changeKTPNAME = changeKTPNAME;
+	}
+
 	@Column(name="marital_status_dataapproval_id")
 	private Long maritalStatusDataApproval;
 	
@@ -446,9 +461,25 @@ public class Employee extends AbstractEntity {
 	private Long npwpStatusDataApproval;
 	
 	
+	@Column(name="nirc_status_dataapproval_id")
+	private Long nircStatusDataApproval;
+	
+	
+	@Column(name="ktpname_status_dataapproval_id")
+	private Long ktpnameStatusDataApproval;
+	
+	
 	@Column(name="need_sync")
 	private Boolean needSync;
 	
+	public Long getKtpnameStatusDataApproval() {
+		return ktpnameStatusDataApproval;
+	}
+
+	public void setKtpnameStatusDataApproval(Long ktpnameStatusDataApproval) {
+		this.ktpnameStatusDataApproval = ktpnameStatusDataApproval;
+	}
+
 	// transient
 	@Transient
 	private VwEmpAssignment assignment;
@@ -1393,6 +1424,22 @@ public class Employee extends AbstractEntity {
 
 	public String getLastEducation() {
 		return lastEducation;
+	}
+
+	public String getChangeNIRCNO() {
+		return changeNIRCNO;
+	}
+
+	public void setChangeNIRCNO(String changeNIRCNO) {
+		this.changeNIRCNO = changeNIRCNO;
+	}
+
+	public Long getNircStatusDataApproval() {
+		return nircStatusDataApproval;
+	}
+
+	public void setNircStatusDataApproval(Long nircStatusDataApproval) {
+		this.nircStatusDataApproval = nircStatusDataApproval;
 	}
 
 	public void setLastEducation(String lastEducation) {

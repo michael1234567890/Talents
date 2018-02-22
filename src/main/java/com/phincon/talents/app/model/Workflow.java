@@ -16,6 +16,8 @@ public class Workflow extends AbstractEntity {
 	
 	// Code register workflow 
 	public final static String CHANGE_MARITAL_STATUS = "CHANGEMARITALSTATUS";
+	public final static String CHANGE_NIRCNO = "CHANGENIRCNO";
+	public final static String CHANGE_KTPNAME = "CHANGEKTPNAME";
 	public final static String CHANGE_NPWP = "CHANGENPWP";
 	public final static String SUBMIT_LEAVE = "SUBMITLEAVE";
 	public final static String SUBMIT_FAMILY = "SUBMITFAMILY";
