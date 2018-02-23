@@ -153,6 +153,27 @@ public class FamilyController {
 		
 	}
 	
+	@RequestMapping(value = "/user/eligiblefamily", method = RequestMethod.GET)
+	public ResponseEntity<Iterable<Family>> familyEligible(
+			OAuth2Authentication authentication) {
+		
+		User user = userRepository.findByUsernameCaseInsensitive(authentication
+				.getUserAuthentication().getName());
+
+		if (user == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+
+		if (user.getEmployee() == null) {
+			return new ResponseEntity(HttpStatus.NO_CONTENT);
+		}
+			
+		
+		Iterable<Family> listFamily = familyService.getFamilyEligible(user.getEmployee());
+		return new ResponseEntity<Iterable<Family>>(listFamily, HttpStatus.OK);
+		
+	}
+	
 	@RequestMapping(value = "/user/family/{id}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<CustomMessage> updateFamily(@PathVariable("id") Long id,
