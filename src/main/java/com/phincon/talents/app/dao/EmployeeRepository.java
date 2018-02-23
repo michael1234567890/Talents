@@ -88,7 +88,7 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 void requestKTPNAME(@Param("changeKTPNAME") String changeKTPNAME, @Param("ktpnameStatusDataApproval") Long ktpnameStatusDataApproval, @Param("employeeId") Long employeeId);
 	 
 	 @Modifying
-	 @Query("UPDATE Employee set changeFamilyCardNo=:familyCardNo, familyCardNoStatusDataApproval=:familyCardNoStatusDataApproval where id=:employeeId")
-	 void requestFamilyCardNo(@Param("familyCardNo") String familyCardNo, @Param("familyCardNoStatusDataApproval") Long familyCardNoStatusDataApproval, @Param("employeeId") Long employeeId);
+	 @Query("UPDATE Employee set changeFamilyCardNo=:changefamilyCardNo, familyCardNoStatusDataApproval=:familyCardNoStatusDataApproval where id=:employeeId")
+	 void requestFamilyCardNo(@Param("changefamilyCardNo") String familyCardNo, @Param("familyCardNoStatusDataApproval") Long familyCardNoStatusDataApproval, @Param("employeeId") Long employeeId);
 		 
 }
