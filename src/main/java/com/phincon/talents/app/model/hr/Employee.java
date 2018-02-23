@@ -481,7 +481,7 @@ public class Employee extends AbstractEntity {
 	private Long ktpnameStatusDataApproval;
 	
 
-	@Column(name="familyCardNo_status_dataapproval_id")
+	@Column(name="fcn_status_dataapproval_id")
 	private Long familyCardNoStatusDataApproval;
 	
 	
