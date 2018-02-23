@@ -144,6 +144,26 @@ public class EmployeeService {
 		employeeRepository.updateKTPNAME(employeeId, (String) paramsMap.get("ktpname"), null, null, true);
 		
 	}
+	
+	
+	@Transactional
+	public void approvedChangeFamilyCardNo(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+		
+		Map<String, Object> paramsMap = null;
+		
+		try {
+			paramsMap = mapper.readValue(strJson, Map.class);
+		}catch (Exception e) {
+			throw new CustomException("Error : Problem with convert Data");
+		}
+		
+		employeeRepository.updateFamilyCardNo(employeeId, (String) paramsMap.get("familyCardNo"), null, null, true);		
+	}
+	
+	
+	
 
 	@Transactional
 	public void requestMaritalStatus(DataApproval dataApproval) {
@@ -209,6 +229,21 @@ public class EmployeeService {
 	}
 	
 	
+	@Transactional
+	public void requestFamilyCardNo(DataApproval dataApproval) {
+		Long employeeId = dataApproval.getObjectRef();
+		String strJson = dataApproval.getData();
+				
+		Map<String, Object> paramsMap = Utils.convertStrJsonToMap(strJson);
+		
+		if(paramsMap == null) {
+			throw new CustomException("Error : Problem with convert Data");
+		}
+				
+		employeeRepository.requestFamilyCardNo((String) paramsMap.get("familyCardNo"), dataApproval.getId(), employeeId);
+	}
+	
+	
 
 	@Transactional
 	public Employee findById(Long id) {
@@ -239,6 +274,13 @@ public class EmployeeService {
 	public void rejectedKTPNAME(DataApproval dataApproval){
 		Long employeeId = dataApproval.getObjectRef();
 		employeeRepository.rejectedKTPNAME(employeeId);
+	}
+	
+	
+	@Transactional
+	public void rejectedFamilyCardNo(DataApproval dataApproval){
+		Long employeeId = dataApproval.getObjectRef();
+		employeeRepository.rejectedFamilyCardNo(employeeId);
 	}
 
 }

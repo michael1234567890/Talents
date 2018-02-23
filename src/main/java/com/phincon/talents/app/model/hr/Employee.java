@@ -444,7 +444,10 @@ public class Employee extends AbstractEntity {
 	
 	@Column(name="change_ktpname", length=50)
 	private String changeKTPNAME;
-
+	
+	@Column(name="change_familycardno", length=50)
+	private String changeFamilyCardNo;
+	
 	
 	public String getChangeKTPNAME() {
 		return changeKTPNAME;
@@ -453,6 +456,15 @@ public class Employee extends AbstractEntity {
 	public void setChangeKTPNAME(String changeKTPNAME) {
 		this.changeKTPNAME = changeKTPNAME;
 	}
+	
+	public String getchangeFamilyCardNo() {
+		return changeFamilyCardNo;
+	}
+
+	public void setChangeFamilyCardNo(String changeFamilyCardNo) {
+		this.changeFamilyCardNo = changeFamilyCardNo;
+	}
+	
 
 	@Column(name="marital_status_dataapproval_id")
 	private Long maritalStatusDataApproval;
@@ -468,6 +480,10 @@ public class Employee extends AbstractEntity {
 	@Column(name="ktpname_status_dataapproval_id")
 	private Long ktpnameStatusDataApproval;
 	
+
+	@Column(name="familyCardNo_status_dataapproval_id")
+	private Long familyCardNoStatusDataApproval;
+	
 	
 	@Column(name="need_sync")
 	private Boolean needSync;
@@ -480,6 +496,17 @@ public class Employee extends AbstractEntity {
 		this.ktpnameStatusDataApproval = ktpnameStatusDataApproval;
 	}
 
+
+	public Long getfamilyCardNoStatusDataApproval() {
+		return familyCardNoStatusDataApproval;
+	}
+
+	public void setfamilyCardNoStatusDataApproval(Long familyCardNoStatusDataApproval) {
+		this.familyCardNoStatusDataApproval = familyCardNoStatusDataApproval;
+	}
+
+	
+	
 	// transient
 	@Transient
 	private VwEmpAssignment assignment;

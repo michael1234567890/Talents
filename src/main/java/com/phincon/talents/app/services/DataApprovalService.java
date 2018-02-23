@@ -494,6 +494,13 @@ public class DataApprovalService {
 			dataApproval.setDescription(workflow.getDescription());
 			dataApproval.setObjectName(Employee.class.getSimpleName());
 		}
+		
+		
+		if(request.getTask().equals(Workflow.CHANGE_FAMILY_CARDNO)){
+			dataApproval.setDescription(workflow.getDescription());
+			dataApproval.setObjectName(Employee.class.getSimpleName());
+		}
+		
 
 		dataApproval.setModule(workflow.getModule());
 		save(dataApproval);
@@ -532,6 +539,13 @@ public class DataApprovalService {
 		if (request.getTask().equals(Workflow.CHANGE_KTPNAME)){
 			employeeService.requestKTPNAME(dataApproval);
 		}
+		
+
+		if (request.getTask().equals(Workflow.CHANGE_FAMILY_CARDNO)){
+			employeeService.requestFamilyCardNo(dataApproval);
+		}
+
+		
 		
 		if(request.getTask().contains(Workflow.SUBMIT_BENEFIT)) {
 			// Send Email
@@ -741,6 +755,8 @@ public class DataApprovalService {
 			familyService.rejectedChange(dataApproval);
 		} else if (dataApproval.getTask().equals(Workflow.CHANGE_ADDRESS)) {
 			addressService.rejectedChange(dataApproval);
+		} else if (dataApproval.getTask().equals(Workflow.CHANGE_FAMILY_CARDNO)) {
+			employeeService.rejectedFamilyCardNo(dataApproval);
 		}
 	}
 
@@ -766,6 +782,8 @@ public class DataApprovalService {
 			addressService.approvedChangeAddress(dataApproval);
 		} else if (dataApproval.getTask().contains(Workflow.SUBMIT_BENEFIT) || dataApproval.getTask().contains(Workflow.SUBMIT_ATTENDANCE)) {
 			tmRequestHeaderService.approved(dataApproval, approvalWorkflow);
+		} else if (dataApproval.getTask().contains(Workflow.CHANGE_FAMILY_CARDNO)) {
+			employeeService.approvedChangeFamilyCardNo(dataApproval);
 
 		}
 

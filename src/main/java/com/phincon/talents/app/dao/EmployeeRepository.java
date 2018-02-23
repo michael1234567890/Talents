@@ -40,6 +40,12 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 @Query("UPDATE Employee set ktpName=:ktpName, ktpnameStatusDataApproval=:ktpnameStatusDataApproval, changeKTPNAME=:changeKTPNAME, needSync=:needSync where id=:employeeId")
 	 void updateKTPNAME(@Param("employeeId") Long employeeId, @Param("ktpName") String ktpName, @Param("ktpnameStatusDataApproval") Long ktpnameStatusDataApproval, @Param("changeKTPNAME") String changeKTPNAME, @Param("needSync") Boolean needSync);
 	 
+	 
+	 @Modifying
+	 @Query("UPDATE Employee set familyCardNo=:familyCardNo, familyCardNoStatusDataApproval=:familyCardNoStatusDataApproval, changeFamilyCardNo=:changeFamilyCardNo, needSync=:needSync where id=:employeeId")
+	 void updateFamilyCardNo(@Param("employeeId") Long employeeId, @Param("familyCardNo") String familyCardNo, @Param("familyCardNoStatusDataApproval") Long familyCardNoStatusDataApproval, @Param("changeFamilyCardNo") String changeFamilyCardNo, @Param("needSync") Boolean needSync);
+	 
+	 
 	 @Modifying
 	 @Query("UPDATE Employee  set maritalStatusDataApproval=null,changeMaritalStatus=null, needSync=false where id=:employeeId")
 	 void rejectedMaritalStatus(@Param("employeeId") Long employeeId);
@@ -58,6 +64,11 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 @Query("UPDATE Employee set ktpnameStatusDataApproval=null, changeKTPNAME=null, needSync=false where id=:employeeId")
 	 void rejectedKTPNAME(@Param("employeeId") Long employeeId);
 	 
+
+	 @Modifying
+	 @Query("UPDATE Employee set familyCardNoStatusDataApproval=null, changeFamilyCardNo=null, needSync=false where id=:employeeId")
+	 void rejectedFamilyCardNo(@Param("employeeId") Long employeeId);
+
 	 
 	 @Modifying
 	 @Query("UPDATE Employee set  changeMaritalStatus=:changeMaritalStatus, maritalStatusDataApproval=:maritalStatusDataApproval where id=:employeeId")
@@ -76,5 +87,8 @@ public interface EmployeeRepository extends PagingAndSortingRepository<Employee,
 	 @Query("UPDATE Employee set changeKTPNAME=:changeKTPNAME, ktpnameStatusDataApproval=:ktpnameStatusDataApproval where id=:employeeId")
 	 void requestKTPNAME(@Param("changeKTPNAME") String changeKTPNAME, @Param("ktpnameStatusDataApproval") Long ktpnameStatusDataApproval, @Param("employeeId") Long employeeId);
 	 
-	 
+	 @Modifying
+	 @Query("UPDATE Employee set changeFamilyCardNo=:familyCardNo, familyCardNoStatusDataApproval=:familyCardNoStatusDataApproval where id=:employeeId")
+	 void requestFamilyCardNo(@Param("familyCardNo") String familyCardNo, @Param("familyCardNoStatusDataApproval") Long familyCardNoStatusDataApproval, @Param("employeeId") Long employeeId);
+		 
 }
