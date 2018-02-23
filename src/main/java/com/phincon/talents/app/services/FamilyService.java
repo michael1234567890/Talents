@@ -70,6 +70,11 @@ public class FamilyService {
 	public Iterable<Family> findByEmployeeAndIsEligibleMedical(Long employeeId, Boolean isEligibleMedical){
 		return familyRepository.findByEmployeeAndIsEligibleMedical(employeeId, isEligibleMedical);
 	}
+	
+	@Transactional
+	public Iterable<Family> getFamilyEligible(Long employeeId){
+		return familyRepository.getFamilyEligible(employeeId);
+	}
 
 	@Transactional
 	public void approvedSubmitFamily(DataApproval dataApproval) {
