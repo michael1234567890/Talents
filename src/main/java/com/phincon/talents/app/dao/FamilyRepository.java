@@ -29,6 +29,9 @@ public interface FamilyRepository extends PagingAndSortingRepository<Family,Long
 	@Query
 	Iterable<Family> findByEmployeeAndIsEligibleMedical(Long employeeId, Boolean isEligibleMedical);
 	
+	@Query(nativeQuery= true, value = "SELECT * FROM hr_family u WHERE u.employee_id=:employeeId and relationship in ('Suami', 'Istri', 'Anak') order by u.birth_date limit 4")
+	List<Family> getFamilyEligible(@Param("employeeId") Long employeeId);
+	
 	 @Modifying
 	 @Query("UPDATE Family set status='"+Family.APPROVED+"', needSync=true where id=:familyId")
 	 void approvedSubmitFamily(@Param("familyId") Long familyId);
