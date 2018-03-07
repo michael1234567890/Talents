@@ -509,7 +509,10 @@ public class TMRequestHeaderService {
 
 		List<TMBalance> listBalance = getListBalance(request, user, employment);
 		processSubmitedClaim(request, listBalance, user,employment);
-
+		
+		System.out.println("account bank name");
+		System.out.println(request.getAccountName());
+		
 		// move listBalance into MapBalance
 		Map<String, Double> mapBalance = new HashMap<String, Double>();
 		for (TMBalance tmBalance : listBalance) {
@@ -555,6 +558,11 @@ public class TMRequestHeaderService {
 		tmRequestHeader.setStartDate(request.getStartDate());
 		tmRequestHeader.setEndDate(request.getEndDate());
 		tmRequestHeader.setSpdType(request.getSpdType());
+		tmRequestHeader.setBankAccount(request.getBankAccount());
+		tmRequestHeader.setBankName(request.getBankName());
+		tmRequestHeader.setAccountName(request.getAccountName());
+		
+		
 		String reqNo = runningNumberService.getLastNumber(user.getCompany(),
 				new Date(), "BN", employment.getName());
 		tmRequestHeader.setReqNo(reqNo);
@@ -662,6 +670,9 @@ public class TMRequestHeaderService {
 			tmRequest.setQty(details.getQty());
 			tmRequest.setReqNo(reqNo);
 			tmRequest.setRequestForFamily(request.getRequestForFamily());
+			tmRequest.setBankAccount(request.getBankAccount());
+			tmRequest.setBankName(request.getBankName());
+			tmRequest.setAccountName(request.getAccountName());
 			if (workflow != null) {
 				tmRequest.setNeedSync(false);
 				tmRequest.setStatus(TMRequest.REQUEST);
@@ -691,6 +702,9 @@ public class TMRequestHeaderService {
 			dataApprovalDTO.setTask(request.getWorkflow());
 			dataApprovalDTO.setModule(workflow.getModule());
 			dataApprovalDTO.setRequestForFamily(tmRequestHeader.getRequestForFamily());
+			dataApprovalDTO.setBankAccount(request.getBankAccount());
+			dataApprovalDTO.setBankName(request.getBankName());
+			dataApprovalDTO.setAccountName(request.getAccountName());
 			if (request.getAttachments() != null && request.getAttachments().size() > 0) {
 				dataApprovalDTO.setAttachments(request.getAttachments());
 			}
@@ -1309,6 +1323,9 @@ public class TMRequestHeaderService {
 			tmRequest.setEndDateInTime(request.getEndDateInTime());
 			tmRequest.setStartDateOutTime(request.getStartDateOutTime());
 			tmRequest.setEndDateOutTime(request.getEndDateOutTime());
+			tmRequest.setBankAccount(request.getBankAccount());
+			tmRequest.setBankName(request.getBankName());
+			tmRequest.setAccountName(request.getAccountName());
 			if(workflow != null){
 				tmRequest.setStatus(TMRequest.PENDING);
 				tmRequest.setNeedSync(false);

@@ -106,6 +106,41 @@ public class DataApproval extends AbstractEntity {
 	@Column(name = "reason_reject", length = 100)
 	private String reasonReject;
 	
+	
+	@Column(name = "account_name_c", length=100)
+	private String accountName;
+	
+	
+	@Column(name = "bank_account_c", length=100)
+	private String bankAccount;
+	
+	@Column(name = "bank_name_c", length=100)
+	private String bankName;
+	
+
+	public String getAccountName() {
+		return accountName;
+	}
+
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
+
+	public String getBankAccount() {
+		return bankAccount;
+	}
+
+	public void setBankAccount(String bankAccount) {
+		this.bankAccount = bankAccount;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
 
 	@Column(name = "current_approval_level")
 	private Integer currentApprovalLevel;

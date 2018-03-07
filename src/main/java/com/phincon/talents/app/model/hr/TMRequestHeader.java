@@ -170,6 +170,42 @@ public class TMRequestHeader extends AbstractEntity {
 	@Column(name = "request_for_family_id")
 	private Long requestForFamily;
 	
+	
+	@Column(name = "Bank_Account__c",length=100)
+	private String bankAccount;
+	
+	
+	@Column(name = "Bank_Name__c",length=100)
+	private String bankName;
+	
+	
+	@Column(name = "Account_Name__c",length=100)
+	private String accountName;
+	
+
+	public String getBankAccount() {
+		return bankAccount;
+	}
+
+	public void setBankAccount(String bankAccount) {
+		this.bankAccount = bankAccount;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public String getAccountName() {
+		return accountName;
+	}
+
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
 
 	public DataApproval getDataApproval() {
 		return dataApproval;

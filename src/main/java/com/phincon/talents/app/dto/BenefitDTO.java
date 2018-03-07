@@ -46,6 +46,33 @@ public class BenefitDTO {
 	private Date startDateOutTime;
 	private Date endDateOutTime;
 	private Long requestForFamily;
+	private String bankAccount;
+	private String bankName;
+	private String accountName;
+
+	public String getBankAccount() {
+		return bankAccount;
+	}
+
+	public void setBankAccount(String bankAccount) {
+		this.bankAccount = bankAccount;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public String getAccountName() {
+		return accountName;
+	}
+
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
 
 	private List<BenefitDetailDTO> details;
 	private List<Map<String, Object>> attachments;

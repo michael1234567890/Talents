@@ -341,17 +341,23 @@ public class Employee extends AbstractEntity {
 	@Column(name="pension_date")
 	private Date pensionData;
 	
-	/*
-	Perform Value	Perform_Value__c
-	@Column(name="emergency_contact_district")
-	private String emergencyContactDistrict;
-	*/
+	@Column(name="Perform_Value__c")
+	private String perfomanceValue;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="permanent_date")
 	private Date permanentDate;
 	
 	
+	public String getPerfomanceValue() {
+		return perfomanceValue;
+	}
+
+	public void setPerfomanceValue(String perfomanceValue) {
+		this.perfomanceValue = perfomanceValue;
+	}
+
+
 	@Column(name="email", length=100)
 	private String email;
 	

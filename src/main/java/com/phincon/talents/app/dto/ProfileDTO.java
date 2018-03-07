@@ -25,7 +25,18 @@ public class ProfileDTO {
 	private CompanySettings companySettings;
 	private List<CompanyReference> companyReference;
 	private Long countAnnouncement;
+	private String performValue;
 	
+	
+	
+
+	public String getPerformValue() {
+		return performValue;
+	}
+
+	public void setPerformValue(String performValue) {
+		this.performValue = performValue;
+	}
 
 	public ProfileDTO() {
 

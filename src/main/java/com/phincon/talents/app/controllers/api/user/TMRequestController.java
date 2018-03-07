@@ -93,7 +93,9 @@ public class TMRequestController {
 
 		User user = userRepository.findByUsernameCaseInsensitive(authentication
 				.getUserAuthentication().getName());
-
+		System.out.println("request h");
+		System.out.println(request);
+		
 		List<Employment> listEmployment = employmentRepository
 				.findByEmployee(user.getEmployee());
 		if (listEmployment == null && listEmployment.size() == 0)

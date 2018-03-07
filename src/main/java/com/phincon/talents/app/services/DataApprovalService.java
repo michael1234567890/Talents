@@ -451,6 +451,9 @@ public class DataApprovalService {
 			dataApproval.setApprovalLevelSix(approvalLevelSix);
 			dataApproval.setApprovalLevelSeven(approvalLevelSeven);
 			dataApproval.setRequestForFamily(request.getRequestForFamily());
+			dataApproval.setAccountName(request.getAccountName());
+			dataApproval.setBankAccount(request.getBankAccount());
+			dataApproval.setBankName(request.getBankName());
 			
 			if(approvalLevelOne != null){
 				currentAssignApproval = approvalLevelOne;
